@@ -6,18 +6,25 @@ import App from "./App";
 import { TenantProvider } from "./state/tenant-context";
 import "./index.css";
 
-const queryClient = new QueryClient({
-  defaultOptions: { queries: { staleTime: 5_000 } },
-});
+async function bootstrap() {
+  if (import.meta.env.DEV) {
+    const { enableMocking } = await import("./mocks/browser");
+    await enableMocking();
+  }
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { staleTime: 5_000 } },
+  });
+  ReactDOM.createRoot(document.getElementById("root")!).render(
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <TenantProvider>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </TenantProvider>
+      </QueryClientProvider>
+    </React.StrictMode>,
+  );
+}
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <TenantProvider>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </TenantProvider>
-    </QueryClientProvider>
-  </React.StrictMode>,
-);
+bootstrap();
