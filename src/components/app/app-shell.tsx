@@ -1,6 +1,6 @@
 // AppShell — top bar with breadcrumbs + left sidebar + main content.
 
-import { useLocation, Outlet } from "react-router-dom";
+import { useLocation, Outlet, Link } from "react-router-dom";
 import {
   Building2,
   Users,
@@ -17,6 +17,7 @@ import { SidebarNav, type NavItem } from "./sidebar-nav";
 import { TenantSwitcher } from "@/components/tenant-switcher";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { getTenant } from "@saas/identity-platform-msw";
 
 const NAV_ITEMS: NavItem[] = [
   { to: "/tenants", label: "租户管理", group: "首页", icon: <Building2 className="h-4 w-4" />, fnId: "M00.F01.I01" },
@@ -32,20 +33,54 @@ interface Crumb {
   label: string;
   to: string;
   icon?: ReactNode;
+  /** Optional secondary text (e.g. tenant code) shown beside label */
+  hint?: string;
 }
 
+const SUB_PATH_LABEL: Record<string, string> = {
+  users: "用户",
+  roles: "角色",
+  "api-keys": "API Key",
+  audit: "审计日志",
+};
+
 function useBreadcrumbs(pathname: string): Crumb[] {
-  if (pathname === "/" || pathname === "/tenants") {
+  if (pathname === "/tenants" || pathname === "/") {
     return [{ label: "首页", to: "/tenants", icon: <Home className="h-3.5 w-3.5" /> }];
   }
+
   const segments = pathname.split("/").filter(Boolean);
   const crumbs: Crumb[] = [
     { label: "首页", to: "/tenants", icon: <Home className="h-3.5 w-3.5" /> },
   ];
+
   let path = "";
-  for (const seg of segments) {
+  for (let i = 0; i < segments.length; i++) {
+    const seg = segments[i];
     path += "/" + seg;
-    crumbs.push({ label: seg.length > 12 ? seg.slice(0, 8) + "…" : seg, to: path });
+    const prev = i > 0 ? segments[i - 1] : null;
+
+    if (seg === "tenants" && i + 1 < segments.length) {
+      // "tenants" 段不单独显示，下一段是 tenantId
+      continue;
+    }
+    if (prev === "tenants") {
+      // 这是 tenantId 段 — 查 msw fixture 拿名字
+      const tenant = getTenant(seg);
+      if (tenant) {
+        crumbs.push({
+          label: tenant.name,
+          to: path,
+          hint: tenant.code,
+        });
+      } else {
+        crumbs.push({ label: "未知租户", to: path, hint: seg.slice(0, 8) });
+      }
+      continue;
+    }
+    // 其他段（users/roles/audit/...）查 SUB_PATH_LABEL
+    const label = SUB_PATH_LABEL[seg] ?? seg;
+    crumbs.push({ label, to: path });
   }
   return crumbs;
 }
@@ -59,19 +94,32 @@ export function AppShell() {
       <SidebarNav items={NAV_ITEMS} />
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-14 bg-white/80 backdrop-blur border-b border-slate-200 flex items-center justify-between px-6 shrink-0">
-          <div className="flex items-center gap-1 text-sm">
-            {crumbs.map((c, i) => (
-              <div key={c.to} className="flex items-center gap-1">
-                {i > 0 && <ChevronRight className="h-3.5 w-3.5 text-slate-400" />}
-                <span className="flex items-center gap-1.5 text-slate-600">
-                  {c.icon}
-                  <span className={i === crumbs.length - 1 ? "font-medium text-slate-900" : ""}>
-                    {c.label}
-                  </span>
-                </span>
-              </div>
-            ))}
-          </div>
+          <nav className="flex items-center gap-1 text-sm" aria-label="breadcrumb">
+            {crumbs.map((c, i) => {
+              const isLast = i === crumbs.length - 1;
+              return (
+                <div key={c.to} className="flex items-center gap-1">
+                  {i > 0 && <ChevronRight className="h-3.5 w-3.5 text-slate-400" />}
+                  {isLast ? (
+                    <span className="flex items-center gap-1.5 text-slate-900 font-medium">
+                      {c.icon}
+                      {c.label}
+                      {c.hint && <span className="text-slate-400 font-mono text-xs">({c.hint})</span>}
+                    </span>
+                  ) : (
+                    <Link
+                      to={c.to}
+                      className="flex items-center gap-1.5 text-slate-500 hover:text-slate-900 transition-colors"
+                    >
+                      {c.icon}
+                      {c.label}
+                      {c.hint && <span className="text-slate-400 font-mono text-xs">({c.hint})</span>}
+                    </Link>
+                  )}
+                </div>
+              );
+            })}
+          </nav>
           <div className="flex items-center gap-3">
             <Badge variant="outline" className="font-mono text-xs">dev</Badge>
             <TenantSwitcher />

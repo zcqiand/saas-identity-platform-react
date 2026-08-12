@@ -11,4 +11,10 @@ export default defineConfig({
       "@": resolve(__dirname, "./src"),
     },
   },
+  optimizeDeps: {
+    // msw v2 has unresolvable @mswjs/interceptors exports conditions for
+    // ClientRequest in browser; exclude from pre-bundling so it loads at
+    // runtime via esm rather than being bundled by esbuild.
+    exclude: ["@saas/identity-platform-msw", "msw", "@mswjs/interceptors"],
+  },
 });
