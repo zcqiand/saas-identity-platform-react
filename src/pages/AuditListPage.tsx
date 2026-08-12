@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PageHeader } from "@/components/app/page-header";
+import { getTenant } from "@saas/identity-platform-msw";
 
 interface AuditRow {
   id: string;
@@ -44,13 +45,18 @@ const ACTION_VARIANT: Record<string, "default" | "secondary" | "outline"> = {
 
 export function AuditListPage() {
   const { tenantId } = useParams<{ tenantId: string }>();
+  const tenant = tenantId ? getTenant(tenantId) : undefined;
+  const tenantLabel = tenant
+    ? `${tenant.name}（${tenant.code}）`
+    : tenantId ?? "未知租户";
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="审计日志"
         description={
           <span>
-            租户 <span className="font-mono text-xs">{tenantId?.slice(0, 8)}…</span> 的操作事件流
+            租户 <span className="font-semibold text-slate-700">{tenantLabel}</span> 的操作事件流
           </span>
         }
         actions={

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PageHeader } from "@/components/app/page-header";
+import { getTenant } from "@saas/identity-platform-msw";
 
 interface RoleRow {
   id: string;
@@ -20,13 +21,18 @@ const ROLES: RoleRow[] = [
 
 export function RoleListPage() {
   const { tenantId } = useParams<{ tenantId: string }>();
+  const tenant = tenantId ? getTenant(tenantId) : undefined;
+  const tenantLabel = tenant
+    ? `${tenant.name}（${tenant.code}）`
+    : tenantId ?? "未知租户";
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="角色权限"
         description={
           <span>
-            租户 <span className="font-mono text-xs">{tenantId?.slice(0, 8)}…</span> 的角色矩阵
+            租户 <span className="font-semibold text-slate-700">{tenantLabel}</span> 的角色矩阵
           </span>
         }
         actions={

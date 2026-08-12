@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PageHeader } from "@/components/app/page-header";
 import { StatusBadge } from "@/components/app/status-badge";
+import { getTenant } from "@saas/identity-platform-msw";
 
 interface UserRow {
   id: string;
@@ -22,13 +23,18 @@ const USERS: UserRow[] = [
 
 export function UserListPage() {
   const { tenantId } = useParams<{ tenantId: string }>();
+  const tenant = tenantId ? getTenant(tenantId) : undefined;
+  const tenantLabel = tenant
+    ? `${tenant.name}（${tenant.code}）`
+    : tenantId ?? "未知租户";
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="用户管理"
         description={
           <span>
-            租户 <span className="font-mono text-xs">{tenantId?.slice(0, 8)}…</span> 的所有用户
+            租户 <span className="font-semibold text-slate-700">{tenantLabel}</span> 的所有用户
           </span>
         }
         actions={
