@@ -7,7 +7,7 @@ import { TenantProvider } from "../state-helpers";
 import { TenantSwitcher } from "../../src/components/tenant-switcher";
 
 describe("M00.F02.I03 当前用户跨租户切换", () => {
-  it("渲染 TenantSwitcher，下拉框挂 data-fn=M00.F02.I03", async () => {
+  it("渲染 TenantSwitcher，触发按钮挂 data-fn=M00.F02.I03", () => {
     const qc = new QueryClient();
     render(
       <QueryClientProvider client={qc}>
@@ -19,11 +19,8 @@ describe("M00.F02.I03 当前用户跨租户切换", () => {
       </QueryClientProvider>,
     );
 
-    // Wait for the loading state to resolve
-    await new Promise((r) => setTimeout(r, 10));
-
-    const select = screen.getByTestId("tenant-switcher").querySelector("select");
-    expect(select).toBeTruthy();
-    expect(select).toHaveAttribute("data-fn", "M00.F02.I03");
+    const btn = screen.getByTestId("tenant-switcher");
+    expect(btn).toBeTruthy();
+    expect(btn).toHaveAttribute("data-fn", "M00.F02.I03");
   });
 });

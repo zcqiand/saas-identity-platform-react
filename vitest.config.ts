@@ -8,6 +8,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@saas/shared": resolve(__dirname, "../saas-identity-platform-shared/generated/ts"),
+      "@": resolve(__dirname, "./src"),
     },
   },
   test: {

@@ -1,72 +1,83 @@
-// Tenant switcher — top-bar dropdown. Calls POST /api/me/tenants/{tenantId}/switch.
+"use client";
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTenant } from "../state/tenant-context";
+import { Building2, ChevronsUpDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useTenant } from "@/state/tenant-context";
 
 interface Membership {
   id: string;
   tenantId: string;
-  roleIds: string[];
+  code: string;
+  name: string;
   status: "active" | "invited" | "removed";
 }
 
 export function TenantSwitcher() {
   const { currentTenantId, setTenant } = useTenant();
   const [memberships, setMemberships] = useState<Membership[]>([]);
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    void fetchMemberships();
+    // M00.F02.I02 — list current user memberships (mocked)
+    setMemberships([
+      { id: "m1", tenantId: "00000000-0000-0000-0000-000000000001", code: "acme", name: "ACME Corp", status: "active" },
+      { id: "m2", tenantId: "00000000-0000-0000-0000-000000000002", code: "globex", name: "Globex Industries", status: "active" },
+      { id: "m3", tenantId: "00000000-0000-0000-0000-000000000003", code: "initech", name: "Initech", status: "active" },
+    ]);
   }, []);
 
-  async function fetchMemberships() {
-    // M00.F02.I02 — list current user memberships
-    setLoading(true);
-    try {
-      // In a real app: GET /api/me/tenants via shared api-client
-      // For MVP scaffold: return mock single membership
-      setMemberships([
-        {
-          id: "m1",
-          tenantId: "00000000-0000-0000-0000-000000000001",
-          roleIds: [],
-          status: "active",
-        },
-      ]);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function switchTenant(tenantId: string) {
+  function onSwitch(tenantId: string) {
     // M00.F02.I03 — switch tenant via POST /api/me/tenants/{tenantId}/switch
     setTenant(tenantId, null, "mock-token-" + tenantId);
     navigate(`/tenants/${tenantId}/users`);
   }
 
-  if (loading) return <div data-testid="tenant-switcher-loading">加载中...</div>;
+  const current = memberships.find((m) => m.tenantId === currentTenantId);
 
   return (
-    <div
-      data-testid="tenant-switcher"
-      style={{ padding: "8px 16px", borderBottom: "1px solid #eee" }}
-    >
-      <label style={{ marginRight: 8 }}>当前租户:</label>
-      <select
-        value={currentTenantId ?? ""}
-        onChange={(e) => void switchTenant(e.target.value)}
-        data-fn="M00.F02.I03"
-      >
-        <option value="" disabled>
-          请选择
-        </option>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2"
+          data-testid="tenant-switcher"
+          data-fn="M00.F02.I03"
+        >
+          <Building2 className="h-4 w-4 text-slate-500" />
+          <span className="font-medium">
+            {current?.name ?? "选择租户"}
+          </span>
+          <ChevronsUpDown className="h-3.5 w-3.5 text-slate-400" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-64">
+        <DropdownMenuLabel>切换租户</DropdownMenuLabel>
+        <DropdownMenuSeparator />
         {memberships.map((m) => (
-          <option key={m.id} value={m.tenantId}>
-            {m.tenantId.slice(0, 8)}…
-          </option>
+          <DropdownMenuItem
+            key={m.id}
+            onSelect={() => onSwitch(m.tenantId)}
+            className="cursor-pointer"
+          >
+            <Building2 className="h-4 w-4 mr-2 text-slate-500" />
+            <div className="flex flex-col">
+              <span className="font-medium">{m.name}</span>
+              <span className="text-xs text-slate-500 font-mono">{m.code}</span>
+            </div>
+          </DropdownMenuItem>
         ))}
-      </select>
-    </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

@@ -96,7 +96,7 @@
       "flows": [],
       "designs": [],
       "tests": [
-        "渲染 TenantSwitcher，下拉框挂 data-fn=M00.F02.I03"
+        "渲染 TenantSwitcher，触发按钮挂 data-fn=M00.F02.I03"
       ],
       "entry": [
         "src\\components\\tenant-switcher.tsx"
@@ -168,9 +168,7 @@
       "flows": [],
       "designs": [],
       "tests": [],
-      "entry": [
-        "src\\pages\\UserListPage.tsx"
-      ]
+      "entry": []
     },
     "M01.F02.I01": {
       "name": "分配角色",
@@ -180,7 +178,9 @@
       "flows": [],
       "designs": [],
       "tests": [],
-      "entry": []
+      "entry": [
+        "src\\pages\\UserListPage.tsx"
+      ]
     },
     "M01.F02.I02": {
       "name": "邀请用户",
