@@ -324,7 +324,9 @@
       "flows": [],
       "designs": [],
       "tests": [],
-      "entry": []
+      "entry": [
+        "src\\components\\app\\app-shell.tsx"
+      ]
     },
     "M03.F03.I06": {
       "name": "登出（全局 SSO）",

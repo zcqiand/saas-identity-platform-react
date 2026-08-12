@@ -1,4 +1,5 @@
 // Sidebar nav with grouped menu items + lucide icons (matches M00-M06).
+
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
@@ -17,9 +18,19 @@ interface SidebarNavProps {
   items: NavItem[];
   title?: string;
   subtitle?: string;
+  /** Action rendered at the bottom of the sidebar (e.g. logout button) */
+  footerAction?: ReactNode;
+  /** Version text rendered below the footer action */
+  version?: string;
 }
 
-export function SidebarNav({ items, title = "SaaS IAM", subtitle = "Multi-tenant" }: SidebarNavProps) {
+export function SidebarNav({
+  items,
+  title = "SaaS IAM",
+  subtitle = "Multi-tenant",
+  footerAction,
+  version = "v0.1.0 · Multi-tenant",
+}: SidebarNavProps) {
   const groups = items.reduce<Record<string, NavItem[]>>((acc, item) => {
     (acc[item.group] ??= []).push(item);
     return acc;
@@ -73,7 +84,10 @@ export function SidebarNav({ items, title = "SaaS IAM", subtitle = "Multi-tenant
         })}
       </nav>
       <Separator className="bg-white/10" />
-      <div className="px-5 py-3 text-xs text-white/40">v0.1.0 · Multi-tenant</div>
+      <div className="p-3 space-y-2">
+        {footerAction}
+        {version && <div className="text-xs text-white/40 px-2">{version}</div>}
+      </div>
     </aside>
   );
 }
