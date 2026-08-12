@@ -1,10 +1,12 @@
 "use client";
 
-// Tenant Context — current tenant, switch action, JWT holder
+// Tenant Context — 当前租户 + 当前用户 + JWT holder。
 //
-// 默认租户 = msw 仓 fixtures 的 acme（与 msw 仓的 TENANT_IDS.acme 一致）。
-// 首次访问、刷新页面、未登录场景都用这个，避免进入 tenant-scoped 路由
-// 时 `useParams().tenantId` 与 `currentTenantId` 不一致。
+// 存储字段：
+//   currentTenantId / tenantCode / accessToken / refreshToken / user
+//
+// 默认值 = null（首次加载未登录）。路由守卫（App.tsx 的 <RequireAuth>）据此
+// 决定是否重定向到 /login。
 
 import {
   createContext,
@@ -16,72 +18,160 @@ import {
   type ReactNode,
 } from "react";
 
+export interface AuthUser {
+  id: string;
+  username: string;
+  email?: string;
+}
+
 export interface TenantContextValue {
   currentTenantId: string | null;
   tenantCode: string | null;
   accessToken: string | null;
+  refreshToken: string | null;
+  user: AuthUser | null;
+  /** 已认证（accessToken 非空） */
+  isAuthenticated: boolean;
+  /** 用 /auth/login 响应填全字段（access + refresh + user + currentTenant） */
+  login: (payload: {
+    accessToken: string;
+    refreshToken: string;
+    userId: string;
+    username: string;
+    email?: string;
+    currentTenantId: string;
+    tenantCode?: string | null;
+  }) => void;
+  /** 调 /auth/logout，清 localStorage，重置 state */
+  logout: () => Promise<void>;
+  /** 直接覆盖 tenant（不调后端），用于跨租户切换 */
   setTenant: (id: string | null, code: string | null, token: string | null) => void;
   clear: () => void;
 }
 
 const STORAGE_KEY = "saas.tenant";
 
-const DEFAULT_TENANT_ID = "00000000-0000-0000-0000-000000000001";
-const DEFAULT_TENANT_CODE = "acme";
-const DEFAULT_TENANT_TOKEN = "mock-jwt-default";
+interface PersistedSession {
+  currentTenantId: string | null;
+  tenantCode: string | null;
+  accessToken: string | null;
+  refreshToken: string | null;
+  user: AuthUser | null;
+}
 
 const TenantContext = createContext<TenantContextValue | null>(null);
 
+function emptySession(): PersistedSession {
+  return {
+    currentTenantId: null,
+    tenantCode: null,
+    accessToken: null,
+    refreshToken: null,
+    user: null,
+  };
+}
+
+function loadSession(): PersistedSession {
+  if (typeof window === "undefined") return emptySession();
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return emptySession();
+    const parsed = JSON.parse(raw) as PersistedSession;
+    return {
+      currentTenantId: parsed.currentTenantId ?? null,
+      tenantCode: parsed.tenantCode ?? null,
+      accessToken: parsed.accessToken ?? null,
+      refreshToken: parsed.refreshToken ?? null,
+      user: parsed.user ?? null,
+    };
+  } catch {
+    return emptySession();
+  }
+}
+
+function saveSession(s: PersistedSession): void {
+  if (typeof window === "undefined") return;
+  if (!s.accessToken || !s.user) {
+    window.localStorage.removeItem(STORAGE_KEY);
+    return;
+  }
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+}
+
 export function TenantProvider({ children }: { children: ReactNode }) {
-  // 初始 state 用默认租户（acme），避免首次渲染 currentTenantId 为 null 导致
-  // 路由 /tenants/:tenantId/users 与 TenantSwitcher 显示不同步
-  const [currentTenantId, setCurrentTenantId] = useState<string | null>(DEFAULT_TENANT_ID);
-  const [tenantCode, setTenantCode] = useState<string | null>(DEFAULT_TENANT_CODE);
-  const [accessToken, setAccessToken] = useState<string | null>(DEFAULT_TENANT_TOKEN);
+  // 同步从 localStorage hydrate：避免首屏渲染用空 session，导致 RequireAuth
+  // 在 hydrate 完成前误判未认证并重定向 /login
+  const [session, setSession] = useState<PersistedSession>(() => loadSession());
 
-  useEffect(() => {
-    // 优先用 localStorage（用户之前切过），否则把默认租户持久化
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
+  const persist = useCallback((next: PersistedSession) => {
+    setSession(next);
+    saveSession(next);
+  }, []);
+
+  const login = useCallback< TenantContextValue["login"]>(
+    (payload) => {
+      const next: PersistedSession = {
+        currentTenantId: payload.currentTenantId,
+        tenantCode: payload.tenantCode ?? null,
+        accessToken: payload.accessToken,
+        refreshToken: payload.refreshToken,
+        user: {
+          id: payload.userId,
+          username: payload.username,
+          email: payload.email,
+        },
+      };
+      persist(next);
+    },
+    [persist],
+  );
+
+  const logout = useCallback(async () => {
+    // 调 /auth/logout（best-effort；非 msw 模式下后端可能没实现，吞错）
+    const token = session.accessToken;
+    if (token) {
       try {
-        const v = JSON.parse(raw);
-        setCurrentTenantId(v.currentTenantId ?? DEFAULT_TENANT_ID);
-        setTenantCode(v.tenantCode ?? DEFAULT_TENANT_CODE);
-        setAccessToken(v.accessToken ?? DEFAULT_TENANT_TOKEN);
+        // 动态 import 避免在测试 setup 时拉起整个 http-client
+        const { apiRequest } = await import("@/api/http-client");
+        await apiRequest("/api/v1/auth/logout", { method: "POST" }, token);
       } catch {
-        // 解析失败 → 用默认
+        // best-effort
       }
-    } else {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({
-          currentTenantId: DEFAULT_TENANT_ID,
-          tenantCode: DEFAULT_TENANT_CODE,
-          accessToken: DEFAULT_TENANT_TOKEN,
-        }),
-      );
     }
-  }, []);
+    persist(emptySession());
+  }, [persist, session.accessToken]);
 
-  const setTenant = useCallback((id: string | null, code: string | null, token: string | null) => {
-    setCurrentTenantId(id);
-    setTenantCode(code);
-    setAccessToken(token);
-    if (id && token) {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ currentTenantId: id, tenantCode: code, accessToken: token }),
-      );
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
-  }, []);
+  const setTenant = useCallback(
+    (id: string | null, code: string | null, token: string | null) => {
+      // 仅切换租户上下文，保留 user + refreshToken + accessToken 除非显式给 token
+      persist({
+        ...session,
+        currentTenantId: id,
+        tenantCode: code,
+        accessToken: token ?? session.accessToken,
+      });
+    },
+    [persist, session],
+  );
 
-  const clear = useCallback(() => setTenant(null, null, null), [setTenant]);
+  const clear = useCallback(() => {
+    persist(emptySession());
+  }, [persist]);
 
   const value = useMemo<TenantContextValue>(
-    () => ({ currentTenantId, tenantCode, accessToken, setTenant, clear }),
-    [currentTenantId, tenantCode, accessToken, setTenant, clear],
+    () => ({
+      currentTenantId: session.currentTenantId,
+      tenantCode: session.tenantCode,
+      accessToken: session.accessToken,
+      refreshToken: session.refreshToken,
+      user: session.user,
+      isAuthenticated: Boolean(session.accessToken && session.user),
+      login,
+      logout,
+      setTenant,
+      clear,
+    }),
+    [session, login, logout, setTenant, clear],
   );
 
   return <TenantContext.Provider value={value}>{children}</TenantContext.Provider>;

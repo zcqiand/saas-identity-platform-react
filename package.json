@@ -1,10 +1,10 @@
 {
   "name": "saas-identity-platform-react",
-  "version": "0.1.0",
-  "description": "SaaS Identity Platform — React 19 + Vite + TS. Consumes @saas/identity-platform-shared TypeSpec codegen (api-client + MSW + zod).",
+  "version": "0.2.0",
+  "description": "SaaS Identity Platform — React 19 + Vite + TS. Generates its own TS api-client from shared's OpenAPI.yaml via orval; consumes @saas/identity-platform-msw for fixtures/handlers.",
   "type": "module",
   "scripts": {
-    "preinstall": "cd ../saas-identity-platform-shared && npm install --registry=https://registry.npmmirror.com && npm run build",
+    "preinstall": "cd ../saas-identity-platform-shared && npm install --registry=https://registry.npmmirror.com",
     "gen:shared": "tsx scripts/gen-shared.ts",
     "prebuild": "npm run gen:shared",
     "dev": "vite",
@@ -15,8 +15,9 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@saas/identity-platform-shared": "file:../saas-identity-platform-shared",
     "@tanstack/react-query": "^5.62.0",
+    "ajv": "^8.20.0",
+    "axios": "^1.7.7",
     "msw": "^2.7.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -53,6 +54,7 @@
     "globals": "^17.10.0",
     "jsdom": "^25.0.0",
     "lucide-react": "^1.31.0",
+    "orval": "^7.5.0",
     "postcss": "^8.5.26",
     "prettier": "^3.9.6",
     "sonner": "^2.0.8",

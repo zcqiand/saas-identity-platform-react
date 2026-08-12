@@ -13,7 +13,6 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "@saas/shared/*": ["../saas-identity-platform-shared/generated/ts/*"],
       "@/*": ["./src/*"]
     }
   },

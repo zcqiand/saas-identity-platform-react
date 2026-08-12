@@ -1,31 +1,20 @@
-// M06.F01 — tenant-scoped 审计日志
+// M06.F01 — tenant-scoped 审计日志（只读）
+
 import { useParams } from "react-router-dom";
-import { Download } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { tenantAuditListAuditEvents } from "@/api/endpoints/endpoints";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PageHeader } from "@/components/app/page-header";
-import { getTenant } from "@saas/identity-platform-msw";
-
-interface AuditRow {
-  id: string;
-  action: string;
-  actorUserId?: string;
-  occurredAt: string;
-}
-
-const EVENTS: AuditRow[] = [
-  { id: "e1", action: "user_created", actorUserId: "alice", occurredAt: "2026-08-10T10:00:00Z" },
-  { id: "e2", action: "login_success", actorUserId: "alice", occurredAt: "2026-08-12T08:30:00Z" },
-  { id: "e3", action: "api_key_created", actorUserId: "dave", occurredAt: "2026-08-11T14:20:00Z" },
-];
 
 const ACTION_LABEL: Record<string, string> = {
   user_created: "创建用户",
   user_updated: "更新用户",
+  user_deleted: "删除用户",
   login_success: "登录成功",
   login_failed: "登录失败",
+  oauth_token_issued: "签发令牌",
   api_key_created: "创建 API Key",
   api_key_revoked: "吊销 API Key",
   role_assigned: "分配角色",
@@ -45,58 +34,62 @@ const ACTION_VARIANT: Record<string, "default" | "secondary" | "outline"> = {
 
 export function AuditListPage() {
   const { tenantId } = useParams<{ tenantId: string }>();
-  const tenant = tenantId ? getTenant(tenantId) : undefined;
-  const tenantLabel = tenant
-    ? `${tenant.name}（${tenant.code}）`
-    : tenantId ?? "未知租户";
+
+  const q = useQuery({
+    queryKey: ["tenantAuditListAuditEvents", tenantId],
+    queryFn: async () => (await tenantAuditListAuditEvents(tenantId!)).data.items,
+    enabled: !!tenantId,
+  });
+
+  const events = q.data ?? [];
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="审计日志"
-        description={
-          <span>
-            租户 <span className="font-semibold text-slate-700">{tenantLabel}</span> 的操作事件流
-          </span>
-        }
-        actions={
-          <Button variant="outline" data-fn="M06.F01.I03">
-            <Download className="h-4 w-4 mr-2" />
-            导出 CSV
-          </Button>
-        }
+        description={`租户 ${tenantId?.slice(0, 8) ?? "—"} 的操作事件流`}
       />
       <Card>
         <CardHeader>
-          <CardTitle>事件 ({EVENTS.length})</CardTitle>
+          <CardTitle>事件 ({events.length})</CardTitle>
         </CardHeader>
         <CardContent className="px-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>时间</TableHead>
-                <TableHead>动作</TableHead>
-                <TableHead>操作者</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {EVENTS.map((e) => (
-                <TableRow key={e.id}>
-                  <TableCell className="text-slate-500 tabular-nums">
-                    {new Date(e.occurredAt).toLocaleString("zh-CN")}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={ACTION_VARIANT[e.action] ?? "outline"}>
-                      {ACTION_LABEL[e.action] ?? e.action}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="font-mono text-xs">
-                    {e.actorUserId ?? "—"}
-                  </TableCell>
+          {q.isPending ? (
+            <div className="p-8 text-center text-sm text-slate-400">加载中…</div>
+          ) : events.length === 0 ? (
+            <div className="p-8 text-center text-sm text-slate-400">暂无审计事件</div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>时间</TableHead>
+                  <TableHead>动作</TableHead>
+                  <TableHead>操作者</TableHead>
+                  <TableHead>目标</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {events.map((e) => (
+                  <TableRow key={e.id}>
+                    <TableCell className="text-slate-500 tabular-nums">
+                      {new Date(e.occurredAt).toLocaleString("zh-CN")}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={ACTION_VARIANT[e.action] ?? "outline"}>
+                        {ACTION_LABEL[e.action] ?? e.action}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {e.actorUserId?.slice(-12) ?? "—"}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {e.targetUserId?.slice(-12) ?? "—"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>

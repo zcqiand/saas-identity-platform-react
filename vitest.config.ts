@@ -6,10 +6,15 @@ import FnReporter from "./tests/fnReporter";
 export default defineConfig({
   plugins: [react()],
   resolve: {
+    preserveSymlinks: false,
     alias: {
-      "@saas/shared": resolve(__dirname, "../saas-identity-platform-shared/generated/ts"),
       "@": resolve(__dirname, "./src"),
     },
+  },
+  optimizeDeps: {
+    // 本仓 orval 生成的 src/api/endpoints/endpoints.ts 引 @tanstack/react-query + axios。
+    // 预打包，确保 import analysis 能解析。
+    include: ["./src/api/endpoints/endpoints", "./src/api/endpoints/endpoints.schemas", "@saas/identity-platform-msw"],
   },
   test: {
     globals: false,
@@ -18,5 +23,10 @@ export default defineConfig({
     testTimeout: 10000,
     setupFiles: ["./tests/setup.ts"],
     reporters: ["default", new FnReporter() as any],
+    server: {
+      deps: {
+        inline: [/\/src\/api\/endpoints\//, /@saas\/identity-platform-msw/],
+      },
+    },
   },
 });

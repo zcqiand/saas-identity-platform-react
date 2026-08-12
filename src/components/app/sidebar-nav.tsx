@@ -18,18 +18,21 @@ interface SidebarNavProps {
   items: NavItem[];
   title?: string;
   subtitle?: string;
-  /** Action rendered at the bottom of the sidebar (e.g. logout button) */
+  /** 主操作（如登出按钮），渲染在底部 footer 顶部 */
   footerAction?: ReactNode;
+  /** 次要操作（如后端模式切换器），渲染在主操作之下、版本号之上 */
+  footerExtras?: ReactNode;
   /** Version text rendered below the footer action */
   version?: string;
 }
 
 export function SidebarNav({
   items,
-  title = "SaaS IAM",
-  subtitle = "Multi-tenant",
+  title = "SaaS 多租户身份平台",
+  subtitle = "Identity Platform",
   footerAction,
-  version = "v0.1.0 · Multi-tenant",
+  footerExtras,
+  version = "v0.1.0 · 多租户身份平台",
 }: SidebarNavProps) {
   const groups = items.reduce<Record<string, NavItem[]>>((acc, item) => {
     (acc[item.group] ??= []).push(item);
@@ -63,8 +66,12 @@ export function SidebarNav({
                   <NavLink
                     key={item.to}
                     to={item.to}
-                    end={item.to === "/" || item.to.endsWith("/dashboard")}
+                    // 全部 end={true} 精确匹配：避免 `/tenants` 把
+                    // `/tenants/{id}/users` 也标为 active；同理
+                    // `/apps` 与 `/apps/{code}/menus`。
+                    end={true}
                     data-fn={item.fnId}
+                    data-testid={`sidebar-nav-item-${item.fnId ?? item.to}`}
                     className={({ isActive }) =>
                       cn(
                         "flex items-center gap-2 px-3 py-1.5 rounded text-sm transition-colors",
@@ -86,6 +93,7 @@ export function SidebarNav({
       <Separator className="bg-white/10" />
       <div className="p-3 space-y-2">
         {footerAction}
+        {footerExtras}
         {version && <div className="text-xs text-white/40 px-2">{version}</div>}
       </div>
     </aside>

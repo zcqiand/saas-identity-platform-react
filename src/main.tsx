@@ -3,7 +3,9 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App";
+import { BackendProvider } from "./state/backend-context";
 import { TenantProvider } from "./state/tenant-context";
+import { SelectionProvider } from "./state/selection-context";
 import "./index.css";
 
 async function bootstrap() {
@@ -17,11 +19,15 @@ async function bootstrap() {
   ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
-        <TenantProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </TenantProvider>
+        <BackendProvider>
+          <TenantProvider>
+            <SelectionProvider>
+              <BrowserRouter>
+                <App />
+              </BrowserRouter>
+            </SelectionProvider>
+          </TenantProvider>
+        </BackendProvider>
       </QueryClientProvider>
     </React.StrictMode>,
   );
