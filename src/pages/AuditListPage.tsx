@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PageHeader } from "@/components/app/page-header";
+import { getTenant } from "@saas/identity-platform-msw";
 
 const ACTION_LABEL: Record<string, string> = {
   user_created: "创建用户",
@@ -34,6 +35,8 @@ const ACTION_VARIANT: Record<string, "default" | "secondary" | "outline"> = {
 
 export function AuditListPage() {
   const { tenantId } = useParams<{ tenantId: string }>();
+  const tenant = tenantId ? getTenant(tenantId) ?? null : null;
+  const tenantLabel = tenant ? `租户 ${tenant.name}（${tenant.code}）` : "租户未知";
 
   const q = useQuery({
     queryKey: ["tenantAuditListAuditEvents", tenantId],
@@ -47,7 +50,7 @@ export function AuditListPage() {
     <div className="space-y-6">
       <PageHeader
         title="审计日志"
-        description={`租户 ${tenantId?.slice(0, 8) ?? "—"} 的操作事件流`}
+        description={`${tenantLabel} 的操作事件流`}
       />
       <Card>
         <CardHeader>

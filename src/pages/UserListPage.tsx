@@ -26,6 +26,7 @@ import { ConfirmDialog } from "@/components/app/confirm-dialog";
 import { CrudDialog, type FieldDef } from "@/components/app/crud-dialog";
 import { toApiError } from "@/api/http-client";
 import { toast } from "sonner";
+import { getTenant } from "@saas/identity-platform-msw";
 
 const FIELDS: FieldDef[] = [
   { name: "username", label: "用户名", required: true, placeholder: "alice" },
@@ -50,6 +51,8 @@ const EDIT_FIELDS = FIELDS.filter((f) => f.name !== "username");
 export function UserListPage() {
   const { tenantId } = useParams<{ tenantId: string }>();
   const qc = useQueryClient();
+  const tenant = tenantId ? getTenant(tenantId) ?? null : null;
+  const tenantLabel = tenant ? `租户 ${tenant.name}（${tenant.code}）` : "租户未知";
 
   const usersQ = useQuery({
     queryKey: ["tenantUsersListUsers", tenantId],
@@ -113,7 +116,7 @@ export function UserListPage() {
     <div className="space-y-6">
       <PageHeader
         title="用户管理"
-        description={`租户 ${tenantId?.slice(0, 8) ?? "—"} 的所有用户`}
+        description={`${tenantLabel} 的所有用户`}
         actions={
           <Button onClick={() => setCreateOpen(true)} data-fn="M01.F01.I02">
             邀请用户

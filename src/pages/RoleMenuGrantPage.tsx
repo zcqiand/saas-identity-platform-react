@@ -14,12 +14,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/app/page-header";
 import { toApiError } from "@/api/http-client";
 import { toast } from "sonner";
-import { listApps } from "@saas/identity-platform-msw/fixtures";
+import { getTenant, listApps } from "@saas/identity-platform-msw/fixtures";
 
 export function RoleMenuGrantPage() {
   const { tenantId, roleId } = useParams<{ tenantId: string; roleId: string }>();
   const qc = useQueryClient();
   const [granted, setGranted] = useState<Set<string>>(new Set());
+  const tenant = tenantId ? getTenant(tenantId) ?? null : null;
+  const tenantLabel = tenant ? `${tenant.name}（${tenant.code}）` : "未知租户";
 
   // 平台所有 app 下的菜单，按 app 分组
   const apps = useMemo(() => listApps(), []);
@@ -75,7 +77,7 @@ export function RoleMenuGrantPage() {
         title="角色菜单授权"
         description={
           <span>
-            租户 <span className="font-semibold text-slate-700">{tenantId?.slice(0, 8) ?? "—"}</span> / 角色{" "}
+            租户 <span className="font-semibold text-slate-700">{tenantLabel}</span> / 角色{" "}
             <span className="font-mono text-xs">{roleId ?? "—"}</span>
           </span>
         }

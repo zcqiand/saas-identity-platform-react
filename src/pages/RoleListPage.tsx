@@ -23,6 +23,7 @@ import { ConfirmDialog } from "@/components/app/confirm-dialog";
 import { CrudDialog, type FieldDef } from "@/components/app/crud-dialog";
 import { toApiError } from "@/api/http-client";
 import { toast } from "sonner";
+import { getTenant } from "@saas/identity-platform-msw";
 
 const PERMISSION_OPTIONS = [
   { value: "users.read", label: "users.read" },
@@ -44,6 +45,8 @@ const EDIT_FIELDS = FIELDS.filter((f) => f.name !== "code");
 export function RoleListPage() {
   const { tenantId } = useParams<{ tenantId: string }>();
   const qc = useQueryClient();
+  const tenant = tenantId ? getTenant(tenantId) ?? null : null;
+  const tenantLabel = tenant ? `租户 ${tenant.name}（${tenant.code}）` : "租户未知";
 
   const list = useQuery({
     queryKey: ["tenantRolesListRoles", tenantId],
@@ -100,7 +103,7 @@ export function RoleListPage() {
     <div className="space-y-6">
       <PageHeader
         title="角色权限"
-        description={`租户 ${tenantId?.slice(0, 8) ?? "—"} 的角色矩阵`}
+        description={`${tenantLabel} 的角色矩阵`}
         actions={
           <Button onClick={() => setCreateOpen(true)} data-fn="M02.F01.I02">
             新建角色

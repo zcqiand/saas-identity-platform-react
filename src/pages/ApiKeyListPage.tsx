@@ -20,6 +20,7 @@ import { ConfirmDialog } from "@/components/app/confirm-dialog";
 import { CrudDialog, type FieldDef } from "@/components/app/crud-dialog";
 import { toApiError } from "@/api/http-client";
 import { toast } from "sonner";
+import { getTenant } from "@saas/identity-platform-msw";
 
 const FIELDS: FieldDef[] = [
   { name: "name", label: "名称", required: true, placeholder: "Production Key" },
@@ -29,6 +30,8 @@ const FIELDS: FieldDef[] = [
 export function ApiKeyListPage() {
   const { tenantId } = useParams<{ tenantId: string }>();
   const qc = useQueryClient();
+  const tenant = tenantId ? getTenant(tenantId) ?? null : null;
+  const tenantLabel = tenant ? `租户 ${tenant.name}（${tenant.code}）` : "租户未知";
 
   const list = useQuery({
     queryKey: ["tenantApiKeysListApiKeys", tenantId],
@@ -73,7 +76,7 @@ export function ApiKeyListPage() {
     <div className="space-y-6">
       <PageHeader
         title="API Key"
-        description={`租户 ${tenantId?.slice(0, 8) ?? "—"} 的 API 访问密钥`}
+        description={`${tenantLabel} 的 API 访问密钥`}
         actions={
           <Button onClick={() => setCreateOpen(true)} data-fn="M05.F01.I02">
             创建 Key
