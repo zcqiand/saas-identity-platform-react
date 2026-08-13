@@ -7,6 +7,7 @@ import {
   adminAppMenusListMenus,
   tenantRoleMenusListRoleMenus,
   tenantRoleMenusSetRoleMenus,
+  useAdminAppsListApps,
 } from "@/api/endpoints/endpoints";
 import type { SetRoleMenusRequest } from "@/api/endpoints/endpoints.schemas";
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/app/page-header";
 import { toApiError } from "@/api/http-client";
 import { toast } from "sonner";
-import { getTenant, listApps } from "@saas/identity-platform-msw/fixtures";
+import { getTenant } from "@saas/identity-platform-msw/fixtures";
 
 export function RoleMenuGrantPage() {
   const { tenantId, roleId } = useParams<{ tenantId: string; roleId: string }>();
@@ -24,7 +25,8 @@ export function RoleMenuGrantPage() {
   const tenantLabel = tenant ? `${tenant.name}（${tenant.code}）` : "未知租户";
 
   // 平台所有 app 下的菜单，按 app 分组
-  const apps = useMemo(() => listApps(), []);
+  const appsQ = useAdminAppsListApps();
+  const apps = appsQ.data?.data?.items ?? [];
   const groupsQ = useQuery({
     queryKey: ["roleMenuGrantApps", tenantId, roleId],
     queryFn: async () => {
@@ -35,7 +37,7 @@ export function RoleMenuGrantPage() {
       }
       return result;
     },
-    enabled: !!tenantId && !!roleId,
+    enabled: !!tenantId && !!roleId && apps.length > 0,
   });
 
   const grantQ = useQuery({

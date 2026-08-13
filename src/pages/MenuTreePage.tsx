@@ -10,6 +10,7 @@ import {
   adminAppMenusListMenus,
   adminAppMenusMoveMenu,
   adminAppMenusUpdateMenu,
+  useAdminAppsListApps,
 } from "@/api/endpoints/endpoints";
 import type {
   CreateMenuRequest,
@@ -34,7 +35,6 @@ import { useSelection } from "@/state/selection-context";
 import { useTenant } from "@/state/tenant-context";
 import { toApiError } from "@/api/http-client";
 import { toast } from "sonner";
-import { listApps } from "@saas/identity-platform-msw/fixtures";
 
 const FIELDS: FieldDef[] = [
   { name: "code", label: "Code", required: true, placeholder: "m-xxx" },
@@ -90,8 +90,9 @@ export function MenuTreePage() {
   const { currentTenantId } = useTenant();
   const qc = useQueryClient();
 
-  // 应用列表（平台 admin 视角 → 用 listApps）
-  const allApps = useMemo(() => listApps(), []);
+  // 应用列表（平台 admin 视角 → 用 useAdminAppsListApps,跨 msw/后端模式同源）
+  const appsQ = useAdminAppsListApps();
+  const allApps = appsQ.data?.data?.items ?? [];
   const currentApp = useMemo(
     () => allApps.find((a) => a.id === selectedApp.id) ?? allApps[0],
     [selectedApp, allApps],

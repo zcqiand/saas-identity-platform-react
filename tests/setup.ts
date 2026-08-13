@@ -20,6 +20,12 @@ function page<T>(items: T[]) {
   return { items, page: 1, pageSize: items.length, total: items.length };
 }
 
+// react-query hook 形态：orval hook 返 { data: AxiosResponse<T>, isPending, ... }
+// 所以 data 是双层 data.data。
+function okHook<T>(payload: T) {
+  return { data: { data: payload }, isPending: false, isLoading: false, error: null } as any;
+}
+
 vi.mock("@/api/endpoints/endpoints", () => ({
   authLogin: async (body: { username: string }) => ({
     data: {
@@ -95,6 +101,9 @@ vi.mock("@/api/endpoints/endpoints", () => ({
 
   oAuthAuthorize: async () => ({ data: { code: "auth-code" } }),
   oAuthToken: async () => ({ data: { accessToken: "oauth-tok", tokenType: "Bearer", expiresIn: 3600 } }),
+
+  // === react-query hook mocks（M08/M09 异步消费点） ===
+  useAdminAppsListApps: () => okHook(page(apps)),
 
   getTitle: () => "mocked",
 }));
