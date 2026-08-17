@@ -5,3 +5,8 @@ build/
 coverage/
 .state/trace.json
 .state/gate.json
+
+# 环境变量：.env.local 走 .gitignore；.env.example 走 git
+.env
+.env.local
+.env.*.local
