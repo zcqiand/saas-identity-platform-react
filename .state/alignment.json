@@ -283,7 +283,6 @@
         "渲染登录表单，提交按钮挂 data-fn=M03.F01.I01"
       ],
       "entry": [
-        "src\\components\\app\\backend-switcher.tsx",
         "src\\pages\\LoginPage.tsx"
       ]
     },

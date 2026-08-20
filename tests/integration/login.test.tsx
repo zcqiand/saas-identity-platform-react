@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { TenantProvider, BackendProvider } from "../state-helpers";
+import { TenantProvider } from "../state-helpers";
 import { LoginPage } from "../../src/pages/LoginPage";
 
 // mock axios：避免真实请求（msw 也不会启）
@@ -31,13 +31,11 @@ function renderLogin() {
   const qc = new QueryClient();
   return render(
     <QueryClientProvider client={qc}>
-      <BackendProvider>
-        <TenantProvider>
-          <MemoryRouter>
-            <LoginPage />
-          </MemoryRouter>
-        </TenantProvider>
-      </BackendProvider>
+      <TenantProvider>
+        <MemoryRouter>
+          <LoginPage />
+        </MemoryRouter>
+      </TenantProvider>
     </QueryClientProvider>,
   );
 }

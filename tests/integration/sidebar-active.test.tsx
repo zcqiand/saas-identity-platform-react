@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { TenantProvider, SelectionProvider, BackendProvider } from "../state-helpers";
+import { TenantProvider, SelectionProvider } from "../state-helpers";
 import { AppShell } from "../../src/components/app/app-shell";
 import { ApiKeyListPage } from "../../src/pages/ApiKeyListPage";
 import { MenuTreePage } from "../../src/pages/MenuTreePage";
@@ -12,20 +12,18 @@ function renderApp(path: string) {
   const qc = new QueryClient();
   return render(
     <QueryClientProvider client={qc}>
-      <BackendProvider>
-        <TenantProvider>
-          <SelectionProvider>
-            <MemoryRouter initialEntries={[path]}>
-              <Routes>
-                <Route element={<AppShell />}>
-                  <Route path="/apps/:appCode/menus" element={<MenuTreePage />} />
-                  <Route path="/tenants/:tenantId/api-keys" element={<ApiKeyListPage />} />
-                </Route>
-              </Routes>
-            </MemoryRouter>
-          </SelectionProvider>
-        </TenantProvider>
-      </BackendProvider>
+      <TenantProvider>
+        <SelectionProvider>
+          <MemoryRouter initialEntries={[path]}>
+            <Routes>
+              <Route element={<AppShell />}>
+                <Route path="/apps/:appCode/menus" element={<MenuTreePage />} />
+                <Route path="/tenants/:tenantId/api-keys" element={<ApiKeyListPage />} />
+              </Route>
+            </Routes>
+          </MemoryRouter>
+        </SelectionProvider>
+      </TenantProvider>
     </QueryClientProvider>,
   );
 }

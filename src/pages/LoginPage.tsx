@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useTenant } from "@/state/tenant-context";
-import { useBackend } from "@/state/backend-context";
+import { getApiMode } from "@/api/backend-config";
 import { authLogin } from "@/api/endpoints/endpoints";
 import { toApiError } from "@/api/http-client";
 import { toast } from "sonner";
@@ -28,7 +28,7 @@ export function LoginPage() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const { login } = useTenant();
-  const { backend } = useBackend();
+  const apiMode = getApiMode();
   const navigate = useNavigate();
 
   async function onSubmit(e: React.FormEvent) {
@@ -51,7 +51,7 @@ export function LoginPage() {
         apiErr.status === 401
           ? "用户名或密码错误"
           : apiErr.status === 0
-            ? `后端不可达（${backend}）：${apiErr.message}`
+            ? `后端不可达（${apiMode}）：${apiErr.message}`
             : apiErr.message;
       toast.error(msg);
     } finally {
@@ -91,12 +91,7 @@ export function LoginPage() {
                 autoComplete="current-password"
               />
             </div>
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={submitting}
-              data-fn="M03.F01.I01"
-            >
+            <Button type="submit" className="w-full" disabled={submitting} data-fn="M03.F01.I01">
               {submitting ? "登录中…" : "登录"}
             </Button>
           </form>
@@ -110,12 +105,28 @@ export function LoginPage() {
               </p>
               <ul className="space-y-1 text-amber-800">
                 <li className="flex items-center gap-2">
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-500 text-white text-[10px] font-bold shrink-0">微</span>
-                  <span>关注微信公众号 <code className="font-mono bg-white px-1.5 py-0.5 rounded border border-amber-200">SaaS 实战派</code>，回复「演示」</span>
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-500 text-white text-[10px] font-bold shrink-0">
+                    微
+                  </span>
+                  <span>
+                    关注微信公众号{" "}
+                    <code className="font-mono bg-white px-1.5 py-0.5 rounded border border-amber-200">
+                      南荣相如
+                    </code>
+                    ，回复「演示」
+                  </span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold shrink-0">书</span>
-                  <span>关注小红书 <code className="font-mono bg-white px-1.5 py-0.5 rounded border border-amber-200">@SaaS 实战派</code>，查看置顶笔记</span>
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold shrink-0">
+                    书
+                  </span>
+                  <span>
+                    关注小红书{" "}
+                    <code className="font-mono bg-white px-1.5 py-0.5 rounded border border-amber-200">
+                      @南荣相如
+                    </code>
+                    ，查看置顶笔记
+                  </span>
                 </li>
               </ul>
             </div>
@@ -132,7 +143,7 @@ export function LoginPage() {
             </div>
 
             <p className="text-xs text-slate-400">
-              当前后端模式：<span className="font-medium text-slate-700">{backend}</span>
+              当前后端模式：<span className="font-medium text-slate-700">{apiMode}</span>
             </p>
           </div>
         </CardContent>

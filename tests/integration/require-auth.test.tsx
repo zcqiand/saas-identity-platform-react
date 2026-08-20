@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BackendProvider, TenantProvider, SelectionProvider } from "../state-helpers";
+import { TenantProvider, SelectionProvider } from "../state-helpers";
 import App from "../../src/App";
 import axios from "axios";
 
@@ -19,15 +19,13 @@ describe("路由守卫 RequireAuth", () => {
     const qc = new QueryClient();
     render(
       <QueryClientProvider client={qc}>
-        <BackendProvider>
-          <TenantProvider>
-            <SelectionProvider>
-              <MemoryRouter initialEntries={["/tenants"]}>
-                <App />
-              </MemoryRouter>
-            </SelectionProvider>
-          </TenantProvider>
-        </BackendProvider>
+        <TenantProvider>
+          <SelectionProvider>
+            <MemoryRouter initialEntries={["/tenants"]}>
+              <App />
+            </MemoryRouter>
+          </SelectionProvider>
+        </TenantProvider>
       </QueryClientProvider>,
     );
     // 渲染后应落到 /login（找登录标题）
@@ -40,15 +38,13 @@ describe("路由守卫 RequireAuth", () => {
     const qc = new QueryClient();
     render(
       <QueryClientProvider client={qc}>
-        <BackendProvider>
-          <TenantProvider>
-            <SelectionProvider>
-              <MemoryRouter initialEntries={["/tenants/acme/users"]}>
-                <App />
-              </MemoryRouter>
-            </SelectionProvider>
-          </TenantProvider>
-        </BackendProvider>
+        <TenantProvider>
+          <SelectionProvider>
+            <MemoryRouter initialEntries={["/tenants/acme/users"]}>
+              <App />
+            </MemoryRouter>
+          </SelectionProvider>
+        </TenantProvider>
       </QueryClientProvider>,
     );
     await waitFor(() => {

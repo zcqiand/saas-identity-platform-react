@@ -356,11 +356,11 @@ users.splice(users.findIndex(u => u.id === userId), 1);
   <ul className="space-y-1 text-amber-800">
     <li className="flex items-center gap-2">
       <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-500 text-white text-[10px] font-bold shrink-0">微</span>
-      <span>关注微信公众号 <code className="font-mono bg-white px-1.5 py-0.5 rounded border border-amber-200">SaaS 实战派</code>，回复「演示」</span>
+      <span>关注微信公众号 <code className="font-mono bg-white px-1.5 py-0.5 rounded border border-amber-200">南荣相如</code>，回复「演示」</span>
     </li>
     <li className="flex items-center gap-2">
       <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold shrink-0">书</span>
-      <span>关注小红书 <code className="font-mono bg-white px-1.5 py-0.5 rounded border border-amber-200">@SaaS 实战派</code>，查看置顶笔记</span>
+      <span>关注小红书 <code className="font-mono bg-white px-1.5 py-0.5 rounded border border-amber-200">@南荣相如</code>，查看置顶笔记</span>
     </li>
   </ul>
 </div>

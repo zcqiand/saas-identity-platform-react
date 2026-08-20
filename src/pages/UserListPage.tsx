@@ -12,14 +12,17 @@ import {
   tenantUsersListUsers,
   tenantUsersUpdateUser,
 } from "@/api/endpoints/endpoints";
-import type {
-  CreateUserRequest,
-  UpdateUserRequest,
-  User,
-} from "@/api/endpoints/endpoints.schemas";
+import type { CreateUserRequest, UpdateUserRequest, User } from "@/api/endpoints/endpoints.schemas";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { PageHeader } from "@/components/app/page-header";
 import { StatusBadge } from "@/components/app/status-badge";
 import { ConfirmDialog } from "@/components/app/confirm-dialog";
@@ -51,7 +54,7 @@ const EDIT_FIELDS = FIELDS.filter((f) => f.name !== "username");
 export function UserListPage() {
   const { tenantId } = useParams<{ tenantId: string }>();
   const qc = useQueryClient();
-  const tenant = tenantId ? getTenant(tenantId) ?? null : null;
+  const tenant = tenantId ? (getTenant(tenantId) ?? null) : null;
   const tenantLabel = tenant ? `租户 ${tenant.name}（${tenant.code}）` : "租户未知";
 
   const usersQ = useQuery({
@@ -147,9 +150,7 @@ export function UserListPage() {
                     <StatusBadge status={u.status} />
                   </TableCell>
                   <TableCell>
-                    <span className="text-xs text-slate-500">
-                      {(u.roleIds ?? []).length} 项
-                    </span>
+                    <span className="text-xs text-slate-500">{(u.roleIds ?? []).length} 项</span>
                   </TableCell>
                   <TableCell className="text-right space-x-1">
                     <Button
@@ -205,9 +206,7 @@ export function UserListPage() {
         title="编辑用户"
         fields={EDIT_FIELDS}
         initialValues={
-          editTarget
-            ? { email: editTarget.email, status: editTarget.status }
-            : undefined
+          editTarget ? { email: editTarget.email, status: editTarget.status } : undefined
         }
         loading={updateMut.isPending}
         onSubmit={async (values) => {
@@ -237,11 +236,7 @@ export function UserListPage() {
         ]}
         submitText="保存角色"
         loading={roleAssignMut.isPending}
-        initialValues={
-          roleTarget
-            ? { roleIds: (roleTarget.roleIds ?? []).join(",") }
-            : undefined
-        }
+        initialValues={roleTarget ? { roleIds: (roleTarget.roleIds ?? []).join(",") } : undefined}
         renderField={(_field, _value, onChange) => (
           <div className="space-y-1 max-h-48 overflow-y-auto border rounded p-2">
             {roles.length === 0 && <div className="text-xs text-slate-400">暂无角色</div>}
@@ -288,10 +283,6 @@ export function UserListPage() {
           setDeleteTarget(null);
         }}
       />
-
-      <p className="text-xs text-slate-400">
-        <Link to="../roles" className="underline">角色权限 →</Link>
-      </p>
     </div>
   );
 }
