@@ -1,20 +1,20 @@
 {
   "schema": 1,
   "project": "saas-identity-platform-react",
-  "passed": false,
+  "passed": true,
   "partial": true,
   "ran": [
     "L5"
   ],
-  "checked_at": "2026-08-12T13:06:37+0800",
+  "checked_at": "2026-08-14T08:31:45+0800",
   "gates": [
     {
       "level": "L5",
       "name": "引用完整性",
-      "passed": false,
-      "returncode": 1,
-      "duration_s": 2.672,
-      "output": "- 测试标记引用了不存在的功能 ID M00.F01.I02（渲染租户列表，新建按钮挂 data-fn=M00.F01.I02）\r\n  - 测试标记引用了不存在的功能 ID M00.F02.I03（渲染 TenantSwitcher，下拉框挂 data-fn=M00.F02.I03）\r\n  - 测试标记引用了不存在的功能 ID M01.F01.I02（渲染用户列表，邀请按钮挂 data-fn=M01.F01.I02）\r\n  - 测试标记引用了不存在的功能 ID M02.F01.I02（渲染角色列表，新建角色按钮挂 data-fn=M02.F01.I02）\r\n  - 测试标记引用了不存在的功能 ID M03.F01.I01（渲染登录表单，挂 data-fn=M03.F01.I01 的提交按钮）\r\n  - 测试标记引用了不存在的功能 ID M04.F01.I02（渲染应用列表，注册按钮挂 data-fn=M04.F01.I02）\r\n  - 测试标记引用了不存在的功能 ID M06.F01.I03（渲染审计列表，导出按钮挂 data-fn=M06.F01.I03）\r\n  - 界面入口引用了不存在的功能 ID M00.F01.I02（src\\pages\\TenantListPage.tsx）\r\n  - 界面入口引用了不存在的功能 ID M00.F01.I04（src\\pages\\TenantListPage.tsx）\r\n  - 界面入口引用了不存在的功能 ID M00.F01.I05（src\\pages\\TenantListPage.tsx）\r\n  - 界面入口引用了不存在的功能 ID M00.F02.I03（src\\components\\tenant-switcher.tsx）\r\n  - 界面入口引用了不存在的功能 ID M01.F01.I02（src\\pages\\UserListPage.tsx）\r\n  - 界面入口引用了不存在的功能 ID M01.F01.I04（src\\pages\\UserListPage.tsx）\r\n  - 界面入口引用了不存在的功能 ID M01.F01.I05（src\\pages\\UserListPage.tsx）\r\n  - 界面入口引用了不存在的功能 ID M01.F01.I06（src\\pages\\UserListPage.tsx）\r\n  - 界面入口引用了不存在的功能 ID M02.F01.I02（src\\pages\\RoleListPage.tsx）\r\n  - 界面入口引用了不存在的功能 ID M02.F01.I04（src\\pages\\RoleListPage.tsx）\r\n  - 界面入口引用了不存在的功能 ID M02.F01.I05（src\\pages\\RoleListPage.tsx）\r\n  - 界面入口引用了不存在的功能 ID M02.F02.I01（src\\pages\\RoleListPage.tsx）\r\n  - 界面入口引用了不存在的功能 ID M03.F01.I01（src\\pages\\LoginPage.tsx）\r\n  - 界面入口引用了不存在的功能 ID M04.F01.I02（src\\pages\\OAuthAppListPage.tsx）\r\n  - 界面入口引用了不存在的功能 ID M04.F01.I04（src\\pages\\OAuthAppListPage.tsx）\r\n  - 界面入口引用了不存在的功能 ID M04.F01.I05（src\\pages\\OAuthAppListPage.tsx）\r\n  - 界面入口引用了不存在的功能 ID M05.F01.I02（src\\pages\\ApiKeyListPage.tsx）\r\n  - 界面入口引用了不存在的功能 ID M05.F01.I03（src\\pages\\ApiKeyListPage.tsx）\r\n  - 界面入口引用了不存在的功能 ID M05.F01.I04（src\\pages\\ApiKeyListPage.tsx）\r\n  - 界面入口引用了不存在的功能 ID M06.F01.I03（src\\pages\\AuditListPage.tsx）\r\n\r\n悬空引用是事实性错误。补登记，或改引用。不要删行 —— 废弃请改状态。"
+      "passed": true,
+      "returncode": 0,
+      "duration_s": 5.172,
+      "output": "86 个功能条目，引用完整。软告警 0 条（见 .state/alignment.json）"
     }
   ]
 }
