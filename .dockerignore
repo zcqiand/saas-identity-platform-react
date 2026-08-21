@@ -1,0 +1,36 @@
+# Vite SPA build artifacts
+node_modules/
+dist/
+coverage/
+
+# VCS
+.git/
+.gitignore
+
+# Local state
+.state/
+*.log
+
+# TS build info
+tsconfig.tsbuildinfo
+
+# Env files (keep .env.example + .env.production, exclude dev secrets)
+.env
+.env.local
+.env.*.local
+.env.test
+
+# Tooling noise
+.vscode/
+.idea/
+.DS_Store
+
+# Claude / superpowers
+.claude/
+.superpowers/
+CLAUDE.md
+.mcp.json
+
+# Generated artifacts
+generated/
+public/mockServiceWorker.js
