@@ -17,7 +17,11 @@ RUN git clone --depth 1 https://github.com/zcqiand/saas-identity-platform-msw.gi
  && git clone --depth 1 https://github.com/zcqiand/saas-identity-platform-shared.git ../saas-identity-platform-shared
 
 COPY package.json package-lock.json ./
-RUN npm ci --no-audit --no-fund
+# 用 npm install 不是 npm ci:package.json 引用 file:../saas-identity-platform-msw
+# (file path 版本),旧 lockfile 锁了 0.1.0 → npm ci 严格不匹配。
+# npm install 按 package.json + sibling 实际版本安装,自动重写 lockfile。
+# --legacy-peer-deps 兼容某些宽松 peer 依赖。
+RUN npm install --legacy-peer-deps --no-audit --no-fund
 
 COPY . .
 # prebuild hook (gen:shared) 自动跑;需要 ../saas-identity-platform-shared 存在
