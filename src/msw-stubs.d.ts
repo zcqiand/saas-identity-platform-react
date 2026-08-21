@@ -108,10 +108,6 @@ declare module "@saas/identity-platform-msw" {
   export default _default;
 }
 
-declare module "@saas/identity-platform-msw/browser" {
-  export function setupBrowserMocks(): Promise<unknown>;
-}
-
 declare module "@saas/identity-platform-msw/node" {
   export function setupNodeMocks(): unknown;
 }
