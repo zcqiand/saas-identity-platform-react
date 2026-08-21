@@ -25,6 +25,8 @@ jobs:
           registry-url: https://registry.npmmirror.com/
       - name: Checkout shared sibling
         run: git clone --depth 1 https://x-access-token:${GITHUB_TOKEN}@github.com/zcqiand/saas-identity-platform-shared.git ../saas-identity-platform-shared
+      - name: Checkout msw sibling
+        run: git clone --depth 1 https://x-access-token:${GITHUB_TOKEN}@github.com/zcqiand/saas-identity-platform-msw.git ../saas-identity-platform-msw
       - name: Install dependencies
         run: npm ci
       - name: gen:shared
