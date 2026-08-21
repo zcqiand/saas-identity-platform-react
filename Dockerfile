@@ -9,6 +9,10 @@ WORKDIR /app
 # 硬约束:npm 依赖一律走 npmmirror (suite root CLAUDE.md §2)
 RUN npm config set registry https://registry.npmmirror.com
 
+# 拉 sibling 仓（file: 依赖 + gen:shared 需要 sibling 存在）
+RUN git clone --depth 1 https://github.com/zcqiand/saas-identity-platform-msw.git ../saas-identity-platform-msw \
+ && git clone --depth 1 https://github.com/zcqiand/saas-identity-platform-shared.git ../saas-identity-platform-shared
+
 COPY package.json package-lock.json ./
 RUN npm ci --no-audit --no-fund
 
