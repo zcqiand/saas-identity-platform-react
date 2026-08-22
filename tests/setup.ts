@@ -104,6 +104,8 @@ vi.mock("@/api/endpoints/endpoints", () => ({
 
   // === react-query hook mocks（M08/M09 异步消费点） ===
   useAdminAppsListApps: () => okHook(page(apps)),
+  useAdminTenantsGetTenant: (_id: string) =>
+    okHook({ id: _id, code: "acme", name: "ACME", status: "active", createdAt: "", updatedAt: "" }),
 
   getTitle: () => "mocked",
 }));

@@ -11,6 +11,7 @@ import {
   tenantUsersDeleteUser,
   tenantUsersListUsers,
   tenantUsersUpdateUser,
+  useAdminTenantsGetTenant,
 } from "@/api/endpoints/endpoints";
 import type { CreateUserRequest, UpdateUserRequest, User } from "@/api/endpoints/endpoints.schemas";
 import { Button } from "@/components/ui/button";
@@ -29,7 +30,6 @@ import { ConfirmDialog } from "@/components/app/confirm-dialog";
 import { CrudDialog, type FieldDef } from "@/components/app/crud-dialog";
 import { toApiError } from "@/api/http-client";
 import { toast } from "sonner";
-import { getTenant } from "@saas/identity-platform-msw";
 
 const FIELDS: FieldDef[] = [
   { name: "username", label: "用户名", required: true, placeholder: "alice" },
@@ -54,7 +54,10 @@ const EDIT_FIELDS = FIELDS.filter((f) => f.name !== "username");
 export function UserListPage() {
   const { tenantId } = useParams<{ tenantId: string }>();
   const qc = useQueryClient();
-  const tenant = tenantId ? (getTenant(tenantId) ?? null) : null;
+  // orval 生成的 react-query hook：拉取当前 tenant 的元数据。tenantId 缺失时
+  // 不发请求，加载中/失败显示 fallback。
+  const tenantQ = useAdminTenantsGetTenant(tenantId!, { query: { enabled: !!tenantId } });
+  const tenant = tenantQ.data?.data ?? null;
   const tenantLabel = tenant ? `租户 ${tenant.name}（${tenant.code}）` : "租户未知";
 
   const usersQ = useQuery({

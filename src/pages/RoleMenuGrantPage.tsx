@@ -8,6 +8,7 @@ import {
   tenantRoleMenusListRoleMenus,
   tenantRoleMenusSetRoleMenus,
   useAdminAppsListApps,
+  useAdminTenantsGetTenant,
 } from "@/api/endpoints/endpoints";
 import type { SetRoleMenusRequest } from "@/api/endpoints/endpoints.schemas";
 import { Button } from "@/components/ui/button";
@@ -15,13 +16,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/app/page-header";
 import { toApiError } from "@/api/http-client";
 import { toast } from "sonner";
-import { getTenant } from "@saas/identity-platform-msw/fixtures";
 
 export function RoleMenuGrantPage() {
   const { tenantId, roleId } = useParams<{ tenantId: string; roleId: string }>();
   const qc = useQueryClient();
   const [granted, setGranted] = useState<Set<string>>(new Set());
-  const tenant = tenantId ? getTenant(tenantId) ?? null : null;
+  // orval 生成的 react-query hook：拉取当前 tenant 的元数据。tenantId 缺失时
+  // 不发请求，加载中/失败显示 fallback。
+  const tenantQ = useAdminTenantsGetTenant(tenantId!, { query: { enabled: !!tenantId } });
+  const tenant = tenantQ.data?.data ?? null;
   const tenantLabel = tenant ? `${tenant.name}（${tenant.code}）` : "未知租户";
 
   // 平台所有 app 下的菜单，按 app 分组

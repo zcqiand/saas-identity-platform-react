@@ -2,12 +2,14 @@
 
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { tenantAuditListAuditEvents } from "@/api/endpoints/endpoints";
+import {
+  tenantAuditListAuditEvents,
+  useAdminTenantsGetTenant,
+} from "@/api/endpoints/endpoints";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PageHeader } from "@/components/app/page-header";
-import { getTenant } from "@saas/identity-platform-msw";
 
 const ACTION_LABEL: Record<string, string> = {
   user_created: "创建用户",
@@ -35,7 +37,10 @@ const ACTION_VARIANT: Record<string, "default" | "secondary" | "outline"> = {
 
 export function AuditListPage() {
   const { tenantId } = useParams<{ tenantId: string }>();
-  const tenant = tenantId ? getTenant(tenantId) ?? null : null;
+  // orval 生成的 react-query hook：拉取当前 tenant 的元数据。tenantId 缺失时
+  // 不发请求，加载中/失败显示 fallback。
+  const tenantQ = useAdminTenantsGetTenant(tenantId!, { query: { enabled: !!tenantId } });
+  const tenant = tenantQ.data?.data ?? null;
   const tenantLabel = tenant ? `租户 ${tenant.name}（${tenant.code}）` : "租户未知";
 
   const q = useQuery({
