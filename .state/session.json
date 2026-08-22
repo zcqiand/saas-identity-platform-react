@@ -1,6 +1,27 @@
 {
-  "schema": 1,
-  "last_session_at": "2026-08-12",
-  "last_session_summary": "Phase A 初始化",
-  "open_items": []
+  "schema": 2,
+  "project": "saas-identity-platform-react",
+  "current_task": "Post-Phase-3 frontend 集成收尾：getTenant 改 orval useAdminTenantsGetTenant hook + 删 msw-stubs.d.ts + mocks 残留",
+  "last_session_at": "2026-08-22",
+  "last_session_summary": "5 page inline useQuery → useAdminTenantsGetTenant hook；tests/setup.ts 加 hook 桩；删 msw-stubs.d.ts + mocks/{handlers,node}.ts；commit 86c34dc + tag v0.3.10-20260822 pushed",
+  "done": [
+    "5 page (ApiKey/Audit/Role/RoleMenuGrant/UserListPage) inline useQuery → useAdminTenantsGetTenant(tenantId, {query:{enabled:!!tenantId}})",
+    "tests/setup.ts:105-109 给 vi.mock 加 useAdminTenantsGetTenant 桩（沿用 okHook 模式）",
+    "src/msw-stubs.d.ts 删除（src/ 零源 import @saas/identity-platform-msw）",
+    "src/mocks/handlers.ts + src/mocks/node.ts 删除（ADR-0012 v0.3.0 残存）",
+    "gate L0/L1/L2/L3/L4/L5 全绿 exit 0（86 功能条目 0 软告警）",
+    "commit 86c34dc + tag v0.3.10-20260822 + push origin/master"
+  ],
+  "next": [
+    "无（本批原子收尾）"
+  ],
+  "open_questions": [],
+  "dont": [
+    "不要把 msw-stubs.d.ts 加回来 —— src/ 零源 import，加了 vite/vitest 才会误解析 file: dep",
+    "不要再 inline useQuery 包 adminTenantsGetTenant —— 一律走 useAdminTenantsGetTenant hook",
+    "tests/setup.ts 的 vi.mock 加桩时不要换 mock 路径 —— vi.mock('@/api/endpoints/endpoints') 全量接管",
+    "不要 axios 升 1.19（CLAUDE.md §2 硬约束 —— orval 7 AxiosResponseResult 不兼容）",
+    "不要 demo 密码（CLAUDE.md §2 硬约束）"
+  ],
+  "active_branch": "master"
 }
