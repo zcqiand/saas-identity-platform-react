@@ -548,7 +548,7 @@
       "flows": [],
       "designs": [],
       "tests": [
-        "默认选中 app-lab，渲染 27 项菜单行 + 新建按钮 data-fn=M08.F01.I02"
+        "默认选中 lab-management，渲染 27 项菜单行 + 新建按钮 data-fn=M08.F01.I02"
       ],
       "entry": [
         "src\\pages\\MenuTreePage.tsx"

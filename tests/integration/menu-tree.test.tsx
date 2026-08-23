@@ -1,5 +1,5 @@
 // M08.F01 — 菜单树（应用下）
-// 应用切换器（与租户选择同构：localStorage 存 id+name）+ 默认 app-lab + reload 还原
+// 应用切换器（与租户选择同构：localStorage 存 id+name）+ 默认 lab-management + reload 还原
 import { describe, it, expect, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
@@ -29,7 +29,7 @@ beforeEach(() => {
 });
 
 describe("M08.F01 菜单树", () => {
-  it("默认选中 app-lab，渲染 27 项菜单行 + 新建按钮 data-fn=M08.F01.I02", async () => {
+  it("默认选中 lab-management，渲染 27 项菜单行 + 新建按钮 data-fn=M08.F01.I02", async () => {
     renderWithProviders();
     const rows = await screen.findAllByTestId("menu-row");
     expect(rows.length).toBe(27);

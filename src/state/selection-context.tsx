@@ -12,7 +12,7 @@
 //
 // 默认值（首次访问、未持久化场景）：
 //   - 租户 = msw 仓 TENANT_IDS.acme / 名称 "ACME Corp"
-//   - 应用 = app-lab / 名称 "建筑工程实验室管理系统"
+//   - 应用 = lab-management / 名称 "建筑工程实验室管理系统"
 
 import {
   createContext,
@@ -29,7 +29,7 @@ const APP_STORAGE_KEY = "saas.selected.app";
 
 const DEFAULT_TENANT_ID = "00000000-0000-0000-0000-000000000001";
 const DEFAULT_TENANT_NAME = "ACME Corp";
-const DEFAULT_APP_ID = "app-lab";
+const DEFAULT_APP_ID = "lab-management";
 const DEFAULT_APP_NAME = "建筑工程实验室管理系统";
 
 export interface Selection {

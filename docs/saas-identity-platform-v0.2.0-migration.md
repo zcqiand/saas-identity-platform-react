@@ -302,7 +302,7 @@ users.splice(users.findIndex(u => u.id === userId), 1);
 |---|---|---|
 | 1 | `src/api/http-client.ts` | L39-48 `installHttpClient(getToken)` 装 axios 拦截器；L11 引 `getBaseUrl` 从单例；保留 L57-80 `apiRequest` 兼容老调用方 |
 | 2 | `src/state/tenant-context.tsx` | L104 **lazy initializer** `useState(() => loadSession())`；L129-142 `logout` 调 `/auth/logout`（best-effort） |
-| 3 | `src/state/selection-context.tsx` | **新文件**（同 5.1 范围）；L60-71 双 `useState` lazy init；默认值 = acme / app-lab |
+| 3 | `src/state/selection-context.tsx` | **新文件**（同 5.1 范围）；L60-71 双 `useState` lazy init；默认值 = acme / lab-management |
 | 4 | `src/App.tsx` | L16-20 加 `<RequireAuth>` 守卫（读 `isAuthenticated`）；L29-44 路由表加 8 个新路径 |
 | 5 | `src/components/app/app-shell.tsx` | L97-100 `onLogout = async () => { await logout(); navigate("/login") }`；L116 `footerExtras={<BackendSwitcher />}`；L120 `<Toaster />` 浮层 |
 | 6 | `src/components/app/sidebar-nav.tsx` | L23-24 `footerExtras?: ReactNode` slot；L31-32 title "SaaS 多租户身份平台" / subtitle "Identity Platform" |
