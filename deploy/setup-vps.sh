@@ -52,6 +52,17 @@ if ! id deploy >/dev/null 2>&1; then
 fi
 log "ensure deploy in docker group"
 usermod -aG docker deploy
+# deploy 脚本里的 vhost 自举需要写 /etc/nginx/sites-available/ ——
+# 默认 deploy 用户没有写权限，加 sudo 白名单（仅 /bin/cp / /bin/ln / nginx reload）。
+# `>` 重定向在 dash 下失败时 -e 不传播，所以 setup 阶段铺好白名单让自举能跑。
+cat > /etc/sudoers.d/deploy-nginx <<'SUDOERS'
+deploy ALL=(ALL) NOPASSWD: /bin/cp /etc/nginx/sites-available/* /etc/nginx/sites-available/
+deploy ALL=(ALL) NOPASSWD: /bin/ln -sf /etc/nginx/sites-available/* /etc/nginx/sites-enabled/
+deploy ALL=(ALL) NOPASSWD: /usr/sbin/nginx -t
+deploy ALL=(ALL) NOPASSWD: /bin/systemctl reload nginx
+SUDOERS
+chmod 440 /etc/sudoers.d/deploy-nginx
+log "sudoers allowlist → /etc/sudoers.d/deploy-nginx"
 
 # ── 3. 部署目录 ───────────────────────────────────
 # react 是静态 SPA, 容器内无 /data 卷（无 DB、无用户文件）。只建工作目录。

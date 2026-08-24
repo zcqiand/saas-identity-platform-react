@@ -58,13 +58,38 @@ if [ -e "${NGINX_VHOST_LINK}" ] || [ -e "${NGINX_VHOST_FILE}" ]; then
   echo "→ nginx vhost ${NGINX_VHOST_FILE} already exists, skip bootstrap"
 else
   echo "→ nginx vhost missing, bootstrapping ${NGINX_VHOST_FILE} (domain=${NGINX_DOMAIN} cert=${NGINX_CERT_BASENAME})"
-  umask 022
-  sed \
-    -e "s/saas.YOUR_DOMAIN/${NGINX_DOMAIN}/g" \
-    -e "s|/etc/nginx/ssl/your-cert.cert|/etc/nginx/ssl/${NGINX_CERT_BASENAME}.cert|g" \
-    -e "s|/etc/nginx/ssl/your-cert.key|/etc/nginx/ssl/${NGINX_CERT_BASENAME}.key|g" \
-    "${NGINX_TEMPLATE}" > "${NGINX_VHOST_FILE}"
-  ln -sf "${NGINX_VHOST_FILE}" "${NGINX_VHOST_LINK}"
+  # deploy 用户默认没有写 /etc/nginx/sites-available/ 的权限。`>` 重定向在 dash 下
+  # 失败时 -e 不传播 → 文件静默没生成 → CI 显示 success 但站点 404。修法：先
+  # 检测目录可写，否则用 sudo cp + sudo ln 提权（admin 操作走 sudoers 白名单）
+  if [ -w "${NGINX_SITES_AVAILABLE}" ]; then
+    umask 022
+    sed \
+      -e "s/saas.YOUR_DOMAIN/${NGINX_DOMAIN}/g" \
+      -e "s|/etc/nginx/ssl/your-cert.cert|/etc/nginx/ssl/${NGINX_CERT_BASENAME}.cert|g" \
+      -e "s|/etc/nginx/ssl/your-cert.key|/etc/nginx/ssl/${NGINX_CERT_BASENAME}.key|g" \
+      "${NGINX_TEMPLATE}" > "${NGINX_VHOST_FILE}"
+    echo "→ wrote ${NGINX_VHOST_FILE} (direct, deploy user has write perms)"
+  else
+    echo "→ ${NGINX_SITES_AVAILABLE} not writable by $(id -un); need sudo (ensure /etc/sudoers.d/deploy-nginx allows: deploy ALL=(ALL) NOPASSWD: /bin/cp /bin/ln)"
+    TMP_VHOST="$(mktemp)"
+    sed \
+      -e "s/saas.YOUR_DOMAIN/${NGINX_DOMAIN}/g" \
+      -e "s|/etc/nginx/ssl/your-cert.cert|/etc/nginx/ssl/${NGINX_CERT_BASENAME}.cert|g" \
+      -e "s|/etc/nginx/ssl/your-cert.key|/etc/nginx/ssl/${NGINX_CERT_BASENAME}.key|g" \
+      "${NGINX_TEMPLATE}" > "${TMP_VHOST}"
+    sudo cp "${TMP_VHOST}" "${NGINX_VHOST_FILE}" \
+      && echo "→ wrote ${NGINX_VHOST_FILE} (via sudo cp)" \
+      || { echo "→ ERROR: failed to write ${NGINX_VHOST_FILE}"; exit 1; }
+    rm -f "${TMP_VHOST}"
+  fi
+  if [ -w "${NGINX_SITES_ENABLED}" ]; then
+    ln -sf "${NGINX_VHOST_FILE}" "${NGINX_VHOST_LINK}"
+    echo "→ linked ${NGINX_VHOST_LINK} (direct)"
+  else
+    sudo ln -sf "${NGINX_VHOST_FILE}" "${NGINX_VHOST_LINK}" \
+      && echo "→ linked ${NGINX_VHOST_LINK} (via sudo ln)" \
+      || { echo "→ ERROR: failed to link ${NGINX_VHOST_LINK}"; exit 1; }
+  fi
   echo "→ nginx vhost created. To enable: sudo nginx -t && sudo systemctl reload nginx"
 fi
 
