@@ -30,7 +30,7 @@ describe("路由守卫 RequireAuth", () => {
     );
     // 渲染后应落到 /login（找登录标题）
     await waitFor(() => {
-      expect(screen.getAllByText("SaaS 多租户身份平台").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("SaaS 多租户多应用身份平台").length).toBeGreaterThan(0);
     });
   });
 
@@ -48,7 +48,7 @@ describe("路由守卫 RequireAuth", () => {
       </QueryClientProvider>,
     );
     await waitFor(() => {
-      expect(screen.getAllByText("SaaS 多租户身份平台").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("SaaS 多租户多应用身份平台").length).toBeGreaterThan(0);
     });
   });
 });

@@ -305,7 +305,7 @@ users.splice(users.findIndex(u => u.id === userId), 1);
 | 3 | `src/state/selection-context.tsx` | **新文件**（同 5.1 范围）；L60-71 双 `useState` lazy init；默认值 = acme / lab-management |
 | 4 | `src/App.tsx` | L16-20 加 `<RequireAuth>` 守卫（读 `isAuthenticated`）；L29-44 路由表加 8 个新路径 |
 | 5 | `src/components/app/app-shell.tsx` | L97-100 `onLogout = async () => { await logout(); navigate("/login") }`；L116 `footerExtras={<BackendSwitcher />}`；L120 `<Toaster />` 浮层 |
-| 6 | `src/components/app/sidebar-nav.tsx` | L23-24 `footerExtras?: ReactNode` slot；L31-32 title "SaaS 多租户身份平台" / subtitle "Identity Platform" |
+| 6 | `src/components/app/sidebar-nav.tsx` | L23-24 `footerExtras?: ReactNode` slot；L31-32 title "SaaS 多租户多应用身份平台" / subtitle "Identity Platform" |
 | 7 | `src/index.css` | L5-24 CSS 变量包成 `hsl(...)`（含 `--popover`）；L30-50 `@theme inline` 桥接所有变量到 Tailwind v4 |
 | 8 | `src/mocks/browser.ts` | L10 `if (getBackend() !== "msw") return` —— 切非 msw 模式跳过 worker 启动 |
 | 9 | `src/main.tsx` | L22-30 Provider 嵌套顺序：`<BackendProvider><TenantProvider><SelectionProvider><BrowserRouter><App>` |
