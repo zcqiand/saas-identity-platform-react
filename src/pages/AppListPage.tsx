@@ -10,14 +10,17 @@ import {
   adminAppsSetAppStatus,
   adminAppsUpdateApp,
 } from "@/api/endpoints/endpoints";
-import type {
-  App,
-  CreateAppRequest,
-  UpdateAppRequest,
-} from "@/api/endpoints/endpoints.schemas";
+import type { App, CreateAppRequest, UpdateAppRequest } from "@/api/endpoints/endpoints.schemas";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { PageHeader } from "@/components/app/page-header";
 import { StatusBadge } from "@/components/app/status-badge";
 import { EmptyState } from "@/components/app/empty-state";
@@ -28,11 +31,22 @@ import { toast } from "sonner";
 
 const FIELDS: FieldDef[] = [
   { name: "code", label: "Code", required: true, placeholder: "lab-management" },
-  { name: "name", label: "名称", required: true, placeholder: "建筑工程实验室管理系统" },
+  {
+    name: "name",
+    label: "名称",
+    required: true,
+    placeholder: "建筑工程实验室管理系统",
+  },
   { name: "clientId", label: "Client ID", required: true, placeholder: "lab-mgmt" },
   { name: "icon", label: "图标（lucide 名称）", placeholder: "FlaskConical" },
   { name: "sortOrder", label: "排序", type: "number", defaultValue: 0 },
-  { name: "isFirstParty", label: "一方应用", type: "checkbox", defaultValue: true, hint: "一方应用对租户可见" },
+  {
+    name: "isFirstParty",
+    label: "一方应用",
+    type: "checkbox",
+    defaultValue: true,
+    hint: "一方应用对租户可见",
+  },
   {
     name: "status",
     label: "状态",
@@ -59,7 +73,10 @@ function toAppInput(values: Record<string, any>): CreateAppRequest {
     status: (values.status as "active" | "disabled") ?? "active",
     isFirstParty: Boolean(values.isFirstParty),
     scopes: values.scopesText
-      ? String(values.scopesText).split(",").map((s) => s.trim()).filter(Boolean)
+      ? String(values.scopesText)
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
       : [],
     grantTypes: ["authorization_code", "client_credentials"],
     redirectUris: [],
@@ -154,7 +171,9 @@ export function AppListPage() {
                   <TableRow key={a.id} data-testid="app-row">
                     <TableCell>
                       <div className="font-mono text-xs">{a.code}</div>
-                      <div className="font-mono text-[10px] text-slate-500">clientId: {a.clientId}</div>
+                      <div className="font-mono text-[10px] text-slate-500">
+                        clientId: {a.clientId}
+                      </div>
                     </TableCell>
                     <TableCell className="font-medium">{a.name}</TableCell>
                     <TableCell className="text-xs text-slate-600">
@@ -163,7 +182,9 @@ export function AppListPage() {
                     <TableCell>
                       <span
                         className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs ${
-                          a.isFirstParty ? "bg-blue-50 text-blue-700" : "bg-slate-100 text-slate-600"
+                          a.isFirstParty
+                            ? "bg-blue-50 text-blue-700"
+                            : "bg-slate-100 text-slate-600"
                         }`}
                       >
                         {a.isFirstParty ? "一方" : "三方"}
@@ -191,7 +212,12 @@ export function AppListPage() {
                       >
                         {a.status === "active" ? "停用" : "启用"}
                       </Button>
-                      <Button variant="ghost" size="sm" data-fn="M04.F01.I04" onClick={() => setEditTarget(a)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        data-fn="M04.F01.I04"
+                        onClick={() => setEditTarget(a)}
+                      >
                         编辑
                       </Button>
                       <Button
@@ -258,7 +284,10 @@ export function AppListPage() {
               status: values.status as "active" | "disabled",
               isFirstParty: Boolean(values.isFirstParty),
               scopes: values.scopesText
-                ? String(values.scopesText).split(",").map((s) => s.trim()).filter(Boolean)
+                ? String(values.scopesText)
+                    .split(",")
+                    .map((s) => s.trim())
+                    .filter(Boolean)
                 : [],
             },
           });
