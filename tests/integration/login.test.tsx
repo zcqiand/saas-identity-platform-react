@@ -140,7 +140,7 @@ describe("M03.F01.I01 账号密码登录", () => {
 // === M03.F01.I01 OAuth 2.0 授权码回跳（RFC 6749 §4.1.2）===
 
 // jsdom 的 window.location.href 只读 — 用 Proxy 拦截赋值记录目标 URL（lab-react 同款手法）。
-function interceptLocationHref(): { assigned: () => string } {
+function interceptLocationHref(): { assigned: () => string; restore: () => void } {
   const original = window.location;
   let assignedHref = "";
   Object.defineProperty(window, "location", {
@@ -164,7 +164,7 @@ function interceptLocationHref(): { assigned: () => string } {
         configurable: true,
         value: original,
       }),
-  } as { assigned: () => string; restore: () => void };
+  };
 }
 
 describe("M03.F01.I01 OAuth code 回跳", () => {
