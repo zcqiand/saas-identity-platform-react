@@ -195,6 +195,9 @@ describe("M03.F01.I01 OAuth code 回跳", () => {
       expect(target.searchParams.get("state")).toBe("xyz");
       // 回跳 RP，而不是进 saas 自己的 /tenants
       expect(screen.queryByTestId("tenants-page")).toBeNull();
+      // 吸干 onSubmit 路径的 setTimeout(0)（waitFor 可能被挂载期自动回跳先行满足），
+      // 否则游离定时器会在下一个测试的 Proxy 里落赋值。
+      await new Promise((r) => setTimeout(r, 20));
     } finally {
       loc.restore();
       window.history.replaceState({}, "", "/login");
