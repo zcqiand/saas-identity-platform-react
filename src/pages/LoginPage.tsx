@@ -3,8 +3,12 @@
 // 提交：调 authLogin（orval 1:1 端点函数）；成功后写 tenant-context session；
 // 失败：toast.error（sonner）。
 // 演示账号：见页面底部（密码不再公开展示，需通过公众号 / 小红书获取）。
+//
+// SSO 返回（OAuth 2.0 授权码模式，RFC 6749）：URL 带 ?code=&redirect_uri=&state=
+// （lab RP 经 /api/auth/sso/authorize 领 code 后跳来）。saas 认证资源所有者后，
+// 302 redirect_uri?code&state（§4.1.2）原样透传给 RP。镜像 saas-nextjs app/login。
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,6 +34,39 @@ export function LoginPage() {
   const { login } = useTenant();
   const apiMode = getApiMode();
   const navigate = useNavigate();
+  // RFC 6749 §4.1.1 授权码范式：lab 后端（confidential client）已替浏览器领到 code，
+  // saas 登录页只负责认证资源所有者，成功后 302 redirect_uri?code&state（§4.1.2）。
+  const [oauthReturn, setOauthReturn] = useState<{
+    redirectUri: string;
+    code: string;
+    state: string;
+  } | null>(null);
+
+  // 解析 OAuth 2.0 authorize 回跳：?code=&redirect_uri=&state=
+  // 用 window.location.search 直接读，不依赖路由的 query 时序。
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    const oauthCode = sp.get("code");
+    const oauthRedirect = sp.get("redirect_uri");
+    if (oauthCode && oauthRedirect) {
+      setOauthReturn({ redirectUri: oauthRedirect, code: oauthCode, state: sp.get("state") ?? "" });
+    }
+  }, []);
+
+  // RFC 6749 §4.1.2：授权码回跳不依赖 onSubmit —— 资源所有者已登录（saas session
+  // 已在）时无需再认证，解析出 code+redirect_uri 即刻回跳。否则已登录用户落在
+  // 登录页没表单可提交，code 永远回不到 RP。
+  useEffect(() => {
+    if (!oauthReturn) return;
+    try {
+      const target = new URL(oauthReturn.redirectUri);
+      target.searchParams.set("code", oauthReturn.code);
+      if (oauthReturn.state) target.searchParams.set("state", oauthReturn.state);
+      window.location.href = target.toString();
+    } catch (err) {
+      console.error("[SSO/login] auto oauth redirect failed:", err);
+    }
+  }, [oauthReturn]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -44,7 +81,24 @@ export function LoginPage() {
         username,
         currentTenantId: data.currentTenantId,
       });
-      navigate("/tenants");
+      // OAuth 2.0 code 回跳：把 code+state 原样透传给 RP 的 redirect_uri。
+      // 用 setTimeout(0) 让 React 先把 setSession 的 re-render 跑完之后再做导航，
+      // 避免与路由跳转竞争（saas-nextjs 同款）。
+      setTimeout(() => {
+        if (oauthReturn) {
+          try {
+            const target = new URL(oauthReturn.redirectUri);
+            target.searchParams.set("code", oauthReturn.code);
+            if (oauthReturn.state) target.searchParams.set("state", oauthReturn.state);
+            window.location.href = target.toString();
+          } catch (err) {
+            console.error("[SSO/login] oauth redirect build failed:", err);
+            toast.error("OAuth 回跳 URL 构造失败");
+          }
+          return;
+        }
+        navigate("/tenants");
+      }, 0);
     } catch (err) {
       const apiErr = toApiError(err);
       // M03.F01.I02 - 423 = 失败 5 次锁定（后端 15min 自动解锁）

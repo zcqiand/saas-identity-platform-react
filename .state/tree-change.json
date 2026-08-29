@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "approved": true,
+  "base_sha": "e0a870dabc298b3c",
+  "summary": "M03.F01.I01 账号密码登录页面功能范围扩展：LoginPage 增加 OAuth 2.0 授权码回跳（解析 ?code=&redirect_uri=&state=，登录成功后 302 redirect_uri?code&state；已登录态自动回跳），镜像 saas-nextjs 已上线行为。前置条件：lab 家族 SSO 指针切同栈匹配（lab-react→saas-react）。",
+  "changes": [
+    {
+      "id": "M03.F01.I01",
+      "action": "变更",
+      "name": "账号密码登录",
+      "reason": "范围扩展：增加 OAuth code 回跳（?code=&redirect_uri=&state= 解析 + 登录成功 302 回 RP + 已登录态自动回跳）。saas-nextjs 同能力已上线（app/login/page.tsx），本仓对齐后 lab-react SSO 才能指向本仓"
+    }
+  ],
+  "sync_files": []
+}

@@ -3,6 +3,10 @@
 // 策略：mock `authLogin`（orval 端点函数）与 sonner toast，
 // 验证表单提交 -> POST /auth/login 参数、错误提示（401 / 423 锁定）、
 // 成功后写 tenant-context session + 跳 /tenants。
+//
+// OAuth 2.0 授权码回跳（RFC 6749 §4.1.2，镜像 saas-nextjs app/login）：
+// lab 后端 pre-code 后把浏览器送到 /login?code=&redirect_uri=&state=，
+// 登录成功后 302 redirect_uri?code&state 回 RP；无参数时行为不变。
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
@@ -130,5 +134,92 @@ describe("M03.F01.I01 账号密码登录", () => {
     const stored = JSON.parse(localStorage.getItem("saas.tenant") ?? "{}");
     expect(stored.accessToken).toBe("at-1");
     expect(stored.currentTenantId).toBe("t-1");
+  });
+});
+
+// === M03.F01.I01 OAuth 2.0 授权码回跳（RFC 6749 §4.1.2）===
+
+// jsdom 的 window.location.href 只读 — 用 Proxy 拦截赋值记录目标 URL（lab-react 同款手法）。
+function interceptLocationHref(): { assigned: () => string } {
+  const original = window.location;
+  let assignedHref = "";
+  Object.defineProperty(window, "location", {
+    configurable: true,
+    get() {
+      return new Proxy(original, {
+        set(target, prop, value) {
+          if (prop === "href") {
+            assignedHref = String(value);
+            return true;
+          }
+          return Reflect.set(target, prop, value);
+        },
+      });
+    },
+  });
+  return {
+    assigned: () => assignedHref,
+    restore: () =>
+      Object.defineProperty(window, "location", {
+        configurable: true,
+        value: original,
+      }),
+  } as { assigned: () => string; restore: () => void };
+}
+
+describe("M03.F01.I01 OAuth code 回跳", () => {
+  it("带 ?code=&redirect_uri=&state= 登录成功 -> 302 redirect_uri?code&state（不跳 /tenants）", async () => {
+    const loc = interceptLocationHref();
+    authLoginMock.mockResolvedValue({
+      data: {
+        accessToken: "at-1",
+        refreshToken: "rt-1",
+        userId: "u-1",
+        currentTenantId: "t-1",
+      },
+    });
+    try {
+      window.history.replaceState(
+        {},
+        "",
+        "/login?code=auth-code-1&redirect_uri=https%3A%2F%2Flab-react.xiangru.uk%2Flogin&state=xyz",
+      );
+      renderLogin();
+      await fillAndSubmit();
+      await waitFor(() => expect(loc.assigned()).toBeTruthy());
+      const target = new URL(loc.assigned());
+      expect(target.origin + target.pathname).toBe(
+        "https://lab-react.xiangru.uk/login",
+      );
+      expect(target.searchParams.get("code")).toBe("auth-code-1");
+      expect(target.searchParams.get("state")).toBe("xyz");
+      // 回跳 RP，而不是进 saas 自己的 /tenants
+      expect(screen.queryByTestId("tenants-page")).toBeNull();
+    } finally {
+      loc.restore();
+      window.history.replaceState({}, "", "/login");
+    }
+  });
+
+  it("无 OAuth 参数登录成功 -> 行为不变（跳 /tenants，不读 location.href）", async () => {
+    const loc = interceptLocationHref();
+    authLoginMock.mockResolvedValue({
+      data: {
+        accessToken: "at-1",
+        refreshToken: "rt-1",
+        userId: "u-1",
+        currentTenantId: "t-1",
+      },
+    });
+    try {
+      renderLogin();
+      await fillAndSubmit();
+      await waitFor(() =>
+        expect(screen.getByTestId("tenants-page")).toBeTruthy(),
+      );
+      expect(loc.assigned()).toBe("");
+    } finally {
+      loc.restore();
+    }
   });
 });
