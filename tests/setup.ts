@@ -106,6 +106,14 @@ vi.mock("@/api/endpoints/endpoints", () => ({
   useAdminAppsListApps: () => okHook(page(apps)),
   useAdminTenantsGetTenant: (_id: string) =>
     okHook({ id: _id, code: "acme", name: "ACME", status: "active", createdAt: "", updatedAt: "" }),
+  // 2026-08-29 OAuth 跳板场景: 已登录用户访问 /login?redirect_uri=&state=&client_id=
+  // 自动调 useOAuthAuthorize 拿 code 跳回 RP。
+  useOAuthAuthorize: () => ({
+    mutateAsync: async () => ({ data: { code: "oauth-auth-code", state: "" } }),
+    isPending: false,
+    isLoading: false,
+    error: null,
+  }),
 
   getTitle: () => "mocked",
 }));
