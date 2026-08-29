@@ -273,7 +273,7 @@
       ]
     },
     "M03.F01.I01": {
-      "name": "账号密码登录",
+      "name": "账号密码登录（含 OAuth code 回跳：?code=&redirect_uri=&state= 解析 + 登录成功 302 回 RP + 已登录态自动回跳）",
       "status": "规划",
       "type": "页面",
       "requirements": [],

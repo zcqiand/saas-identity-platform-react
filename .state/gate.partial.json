@@ -1,20 +1,20 @@
 {
   "schema": 1,
   "project": "saas-identity-platform-react",
-  "passed": true,
+  "passed": false,
   "partial": true,
   "ran": [
-    "L0"
+    "L3"
   ],
-  "checked_at": "2026-08-21T00:30:01+0800",
+  "checked_at": "2026-08-29T08:56:54+0800",
   "gates": [
     {
-      "level": "L0",
-      "name": "结构完整性",
-      "passed": true,
-      "returncode": 0,
-      "duration_s": 0.094,
-      "output": ""
+      "level": "L3",
+      "name": "类型",
+      "passed": false,
+      "returncode": 2,
+      "duration_s": 3.532,
+      "output": "tests/integration/login.test.tsx(202,11): error TS2339: Property 'restore' does not exist on type '{ assigned: () => string; }'.\r\ntests/integration/login.test.tsx(225,11): error TS2339: Property 'restore' does not exist on type '{ assigned: () => string; }'.\r\nnpm warn Unknown cli config \"--noEmit\". This will stop working in the next major version of npm."
     }
   ]
 }
