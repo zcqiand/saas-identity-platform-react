@@ -46,10 +46,11 @@ describe("M08.F01 菜单树", () => {
     expect(screen.getByTestId("app-selector-trigger")).toBeTruthy();
   });
 
-  it("切到 app-erp 后渲染 7 项菜单", async () => {
+  it("切到 erp 后渲染 7 项菜单", async () => {
+    // selection-context 按 code 持久化（DEFAULT_APP_ID="lab-management" 是 code,fixture 里 app.id 是 UUID）
     localStorage.setItem(
       "saas.selected.app",
-      JSON.stringify({ id: "app-erp", name: "企业资源计划系统" }),
+      JSON.stringify({ id: "erp", name: "企业资源计划系统" }),
     );
     renderWithProviders();
     const rows = await screen.findAllByTestId("menu-row");
@@ -60,10 +61,10 @@ describe("M08.F01 菜单树", () => {
     expect(rowText).toMatch(/系统设置/);
   });
 
-  it("切到 app-crm 后渲染 7 项菜单", async () => {
+  it("切到 crm 后渲染 7 项菜单", async () => {
     localStorage.setItem(
       "saas.selected.app",
-      JSON.stringify({ id: "app-crm", name: "客户关系管理系统" }),
+      JSON.stringify({ id: "crm", name: "客户关系管理系统" }),
     );
     renderWithProviders();
     const rows = await screen.findAllByTestId("menu-row");
@@ -79,7 +80,7 @@ describe("M08.F01 菜单树", () => {
   it("reload 后从 localStorage 还原选中应用", async () => {
     localStorage.setItem(
       "saas.selected.app",
-      JSON.stringify({ id: "app-crm", name: "客户关系管理系统" }),
+      JSON.stringify({ id: "crm", name: "客户关系管理系统" }),
     );
     renderWithProviders();
     const rows = await screen.findAllByTestId("menu-row");

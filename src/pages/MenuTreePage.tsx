@@ -93,8 +93,13 @@ export function MenuTreePage() {
   // 应用列表（平台 admin 视角 → 用 useAdminAppsListApps,跨 msw/后端模式同源）
   const appsQ = useAdminAppsListApps();
   const allApps = appsQ.data?.data?.items ?? [];
+  // selection-context 按 code 持久化（路由 :appCode + DEFAULT_APP_ID="lab-management"），
+  // fixture 中 id 是 UUID、code 是 "lab-management"/"erp"/"crm"。同时匹配 id/code 两路：
+  // 真实场景 localStorage 存 code，UUID 路径留给极少数外部直接 set id 的迁移历史。
   const currentApp = useMemo(
-    () => allApps.find((a) => a.id === selectedApp.id) ?? allApps[0],
+    () =>
+      allApps.find((a) => a.id === selectedApp.id || a.code === selectedApp.id) ??
+      allApps[0],
     [selectedApp, allApps],
   );
 
