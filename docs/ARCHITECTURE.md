@@ -34,10 +34,10 @@ saas-identity-platform-shared   ← 契约源（API + DB schema，TypeSpec emit 
         │
         ├─→ saas-identity-platform-react     ← 本仓（React 19 + Vite + orval，:5102）
         ├─→ saas-identity-platform-vue       （:5103）
-        └─→ saas-identity-platform-nextjs    （:3000，兼全栈后端）
+        └─→ saas-identity-platform-nextjs    （:5101，兼全栈后端）
 
-        ├─→ saas-identity-platform-springboot   ← 后端 1/2（:8080）
-        └─→ saas-identity-platform-aspnetcore    ← 后端 2/2（:5000）
+        ├─→ saas-identity-platform-springboot   ← 后端 1/2（:5105）
+        └─→ saas-identity-platform-aspnetcore    ← 后端 2/2（:5104）
 ```
 
 **本仓不是孤岛**——它只消费两样东西：
@@ -91,7 +91,7 @@ export function getApiMode(): string {
 
 - **运行时不再切**：删除 `BackendProvider` / `useBackend` / `BackendSwitcher` 整套；
 - **部署期切换**：改 `.env.production` / 部署平台环境变量，build 后冻结；
-- **跨仓约定**：本仓默认 → `springboot (:8080)`（react 仓惯例），vue 默认 → `aspnetcore (:5000)`；
+- **跨仓约定**：本仓默认 → `springboot (:5105)`（react 仓惯例），vue 默认 → `aspnetcore (:5104)`；
 - **MSW 启动**：v0.3.0 后 **Service Worker 模式完全删除**——dev 路径只走 msw-http（独立 HTTP server，`:5100`），`VITE_ENABLE_MSW` 仅 env 留位但已被 ADR-0014 v0.3.20 删去，UI 走 `getApiMode()` 标签判断。
 
 ### 1.4 与 nextjs 仓的对称性
@@ -312,7 +312,7 @@ saas-identity-platform-react/
    → installHttpClient → getApiBaseUrl() 返回 "http://localhost:5105"
    ↓
 
-3. 同源 SPA 跨域请求 → springboot :8080
+3. 同源 SPA 跨域请求 → springboot :5105
    → springboot NimbusJwtDecoder HS256 真验签（对称密钥 JWT_SIGNING_KEY）
    → 调 shared SQL 灌过的 saas_dev DB
    → 返回真实数据
@@ -418,11 +418,11 @@ vi.mock('axios') mock 链路       →   msw-http :5100 真实 HTTP 服务
 
 | ADR | 主题 | 对本仓的影响 |
 |---|---|---|
-| [ADR-0001](../../../../docs/adr/0001-suite-owns-l0-and-l5.md) | suite 保留 L0 / L5 门 | 本仓只能声明 L1-L4（见 `.harness/stack.json`） |
-| [ADR-0002](../../../../docs/adr/0002-trace-json-as-cross-language-anchor-contract.md) | trace.json 是跨语言锚点 | L4 测试挂 fn-ID 经 `trace_cmd`，禁手写 `.state/trace.json` |
-| [ADR-0003](../../../../docs/adr/0003-function-tree-requires-human-approval.md) | 功能清单变更需人批 | 改 F / I 必须先 `/tree-change` |
-| [ADR-0005](../../../../docs/adr/0005-defense-in-depth-for-protected-paths.md) | 受保护路径纵深防御 | `.claude/hooks/` 不让改 + pre_bash_guard 启发式拦截 |
-| [ADR-0012](../../../../docs/adr/0012-msw-as-http-server.md) | msw 仓升级为独立 HTTP 服务 | dev 走 saas-msw `:5100`（B 强度），SW 模式已删除 |
+| [ADR-0001](../../../docs/adr/0001-suite-owns-l0-and-l5.md) | suite 保留 L0 / L5 门 | 本仓只能声明 L1-L4（见 `.harness/stack.json`） |
+| [ADR-0002](../../../docs/adr/0002-trace-json-as-cross-language-anchor-contract.md) | trace.json 是跨语言锚点 | L4 测试挂 fn-ID 经 `trace_cmd`，禁手写 `.state/trace.json` |
+| [ADR-0003](../../../docs/adr/0003-function-tree-requires-human-approval.md) | 功能清单变更需人批 | 改 F / I 必须先 `/tree-change` |
+| [ADR-0005](../../../docs/adr/0005-defense-in-depth-for-protected-paths.md) | 受保护路径纵深防御 | `.claude/hooks/` 不让改 + pre_bash_guard 启发式拦截 |
+| [ADR-0012](../../../docs/adr/0012-msw-as-http-server.md) | msw 仓升级为独立 HTTP 服务 | dev 走 saas-msw `:5100`（B 强度），SW 模式已删除 |
 
 ### 6.2 父仓隐含 ADR（`multi-repo-family.md` §4）
 
@@ -446,7 +446,7 @@ vi.mock('axios') mock 链路       →   msw-http :5100 真实 HTTP 服务
 | **baseURL** | axios 请求拦截器注入的根 URL | root URL，不含 `/api/v1` 前缀（`path` 自带）；见 `memory/axios-baseurl-no-path-prefix.md` |
 | **installHttpClient** | 一次性 axios 拦截器装载 | main.tsx bootstrap 调一次；不调则 prod 永远走同 origin 被 nginx 405；见 `memory/orval-axios-baseurl-must-be-installed.md` |
 | **getApiMode()** | 后端显示标签 getter | 默认 `"msw-http"`；仅 UI 展示，不参与路由 |
-| **getApiBaseUrl()** | 后端 base URL getter | 默认 `"http://localhost:5174"`（saas-msw）；可被 `.env*` 覆盖 |
+| **getApiBaseUrl()** | 后端 base URL getter | 默认 `"http://localhost:5100"`（saas-msw）；可被 `.env*` 覆盖 |
 | **fnId** | function-tree 里的 M/F/I 编号 | 挂到 UI 的 `data-fn="<fnId>"`；L5 alignment 据此校验已上线 F 必须被引用 |
 | **RequireAuth** | `<App.tsx>` 的路由守卫 | 据 `useTenant().isAuthenticated` 决定重定向 `/login` |
 | **OAuth 2.0 (saas)** | RFC 6749 IdP 流程（authorize/token） | 三 saas 后端对称实现；grant_type=authorization_code / refresh_token |
@@ -497,7 +497,7 @@ vi.mock('axios') mock 链路       →   msw-http :5100 真实 HTTP 服务
 | `main.tsx` 忘调 `installHttpClient(getToken)` | prod 永远走同 origin 被 nginx 405 | main.tsx bootstrap 装拦截器（v0.3.20 起必须） |
 | axios baseURL 含 `/api/v1` 前缀 | path 前缀重复 | baseURL 是 root URL；path 自带 prefix |
 | `useState(emptySession) + useEffect(loadSession)` | 首屏瞬间 `isAuthenticated=false` → RequireAuth 重定向 `/login` 闪烁 / 死循环 | tenant / selection 必须 lazy initializer 同步 hydrate |
-| `vi.mock('axios')` mock API | orval 加载崩，`shared` 模块初始化失败只剩 `getTitle` 一个 export | 走 msw-http :5174 真实 HTTP；或 `vi.mock('@/api/endpoints/endpoints')` 替具名函数 |
+| `vi.mock('axios')` mock API | orval 加载崩，`shared` 模块初始化失败只剩 `getTitle` 一个 export | 走 msw-http :5100 真实 HTTP；或 `vi.mock('@/api/endpoints/endpoints')` 替具名函数 |
 | 按钮加 lucide 图标（Plus / Trash2 / Power / ShieldCheck / Save / X / LogIn / Download） | 用户明确要求**纯文字按钮** | 仅保留 Check / ChevronRight / FolderTree / LogOut / Server |
 | axios 升 1.19 | orval 7 类型推断挂（`AxiosResponseResult` 不兼容） | pin `axios` < 1.19 |
 | demo 密码（`demo123`）写在 UI / 注释 / 测试 | 泄密 | 演示账号由公众号 / 小红书发放；仓内仅 username |
