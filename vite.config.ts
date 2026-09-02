@@ -4,8 +4,13 @@ import tailwindcss from "@tailwindcss/vite";
 import { resolve } from "node:path";
 
 // Vite 在 import.meta.env 注入前的早期 phase 读 process.env。
-// VITE_DEV_PORT 走 .env.local（见 .env.example）；默认 5173。
-const devPort = Number(process.env.VITE_DEV_PORT ?? "5173") || 5173;
+// VITE_DEV_PORT 走 .env.local（见 .env.example）。
+// 跨仓约定（2026-09-02 端口分段 §6）：saas-react=5102（saas 段 X02）。
+// 本仓默认 5102；非空字符串才采纳 env 值，防静默兜底（CLAUDE.md §2 兜底禁令）。
+const FALLBACK_DEV_PORT = 5102 as const;
+const rawPort = process.env.VITE_DEV_PORT;
+const devPort =
+  rawPort && rawPort.trim() !== "" ? Number(rawPort) : FALLBACK_DEV_PORT;
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],

@@ -30,10 +30,10 @@
 ```
 saas-identity-platform-shared   ← 契约源（API + DB schema，TypeSpec emit openapi.yaml）
         │
-        ├─→ saas-identity-platform-msw       ← Mock 后端 HTTP 服务（ADR-0012 B 强度，:5174）
+        ├─→ saas-identity-platform-msw       ← Mock 后端 HTTP 服务（ADR-0012 B 强度，:5100）
         │
-        ├─→ saas-identity-platform-react     ← 本仓（React 19 + Vite + orval，:5173）
-        ├─→ saas-identity-platform-vue       （:5173）
+        ├─→ saas-identity-platform-react     ← 本仓（React 19 + Vite + orval，:5102）
+        ├─→ saas-identity-platform-vue       （:5103）
         └─→ saas-identity-platform-nextjs    （:3000，兼全栈后端）
 
         ├─→ saas-identity-platform-springboot   ← 后端 1/2（:8080）
@@ -45,7 +45,7 @@ saas-identity-platform-shared   ← 契约源（API + DB schema，TypeSpec emit 
 | 上游 | 产物 | 消费方式 |
 |---|---|---|
 | `saas-identity-platform-shared` | `generated/openapi/openapi.yaml` | `orval.config.ts` 读取 → 本仓 `src/api/endpoints/`（gitignored） |
-| `saas-identity-platform-msw` | HTTP server `:5174` + handlers + fixtures | dev 运行时通过 `VITE_API_BASE_URL` 指向 |
+| `saas-identity-platform-msw` | HTTP server `:5100` + handlers + fixtures | dev 运行时通过 `VITE_API_BASE_URL` 指向 |
 
 **本仓不生产**：API 契约、SQL schema、handlers、fixtures、Spring Boot / .NET 后端代码、跨仓对齐规则——这些都在别处。
 
@@ -54,7 +54,7 @@ saas-identity-platform-shared   ← 契约源（API + DB schema，TypeSpec emit 
 | 维度 | 选择 | 备注 |
 |---|---|---|
 | UI 框架 | React 19 | 函数组件 + hooks；无 class 组件 |
-| 构建 | Vite 5 | dev = `vite --port 5173`；build = `tsc -b && vite build` |
+| 构建 | Vite 5 | dev = `vite --port 5102`；build = `tsc -b && vite build` |
 | 类型 | TypeScript 5.6 | `tsconfig.json` strict |
 | 样式 | Tailwind v4 + shadcn/ui | 底座在 `src/components/ui/`（15 个 primitive）；业务组合在 `src/components/app/` |
 | 路由 | react-router-dom v6+ | `BrowserRouter` + `Routes` / `<Route>` + `<Outlet>` |
@@ -80,7 +80,7 @@ export const env = {
 
 // src/api/backend-config.ts（3 个 getter，UI 仅读不可写）
 export function getApiBaseUrl(): string {
-  return env.VITE_API_BASE_URL || "http://localhost:5174";
+  return env.VITE_API_BASE_URL || "http://localhost:5100";
 }
 export function getApiMode(): string {
   return env.VITE_API_MODE || "msw-http";
@@ -92,7 +92,7 @@ export function getApiMode(): string {
 - **运行时不再切**：删除 `BackendProvider` / `useBackend` / `BackendSwitcher` 整套；
 - **部署期切换**：改 `.env.production` / 部署平台环境变量，build 后冻结；
 - **跨仓约定**：本仓默认 → `springboot (:8080)`（react 仓惯例），vue 默认 → `aspnetcore (:5000)`；
-- **MSW 启动**：v0.3.0 后 **Service Worker 模式完全删除**——dev 路径只走 msw-http（独立 HTTP server，`:5174`），`VITE_ENABLE_MSW` 仅 env 留位但已被 ADR-0014 v0.3.20 删去，UI 走 `getApiMode()` 标签判断。
+- **MSW 启动**：v0.3.0 后 **Service Worker 模式完全删除**——dev 路径只走 msw-http（独立 HTTP server，`:5100`），`VITE_ENABLE_MSW` 仅 env 留位但已被 ADR-0014 v0.3.20 删去，UI 走 `getApiMode()` 标签判断。
 
 ### 1.4 与 nextjs 仓的对称性
 
@@ -268,17 +268,17 @@ saas-identity-platform-react/
 ```
 1. 启动 msw 后端（独立进程）:
    cd output/saas-identity-platform-msw && npm start
-   → http://localhost:5174   ← GET /healthz → { mode: "msw" }
+   → http://localhost:5100   ← GET /healthz → { mode: "msw" }
    ↓
 
 2. 启动本仓:
    cd output/saas-identity-platform-react && npm run dev
-   → http://localhost:5173   ← Vite dev server
+   → http://localhost:5102   ← Vite dev server
    ↓
 
 3. 浏览器加载:
    index.html → main.tsx
-   → installHttpClient(getToken)         ← 注入 baseURL = http://localhost:5174
+   → installHttpClient(getToken)         ← 注入 baseURL = http://localhost:5100
    → QueryClientProvider + TenantProvider + SelectionProvider + BrowserRouter
    → App → Routes → /login (未登录) 或 /tenants (已登录)
    ↓
@@ -286,8 +286,8 @@ saas-identity-platform-react/
 4. 用户点登录:
    <LoginPage> 调 authLogin({ username, password })
    → orval 生成的 axios.post("/api/v1/auth/login", body)
-   → axios 拦截器改 config.baseURL = "http://localhost:5174"
-   → 真实 HTTP 请求发到 saas-msw :5174
+   → axios 拦截器改 config.baseURL = "http://localhost:5100"
+   → 真实 HTTP 请求发到 saas-msw :5100
    → msw handlers 拦截，匹配 POST /api/v1/auth/login → 返回真 OAuth 2.0 响应（authorize/token 或 dev helper JWT）
    → 调 tenant-context.login(payload) → 写 localStorage["saas.tenant"]
    → navigate("/tenants")
@@ -304,12 +304,12 @@ saas-identity-platform-react/
 
 ```
 1. 编辑 .env.local:
-   VITE_API_BASE_URL=http://localhost:8080
+   VITE_API_BASE_URL=http://localhost:5105
    VITE_API_MODE=springboot
    ↓
 
 2. 重启 npm run dev（Vite 重启加载新 env）
-   → installHttpClient → getApiBaseUrl() 返回 "http://localhost:8080"
+   → installHttpClient → getApiBaseUrl() 返回 "http://localhost:5105"
    ↓
 
 3. 同源 SPA 跨域请求 → springboot :8080
@@ -317,7 +317,7 @@ saas-identity-platform-react/
    → 调 shared SQL 灌过的 saas_dev DB
    → 返回真实数据
 
-4. 后端 CORS allowlist 必须含 5173（react dev origin）
+4. 后端 CORS allowlist 必须含 5102（react dev origin）
 ```
 
 **反向**：本地后端 vs 部署平台后端只有 `.env*` 不同。代码、Provider、路由、所有页面不动。
@@ -387,7 +387,7 @@ v0.3.0 是一次"塌缩式重构"——把 v0.2.0 时代复杂的三后端运行
 | `localStorage["saas.backend"]` | 运行时持久化当前后端选择 | `.env*` 文件（部署期生效） |
 | `BackendMode = "msw" \| "aspnetcore" \| "springboot" \| "nextjs-self"` 联合类型 | 联合类型枚举 | 单一字符串 `getApiMode()` 显示标签 |
 | 模块级单例 backend instance | 跨页面共享 | env getter 无状态 |
-| `VITE_ENABLE_MSW` env（ADR-0014 v0.3.20） | Service Worker 模式完全删除 | 无（dev 永远走 msw-http :5174） |
+| `VITE_ENABLE_MSW` env（ADR-0014 v0.3.20） | Service Worker 模式完全删除 | 无（dev 永远走 msw-http :5100） |
 
 ### 5.3 决策路径
 
@@ -398,7 +398,7 @@ BackendProvider + useBackend   →   env.ts + backend-config.ts 3 getter
 BackendSwitcher (DropdownMenu) →   BackendBadge (只读 span)
 localStorage["saas.backend"]   →   .env.{local,production} 文件
 3-mode 运行时切换              →   部署期生效，build 后冻结
-vi.mock('axios') mock 链路       →   msw-http :5174 真实 HTTP 服务
+vi.mock('axios') mock 链路       →   msw-http :5100 真实 HTTP 服务
 ```
 
 ### 5.4 与父仓迁移指南的对接
@@ -422,7 +422,7 @@ vi.mock('axios') mock 链路       →   msw-http :5174 真实 HTTP 服务
 | [ADR-0002](../../../../docs/adr/0002-trace-json-as-cross-language-anchor-contract.md) | trace.json 是跨语言锚点 | L4 测试挂 fn-ID 经 `trace_cmd`，禁手写 `.state/trace.json` |
 | [ADR-0003](../../../../docs/adr/0003-function-tree-requires-human-approval.md) | 功能清单变更需人批 | 改 F / I 必须先 `/tree-change` |
 | [ADR-0005](../../../../docs/adr/0005-defense-in-depth-for-protected-paths.md) | 受保护路径纵深防御 | `.claude/hooks/` 不让改 + pre_bash_guard 启发式拦截 |
-| [ADR-0012](../../../../docs/adr/0012-msw-as-http-server.md) | msw 仓升级为独立 HTTP 服务 | dev 走 saas-msw `:5174`（B 强度），SW 模式已删除 |
+| [ADR-0012](../../../../docs/adr/0012-msw-as-http-server.md) | msw 仓升级为独立 HTTP 服务 | dev 走 saas-msw `:5100`（B 强度），SW 模式已删除 |
 
 ### 6.2 父仓隐含 ADR（`multi-repo-family.md` §4）
 

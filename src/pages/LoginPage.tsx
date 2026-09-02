@@ -91,8 +91,7 @@ export function LoginPage() {
             responseType: "code",
             scope: "lab.read lab.write",
             state,
-            tenantId:
-              currentTenantId ?? "00000000-0000-0000-0000-000000000001",
+            tenantId: currentTenantId ?? "00000000-0000-0000-0000-000000000001",
           },
         });
         const target = new URL(redirectUri);
@@ -152,9 +151,7 @@ export function LoginPage() {
                   responseType: "code",
                   scope: "lab.read lab.write",
                   state,
-                  tenantId:
-                    currentTenantId ??
-                    "00000000-0000-0000-0000-000000000001",
+                  tenantId: currentTenantId ?? "00000000-0000-0000-0000-000000000001",
                 },
               });
               const target = new URL(redirectUri);
@@ -256,17 +253,6 @@ export function LoginPage() {
                     ，查看置顶笔记
                   </span>
                 </li>
-              </ul>
-            </div>
-
-            <div className="text-xs text-slate-500 space-y-1">
-              <p className="font-medium text-slate-700">演示账号（用户名公开，密码见上方）</p>
-              <ul className="font-mono space-y-0.5">
-                {DEMO_ACCOUNTS.map((a) => (
-                  <li key={a.username}>
-                    {a.username} · {a.tenant}
-                  </li>
-                ))}
               </ul>
             </div>
 

@@ -72,10 +72,10 @@ describe("M03.F01.I01 账号密码登录", () => {
     expect(submitBtn).toHaveAttribute("data-fn", "M03.F01.I01");
   });
 
-  it("展示演示账号列表", () => {
+  it("展示演示账号获取引导（账号列表已随密码下架删除，2026-09-01）", () => {
     renderLogin();
-    expect(screen.getAllByText(/alice/).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/bob/).length).toBeGreaterThanOrEqual(1);
+    // LoginPage 删掉了 DEMO_ACCOUNTS 用户名列表（demo 账号不再公开），
+    // 保留「密码不公开 → 公众号引导」块 —— 断言跟随 UI 现状。
     expect(screen.getAllByText(/演示账号/).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/公众号/).length).toBeGreaterThanOrEqual(1);
   });

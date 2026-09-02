@@ -9,7 +9,7 @@ import { installHttpClient } from "./api/http-client";
 import "./index.css";
 
 // ADR-0012 v0.3.0：删除 SW bootstrap（Service Worker 模式完全删除）。
-// dev 路径走 msw-http 独立 HTTP server（@saas/identity-platform-msw/src/server.ts 起 :5174）。
+// dev 路径走 msw-http 独立 HTTP server（@saas/identity-platform-msw/src/server.ts 起 :5100）。
 async function bootstrap() {
   // v0.3.20 起 (fix login 405): 必须装 axios interceptor 才能让 orval 生成的
   // `axios.post('/api/v1/auth/login', ...)` 走 baseURL (http-client.ts:42 installHttpClient
