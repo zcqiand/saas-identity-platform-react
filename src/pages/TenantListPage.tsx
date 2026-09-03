@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PageHeader } from "@/components/app/page-header";
+import { PageLoading } from "@/components/app/page-loading";
 import { StatusBadge } from "@/components/app/status-badge";
 import { EmptyState } from "@/components/app/empty-state";
 import { ConfirmDialog } from "@/components/app/confirm-dialog";
@@ -115,7 +116,9 @@ export function TenantListPage() {
           <CardTitle>租户列表 ({tenants.length})</CardTitle>
         </CardHeader>
         <CardContent className="px-0">
-          {tenants.length === 0 ? (
+          {list.isPending ? (
+            <PageLoading />
+          ) : tenants.length === 0 ? (
             <EmptyState title="还没有租户" description="创建第一个租户开始使用" />
           ) : (
             <Table>

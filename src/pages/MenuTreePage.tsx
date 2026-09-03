@@ -1,8 +1,10 @@
 // M08 — 应用下树形菜单 CRUD
 // 应用切换器（lab/erp/crm）+ 默认必选中（lab-management）+ localStorage 记住
+// v0.4.x：真树表格（可展开/收起）。后端返回扁平 Menu[]，前端按 parentId 自构树。
+// 注意：n.children 不存在于 Menu 类型（后端契约只有 parentId）—— 旧代码误用顺手在这里修了。
 
-import { useState, useMemo } from "react";
-import { ChevronRight, FolderTree } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ChevronDown, ChevronRight, FolderTree } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   adminAppMenusCreateMenu,
@@ -19,7 +21,16 @@ import type {
 } from "@/api/endpoints/endpoints.schemas";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { EmptyState } from "@/components/app/empty-state";
+import { PageLoading } from "@/components/app/page-loading";
 import { PageHeader } from "@/components/app/page-header";
 import { StatusBadge } from "@/components/app/status-badge";
 import { ConfirmDialog } from "@/components/app/confirm-dialog";
@@ -75,14 +86,47 @@ const FIELDS: FieldDef[] = [
 
 const EDIT_FIELDS = FIELDS.filter((f) => f.name !== "code");
 
-function flatten(nodes: Menu[], depth = 0): Array<Menu & { depth: number }> {
-  const out: Array<Menu & { depth: number }> = [];
-  for (const n of nodes) {
-    out.push({ ...n, depth });
-    const children = (n as any).children as Menu[] | undefined;
-    if (children && children.length) out.push(...flatten(children, depth + 1));
+interface MenuNode {
+  menu: Menu;
+  children: MenuNode[];
+  hasChildren: boolean;
+}
+
+function buildTree(menus: Menu[]): MenuNode[] {
+  const byId = new Map<string, MenuNode>();
+  for (const m of menus) byId.set(m.id, { menu: m, children: [], hasChildren: false });
+  const roots: MenuNode[] = [];
+  for (const m of menus) {
+    const node = byId.get(m.id)!;
+    if (m.parentId && byId.has(m.parentId)) {
+      byId.get(m.parentId)!.children.push(node);
+    } else {
+      roots.push(node);
+    }
   }
-  return out;
+  for (const n of byId.values()) n.hasChildren = n.children.length > 0;
+  const sortByOrder = (a: MenuNode, b: MenuNode) =>
+    a.menu.sortOrder - b.menu.sortOrder || a.menu.code.localeCompare(b.menu.code);
+  const recurse = (ns: MenuNode[]) => {
+    ns.sort(sortByOrder);
+    for (const n of ns) recurse(n.children);
+  };
+  recurse(roots);
+  return roots;
+}
+
+function flattenTree(
+  nodes: MenuNode[],
+  expanded: Set<string>,
+  depth: number,
+  out: Array<Menu & { depth: number; hasChildren: boolean }>,
+) {
+  for (const n of nodes) {
+    out.push({ ...n.menu, depth, hasChildren: n.hasChildren });
+    if (n.hasChildren && expanded.has(n.menu.id)) {
+      flattenTree(n.children, expanded, depth + 1, out);
+    }
+  }
 }
 
 export function MenuTreePage() {
@@ -151,8 +195,33 @@ export function MenuTreePage() {
   const [editTarget, setEditTarget] = useState<Menu | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Menu | null>(null);
   const [moveTarget, setMoveTarget] = useState<Menu | null>(null);
+  // 用「collapsed」 而不是「expanded」：初始空，首屏全部父级默认展开。
+  // toggle 时把 id 加进/移出 collapsed 集合。
+  const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
 
-  const rows = useMemo(() => flatten((menusQ.data ?? []) as Menu[]), [menusQ.data]);
+  const allMenus = (menusQ.data ?? []) as Menu[];
+
+  const rows = useMemo(() => {
+    const tree = buildTree(allMenus);
+    const parentIds = new Set<string>();
+    for (const m of allMenus) if (m.parentId) parentIds.add(m.parentId);
+    const expanded = new Set<string>();
+    for (const id of parentIds) if (!collapsedIds.has(id)) expanded.add(id);
+    const out: Array<Menu & { depth: number; hasChildren: boolean }> = [];
+    flattenTree(tree, expanded, 0, out);
+    return out;
+  }, [allMenus, collapsedIds]);
+
+  const toggleExpand = (id: string) => {
+    setCollapsedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const isExpanded = (id: string) => !collapsedIds.has(id);
 
   return (
     <div className="space-y-6">
@@ -199,62 +268,100 @@ export function MenuTreePage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="px-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Code / 路径</TableHead>
-                <TableHead>名称</TableHead>
-                <TableHead>类型</TableHead>
-                <TableHead>排序</TableHead>
-                <TableHead>状态</TableHead>
-                <TableHead className="text-right">操作</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((r) => (
-                <TableRow key={r.id} data-testid="menu-row" data-depth={r.depth}>
-                  <TableCell className="font-mono text-xs">
-                    <span style={{ paddingLeft: `${r.depth * 16}px` }} className="inline-flex items-center">
-                      {r.depth > 0 && <ChevronRight className="h-3 w-3 text-slate-400 mr-1" />}
-                      {r.code}
-                    </span>
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {r.name}
-                    {r.path && (
-                      <span className="ml-2 text-xs text-slate-500 font-mono">{r.path}</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-700">
-                      {r.type}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-slate-600">{r.sortOrder}</TableCell>
-                  <TableCell>
-                    <StatusBadge status={r.status === "active" ? "active" : "suspended"} />
-                  </TableCell>
-                  <TableCell className="text-right space-x-1">
-                    <Button variant="ghost" size="sm" data-fn="M08.F02.I07" onClick={() => setMoveTarget(r)}>
-                      移动
-                    </Button>
-                    <Button variant="ghost" size="sm" data-fn="M08.F01.I04" onClick={() => setEditTarget(r)}>
-                      编辑
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      data-fn="M08.F01.I05"
-                      className="text-red-600 hover:text-red-700"
-                      onClick={() => setDeleteTarget(r)}
-                    >
-                      删除
-                    </Button>
-                  </TableCell>
+          {menusQ.isPending ? (
+            <PageLoading />
+          ) : rows.length === 0 ? (
+            <EmptyState
+              title="暂无菜单"
+              description="点击右上“新建菜单”开始"
+              action={
+                <Button data-fn="M08.F01.I02" onClick={() => setCreateOpen(true)}>
+                  新建菜单
+                </Button>
+              }
+            />
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Code / 路径</TableHead>
+                  <TableHead>名称</TableHead>
+                  <TableHead>类型</TableHead>
+                  <TableHead>排序</TableHead>
+                  <TableHead>状态</TableHead>
+                  <TableHead className="text-right">操作</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {rows.map((r) => (
+                  <TableRow
+                    key={r.id}
+                    data-testid="menu-row"
+                    data-depth={r.depth}
+                    data-menu-id={r.id}
+                  >
+                    <TableCell className="font-mono text-xs">
+                      <span
+                        style={{ paddingLeft: `${r.depth * 16}px` }}
+                        className="inline-flex items-center"
+                      >
+                        {r.hasChildren ? (
+                          <button
+                            type="button"
+                            aria-label={isExpanded(r.id) ? "折叠子菜单" : "展开子菜单"}
+                            data-testid={`menu-toggle-${r.id}`}
+                            className="mr-1 inline-flex h-4 w-4 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                            onClick={() => toggleExpand(r.id)}
+                          >
+                            {isExpanded(r.id) ? (
+                              <ChevronDown className="h-3 w-3" />
+                            ) : (
+                              <ChevronRight className="h-3 w-3" />
+                            )}
+                          </button>
+                        ) : (
+                          <span className="mr-1 inline-block h-4 w-4" />
+                        )}
+                        <span>{r.code}</span>
+                      </span>
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {r.name}
+                      {r.path && (
+                        <span className="ml-2 text-xs text-slate-500 font-mono">{r.path}</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-700">
+                        {r.type}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-slate-600">{r.sortOrder}</TableCell>
+                    <TableCell>
+                      <StatusBadge status={r.status === "active" ? "active" : "suspended"} />
+                    </TableCell>
+                    <TableCell className="text-right space-x-1">
+                      <Button variant="ghost" size="sm" data-fn="M08.F02.I07" onClick={() => setMoveTarget(r)}>
+                        移动
+                      </Button>
+                      <Button variant="ghost" size="sm" data-fn="M08.F01.I04" onClick={() => setEditTarget(r)}>
+                        编辑
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        data-fn="M08.F01.I05"
+                        className="text-red-600 hover:text-red-700"
+                        onClick={() => setDeleteTarget(r)}
+                      >
+                        删除
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 
@@ -270,7 +377,10 @@ export function MenuTreePage() {
             type: "select",
             options: [
               { value: "", label: "（无，顶级）" },
-              ...rows.map((m) => ({ value: m.id, label: `${"  ".repeat(m.depth)}${m.code} · ${m.name}` })),
+              ...rows.map((m) => ({
+                value: m.id,
+                label: `${"  ".repeat(m.depth)}${m.code} · ${m.name}`,
+              })),
             ],
             defaultValue: "",
           },

@@ -5,7 +5,7 @@
 // tenant = globex goes to `/tenants/globex/users`, not literal `/tenants/:tenantId/users`.
 
 import { useLocation, Outlet, Link, useNavigate } from "react-router-dom";
-import { useMemo } from "react";
+import { Suspense, useMemo } from "react";
 import {
   Building2,
   Users,
@@ -25,6 +25,7 @@ import { BackendBadge } from "./backend-badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
+import { PageLoading } from "./page-loading";
 import { useQuery } from "@tanstack/react-query";
 import { adminTenantsListTenants } from "@/api/endpoints/endpoints";
 import { useTenant } from "@/state/tenant-context";
@@ -167,7 +168,7 @@ export function AppShell() {
         <Separator />
         <main className="flex-1 overflow-auto">
           <div className="max-w-6xl mx-auto p-6">
-            <Outlet />
+            <Suspense fallback={<PageLoading />}>{<Outlet />}</Suspense>
           </div>
         </main>
       </div>

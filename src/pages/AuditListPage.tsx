@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PageHeader } from "@/components/app/page-header";
+import { PageLoading } from "@/components/app/page-loading";
 
 const ACTION_LABEL: Record<string, string> = {
   user_created: "创建用户",
@@ -63,7 +64,7 @@ export function AuditListPage() {
         </CardHeader>
         <CardContent className="px-0">
           {q.isPending ? (
-            <div className="p-8 text-center text-sm text-slate-400">加载中…</div>
+            <PageLoading />
           ) : events.length === 0 ? (
             <div className="p-8 text-center text-sm text-slate-400">暂无审计事件</div>
           ) : (

@@ -1,15 +1,31 @@
 {
   "schema": 2,
   "project": "saas-identity-platform-react",
-  "current_task": "VITE_* ENV 烘焙(v0.3.27 GREEN)",
-  "last_session_at": "2026-08-29",
-  "last_session_summary": "5 page inline useQuery → useAdminTenantsGetTenant hook；tests/setup.ts 加 hook 桩；删 msw-stubs.d.ts + mocks/{handlers,node}.ts；commit 86c34dc + tag v0.3.10-20260822 pushed",
+  "current_task": "菜单树表化 + 统一加载图（v0.4.x 已 gate 绿）",
+  "last_session_at": "2026-09-03",
+  "last_session_summary": "MenuTreePage 从拍扁+paddingLeft 改成真树表（collapsedIds 倒过来维护，默认全展开）；新增 PageLoading 组件；7 个 list page（Tenant/User/Role/App/ApiKey/Audit/RoleMenuGrant）inline 用 PageLoading；AppShell 包 <Suspense fallback={<PageLoading/>}> 兜底；AuditListPage 文本「加载中…」换成 PageLoading。后端 Menu.children 不存在 → 改 buildTree 用 parentId 自构树（顺手修了原代码误读）。",
   "done": [
-    "untrack + ENV(saas-react→saas-springboot)",
-    "v0.3.27 GREEN"
+    "PageLoading.tsx：LoaderCircle + 居中文本",
+    "MenuTreePage.tsx：buildTree/flattenTree + collapsedIds 默认空 = 全展开 + PageLoading + EmptyState",
+    "tests/integration/menu-tree.test.tsx：新增 3 用例（toggle 按钮存在/点击收起/至少一行 depth>0）",
+    "TenantListPage/UserListPage/RoleListPage/AppListPage/ApiKeyListPage：inline PageLoading",
+    "AuditListPage：「加载中…」文本 → PageLoading",
+    "RoleMenuGrantPage：groupsQ.isPending || grantQ.isPending 时显示 PageLoading",
+    "AppShell：<Suspense fallback={<PageLoading/>}> 包 Outlet",
+    "data-fn 全部不动；MenuTreePage 5 个按钮 ID 保留",
+    "gate.py -p saas-identity-platform-react → L0/L0.5/L1/L2/L3/L4/L5 全绿"
   ],
-  "next": [],
+  "next": [
+    "git add + commit（建议消息：feat(suite/react): 菜单管理页改真树表 + 统一加载图 + Suspense 兜底）；不打 tag 等用户发车",
+    "如需把 7 个 list page 进一步重构走 <DataTable>（目前 0 page 用它），单独 PR；本 PR 不做以保留 row-click 等交互"
+  ],
   "open_questions": [],
-  "dont": [],
+  "dont": [
+    "不要改 version-lock.json（CLAUDE.md §2）",
+    "不要给按钮加图标（CLAUDE.md §2）",
+    "MenuTreePage 不要手写 axios fetch（必须走 orval adminAppMenusListMenus）",
+    "不要相信旧代码 `useState(emptySession)+useEffect(loadSession)`（CLAUDE.md §2 禁）",
+    "不要把 DataTable 当通用层 —— 它没 row-click/conditional cell 支持，这 7 页交互丰富，硬塞会丢功能"
+  ],
   "active_branch": "master"
 }

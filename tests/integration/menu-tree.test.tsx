@@ -95,4 +95,30 @@ describe("M08.F01 菜单树", () => {
       .filter((b) => b.getAttribute("data-fn") === "M08.F01.I05");
     expect(btns.length).toBe(27);
   });
+
+  it("父级菜单行带 data-testid=menu-toggle-* 切换按钮", async () => {
+    renderWithProviders();
+    const rows = await screen.findAllByTestId("menu-row");
+    expect(rows.length).toBe(27);
+    const toggles = screen.queryAllByTestId(/^menu-toggle-/);
+    expect(toggles.length).toBeGreaterThan(0);
+  });
+
+  it("点击父级切换按钮后子级行数减少", async () => {
+    renderWithProviders();
+    const before = (await screen.findAllByTestId("menu-row")).length;
+    expect(before).toBe(27);
+    const firstToggle = screen.getAllByTestId(/^menu-toggle-/)[0];
+    await firstToggle.click();
+    const after = (await screen.findAllByTestId("menu-row")).length;
+    expect(after).toBeLessThan(before);
+    expect(after).toBeGreaterThan(0);
+  });
+
+  it("至少一行带 data-depth > 0（证明真的按 parentId 构树）", async () => {
+    renderWithProviders();
+    const rows = await screen.findAllByTestId("menu-row");
+    const nested = rows.filter((r) => Number(r.getAttribute("data-depth")) > 0);
+    expect(nested.length).toBeGreaterThan(0);
+  });
 });

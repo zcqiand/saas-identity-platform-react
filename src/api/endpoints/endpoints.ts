@@ -39,6 +39,7 @@ import type {
   AdminTenantsListTenantsParams,
   ApiKey,
   App,
+  AppPublicInfo,
   AuthorizeCodeRequest,
   CreateApiKeyRequest,
   CreateApiKeyResponse,
@@ -1296,6 +1297,91 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       return useMutation(mutationOptions, queryClient);
     }
     
+export const appsGetApp = (
+    code: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<AppPublicInfo>> => {
+    
+    
+    return axios.get(
+      `/api/v1/apps/${code}`,options
+    );
+  }
+
+
+
+
+export const getAppsGetAppQueryKey = (code?: string,) => {
+    return [
+    `/api/v1/apps/${code}`
+    ] as const;
+    }
+
+    
+export const getAppsGetAppQueryOptions = <TData = Awaited<ReturnType<typeof appsGetApp>>, TError = AxiosError<ErrorResponse>>(code: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof appsGetApp>>, TError, TData>>, axios?: AxiosRequestConfig}
+) => {
+
+const {query: queryOptions, axios: axiosOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAppsGetAppQueryKey(code);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof appsGetApp>>> = ({ signal }) => appsGetApp(code, { signal, ...axiosOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(code), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof appsGetApp>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AppsGetAppQueryResult = NonNullable<Awaited<ReturnType<typeof appsGetApp>>>
+export type AppsGetAppQueryError = AxiosError<ErrorResponse>
+
+
+export function useAppsGetApp<TData = Awaited<ReturnType<typeof appsGetApp>>, TError = AxiosError<ErrorResponse>>(
+ code: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof appsGetApp>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof appsGetApp>>,
+          TError,
+          Awaited<ReturnType<typeof appsGetApp>>
+        > , 'initialData'
+      >, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAppsGetApp<TData = Awaited<ReturnType<typeof appsGetApp>>, TError = AxiosError<ErrorResponse>>(
+ code: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof appsGetApp>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof appsGetApp>>,
+          TError,
+          Awaited<ReturnType<typeof appsGetApp>>
+        > , 'initialData'
+      >, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAppsGetApp<TData = Awaited<ReturnType<typeof appsGetApp>>, TError = AxiosError<ErrorResponse>>(
+ code: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof appsGetApp>>, TError, TData>>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useAppsGetApp<TData = Awaited<ReturnType<typeof appsGetApp>>, TError = AxiosError<ErrorResponse>>(
+ code: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof appsGetApp>>, TError, TData>>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getAppsGetAppQueryOptions(code,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+
 export const authLogin = (
     loginRequest: LoginRequest, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<LoginResponse>> => {
@@ -2088,6 +2174,62 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       > => {
 
       const mutationOptions = getTenantApiKeysCreateApiKeyMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    
+export const tenantApiKeysDeleteApiKey = (
+    tenantId: string,
+    keyId: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<void>> => {
+    
+    
+    return axios.delete(
+      `/api/v1/tenants/${tenantId}/api-keys/${keyId}`,options
+    );
+  }
+
+
+
+export const getTenantApiKeysDeleteApiKeyMutationOptions = <TError = AxiosError<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof tenantApiKeysDeleteApiKey>>, TError,{tenantId: string;keyId: string}, TContext>, axios?: AxiosRequestConfig}
+): UseMutationOptions<Awaited<ReturnType<typeof tenantApiKeysDeleteApiKey>>, TError,{tenantId: string;keyId: string}, TContext> => {
+
+const mutationKey = ['tenantApiKeysDeleteApiKey'];
+const {mutation: mutationOptions, axios: axiosOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, axios: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof tenantApiKeysDeleteApiKey>>, {tenantId: string;keyId: string}> = (props) => {
+          const {tenantId,keyId} = props ?? {};
+
+          return  tenantApiKeysDeleteApiKey(tenantId,keyId,axiosOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type TenantApiKeysDeleteApiKeyMutationResult = NonNullable<Awaited<ReturnType<typeof tenantApiKeysDeleteApiKey>>>
+    
+    export type TenantApiKeysDeleteApiKeyMutationError = AxiosError<ErrorResponse>
+
+    export const useTenantApiKeysDeleteApiKey = <TError = AxiosError<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof tenantApiKeysDeleteApiKey>>, TError,{tenantId: string;keyId: string}, TContext>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof tenantApiKeysDeleteApiKey>>,
+        TError,
+        {tenantId: string;keyId: string},
+        TContext
+      > => {
+
+      const mutationOptions = getTenantApiKeysDeleteApiKeyMutationOptions(options);
 
       return useMutation(mutationOptions, queryClient);
     }

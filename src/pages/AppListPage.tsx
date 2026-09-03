@@ -22,6 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PageHeader } from "@/components/app/page-header";
+import { PageLoading } from "@/components/app/page-loading";
 import { StatusBadge } from "@/components/app/status-badge";
 import { EmptyState } from "@/components/app/empty-state";
 import { ConfirmDialog } from "@/components/app/confirm-dialog";
@@ -151,7 +152,9 @@ export function AppListPage() {
           <CardTitle>应用列表 ({apps.length})</CardTitle>
         </CardHeader>
         <CardContent className="px-0">
-          {apps.length === 0 ? (
+          {list.isPending ? (
+            <PageLoading />
+          ) : apps.length === 0 ? (
             <EmptyState title="还没有应用" description="创建第一个应用以承载菜单" />
           ) : (
             <Table>

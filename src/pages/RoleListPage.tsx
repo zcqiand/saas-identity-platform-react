@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PageHeader } from "@/components/app/page-header";
+import { PageLoading } from "@/components/app/page-loading";
 import { ConfirmDialog } from "@/components/app/confirm-dialog";
 import { CrudDialog, type FieldDef } from "@/components/app/crud-dialog";
 import { toApiError } from "@/api/http-client";
@@ -118,6 +119,9 @@ export function RoleListPage() {
           <CardTitle>角色列表 ({roles.length})</CardTitle>
         </CardHeader>
         <CardContent className="px-0">
+          {list.isPending ? (
+            <PageLoading />
+          ) : (
           <Table>
             <TableHeader>
               <TableRow>
@@ -161,6 +165,7 @@ export function RoleListPage() {
               ))}
             </TableBody>
           </Table>
+          )}
         </CardContent>
       </Card>
 

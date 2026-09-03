@@ -14,6 +14,7 @@ import type { SetRoleMenusRequest } from "@/api/endpoints/endpoints.schemas";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/app/page-header";
+import { PageLoading } from "@/components/app/page-loading";
 import { toApiError } from "@/api/http-client";
 import { toast } from "sonner";
 
@@ -102,6 +103,10 @@ export function RoleMenuGrantPage() {
         }
       />
 
+      {groupsQ.isPending || grantQ.isPending ? (
+        <PageLoading />
+      ) : (
+        <>
       {groupsQ.data?.map((g) => (
         <Card key={g.appCode}>
           <CardHeader>
@@ -145,6 +150,8 @@ export function RoleMenuGrantPage() {
           </p>
         </CardContent>
       </Card>
+        </>
+      )}
     </div>
   );
 }
