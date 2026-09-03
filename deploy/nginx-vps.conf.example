@@ -13,7 +13,9 @@
 # 这份配置的目的:
 #   - saas.YOUR_DOMAIN 的 HTTP 301 到 HTTPS
 #   - HTTPS 终结在 VPS（持 cert）
-#   - proxy_pass 到本机容器端口 8021（由 docker run -p 127.0.0.1:8021:80 决定）
+#   - proxy_pass 到本机容器端口 5102（ADR-0018 SPA partial 双层：
+#     容器内 nginx:alpine :80 privileged，host 走 saas 家族 X02 段 5102，
+#     由 docker run -p 127.0.0.1:5102:80 决定）
 #
 # 注意:不持有 default_server。同一台 VPS 上若 saas-nextjs/springboot 也跑 :80
 # default_server，react 这边重复声明 nginx -t 直接报错——务必先装 saas
@@ -43,9 +45,9 @@ server {
     add_header Strict-Transport-Security "max-age=31536000" always;
 
     location / {
-        # VPS 暴露端口（容器内 nginx 监听 :80）
+        # VPS 暴露端口（容器内 nginx 监听 :80, host=5102 saas X02 段）
         # 改端口必须同步 deploy/saas-identity-platform-react.sh 的 -p
-        proxy_pass http://127.0.0.1:8021;
+        proxy_pass http://127.0.0.1:5102;
 
         proxy_http_version 1.1;
         proxy_set_header Host              $host;

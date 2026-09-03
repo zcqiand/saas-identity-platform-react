@@ -26,7 +26,8 @@ VERSION="${3:-latest}"
 IMAGE="${USERNAME}/saas-identity-platform-react:${VERSION}"
 BASE="/home/deploy/saas-identity-platform-react"
 CONTAINER_NAME="saas-identity-platform-react"
-HOST_PORT=8021
+# saas-react:容器内 nginx:alpine 监听 :80(privileged),host 端口走 family 段 5102(ADR-0018)
+HOST_PORT=5102
 
 # nginx domain (react SPA 没有 CORS / cross-origin runtime env, 但 deploy 脚本
 # 自举 nginx vhost 时仍要用到, 提前到 bootstrap 块之前)
