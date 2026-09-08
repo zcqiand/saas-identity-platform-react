@@ -5,7 +5,7 @@
 // Language-specific clients are generated per consuming project.
 import { execSync } from "node:child_process";
 import { resolve } from "node:path";
-import { existsSync, mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
 const root = resolve(import.meta.dirname, "..");
 const sharedDir = resolve(root, "../saas-identity-platform-shared");
@@ -25,3 +25,39 @@ console.log("[gen-shared] step 2/2 — react: orval → src/api/endpoints/...");
 execSync("npx orval", { cwd: root, stdio: "inherit" });
 
 console.log("[gen-shared] OK");
+
+// ADR-0026 §2: 写 last-gen-shared.json marker（API 类别，react 无 DB sync）。
+// 失败不阻塞 gen-shared —— staleness 是 warning（V1 档）不是 build blocker。
+try {
+  const markerPath = resolve(root, ".state/last-gen-shared.json");
+  mkdirSync(resolve(root, ".state"), { recursive: true });
+  const sharedSha = execSync("git rev-parse HEAD", { cwd: sharedDir, encoding: "utf-8" }).trim();
+
+  let marker: Record<string, string> = {};
+  if (existsSync(markerPath)) {
+    try {
+      marker = JSON.parse(readFileSync(markerPath, "utf-8"));
+    } catch {
+      marker = {};
+    }
+  }
+
+  marker.api_synced_sha = sharedSha;
+  marker.api_synced_at = new Date().toISOString();
+  marker.api_synced_cmd = "gen-shared.ts";
+
+  const shas = [marker.api_synced_sha, marker.db_synced_sha].filter(
+    Boolean,
+  ) as string[];
+  marker.shared_sha = shas.length ? shas.sort().pop()! : sharedSha;
+  marker.consumer_repo = resolve(root).split(/[\\/]/).pop()!;
+
+  writeFileSync(markerPath, JSON.stringify(marker, null, 2) + "\n", "utf-8");
+  console.log(
+    `[gen-shared]    ADR-0026 marker 已落盘: ${markerPath} (shared HEAD ${sharedSha.slice(0, 7)})`,
+  );
+} catch (err) {
+  console.warn(
+    `[gen-shared]    WARN: marker 写失败（${err instanceof Error ? err.message : err}）—— staleness 将报 UNKNOWN`,
+  );
+}
