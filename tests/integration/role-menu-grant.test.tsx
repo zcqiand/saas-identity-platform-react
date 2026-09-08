@@ -29,22 +29,22 @@ beforeEach(() => {
 });
 
 describe("M09.F02 角色菜单授权", () => {
-  it("渲染多 app 分组菜单行，保存按钮挂 data-fn=M09.F02.I02", async () => {
+  it("渲染多 app 分组菜单行，保存按钮挂 data-fn=M00.F04.I03", async () => {
     renderGrant();
     const rows = await screen.findAllByTestId("menu-grant-row");
     expect(rows.length).toBeGreaterThanOrEqual(4);
     const btn = screen
       .getAllByRole("button")
-      .find((b) => b.getAttribute("data-fn") === "M09.F02.I02");
+      .find((b) => b.getAttribute("data-fn") === "M00.F04.I03");
     expect(btn).toBeTruthy();
   });
 
-  it("清空按钮挂 data-fn=M09.F02.I03", async () => {
+  it("清空按钮挂 data-fn=M00.F04.I04", async () => {
     renderGrant();
     await screen.findAllByTestId("menu-grant-row");
     const btn = screen
       .getAllByRole("button")
-      .find((b) => b.getAttribute("data-fn") === "M09.F02.I03");
+      .find((b) => b.getAttribute("data-fn") === "M00.F04.I04");
     expect(btn).toBeTruthy();
   });
 
@@ -53,7 +53,7 @@ describe("M09.F02 角色菜单授权", () => {
     await screen.findAllByTestId("menu-grant-row");
     const saveBtn = screen
       .getAllByRole("button")
-      .find((b) => b.getAttribute("data-fn") === "M09.F02.I02") as HTMLElement;
+      .find((b) => b.getAttribute("data-fn") === "M00.F04.I03") as HTMLElement;
     await waitFor(() => {
       expect(saveBtn.textContent).toMatch(/保存 \(/);
     });
@@ -64,11 +64,11 @@ describe("M09.F02 角色菜单授权", () => {
     await screen.findAllByTestId("menu-grant-row");
     const clearBtn = screen
       .getAllByRole("button")
-      .find((b) => b.getAttribute("data-fn") === "M09.F02.I03") as HTMLElement;
+      .find((b) => b.getAttribute("data-fn") === "M00.F04.I04") as HTMLElement;
     fireEvent.click(clearBtn);
     const saveBtn = screen
       .getAllByRole("button")
-      .find((b) => b.getAttribute("data-fn") === "M09.F02.I02") as HTMLElement;
+      .find((b) => b.getAttribute("data-fn") === "M00.F04.I03") as HTMLElement;
     await waitFor(() => {
       expect(saveBtn.textContent).toMatch(/保存 \(0\)/);
     });

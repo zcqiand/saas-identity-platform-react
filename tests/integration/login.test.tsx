@@ -1,4 +1,4 @@
-// M03.F01.I01 - 账号密码登录 (PLAN-2026-001 T-9)
+// M01.F04.I03 - 账号密码登录 (PLAN-2026-001 T-9)
 //
 // 策略：mock `authLogin`（orval 端点函数）与 sonner toast，
 // 验证表单提交 -> POST /auth/login 参数、错误提示（401 / 423 锁定）、
@@ -62,14 +62,14 @@ beforeEach(() => {
   localStorage.clear();
 });
 
-describe("M03.F01.I01 账号密码登录", () => {
-  it("渲染登录表单，提交按钮挂 data-fn=M03.F01.I01", () => {
+describe("M01.F04.I03 账号密码登录", () => {
+  it("渲染登录表单，提交按钮挂 data-fn=M01.F04.I03", () => {
     renderLogin();
     const submitBtn = screen
       .getAllByRole("button")
-      .find((b) => b.getAttribute("data-fn") === "M03.F01.I01");
+      .find((b) => b.getAttribute("data-fn") === "M01.F04.I03");
     expect(submitBtn).toBeTruthy();
-    expect(submitBtn).toHaveAttribute("data-fn", "M03.F01.I01");
+    expect(submitBtn).toHaveAttribute("data-fn", "M01.F04.I03");
   });
 
   it("展示演示账号获取引导（账号列表已随密码下架删除，2026-09-01）", () => {
@@ -137,7 +137,7 @@ describe("M03.F01.I01 账号密码登录", () => {
   });
 });
 
-// === M03.F01.I01 OAuth 2.0 授权码回跳（RFC 6749 §4.1.2）===
+// === M01.F04.I03 OAuth 2.0 授权码回跳（RFC 6749 §4.1.2）===
 
 // jsdom 的 window.location.href 只读 — 用 Proxy 拦截赋值记录目标 URL（lab-react 同款手法）。
 function interceptLocationHref(): { assigned: () => string; restore: () => void } {
@@ -167,7 +167,7 @@ function interceptLocationHref(): { assigned: () => string; restore: () => void 
   };
 }
 
-describe("M03.F01.I01 OAuth code 回跳", () => {
+describe("M01.F04.I03 OAuth code 回跳", () => {
   it("带 ?code=&redirect_uri=&state= 登录成功 -> 302 redirect_uri?code&state（不跳 /tenants）", async () => {
     const loc = interceptLocationHref();
     authLoginMock.mockResolvedValue({

@@ -26,13 +26,13 @@ beforeEach(() => {
 });
 
 describe("M01.F01 用户管理（tenant-scoped）", () => {
-  it("渲染用户列表，邀请按钮挂 data-fn=M01.F01.I02", async () => {
+  it("渲染用户列表，邀请按钮挂 data-fn=M01.F04.I03", async () => {
     renderUserList();
     const rows = await screen.findAllByTestId("user-row");
     expect(rows.length).toBeGreaterThan(0);
     const inviteBtn = screen
       .getAllByRole("button")
-      .find((b) => b.getAttribute("data-fn") === "M01.F01.I02");
+      .find((b) => b.getAttribute("data-fn") === "M01.F04.I03");
     expect(inviteBtn).toBeTruthy();
   });
 

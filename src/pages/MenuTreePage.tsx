@@ -254,7 +254,7 @@ export function MenuTreePage() {
                 ))}
               </SelectContent>
             </Select>
-            <Button onClick={() => setCreateOpen(true)} data-fn="M08.F01.I02">
+            <Button onClick={() => setCreateOpen(true)} data-fn="M04.F04.I02">
               新建菜单
             </Button>
           </div>
@@ -275,7 +275,7 @@ export function MenuTreePage() {
               title="暂无菜单"
               description="点击右上“新建菜单”开始"
               action={
-                <Button data-fn="M08.F01.I02" onClick={() => setCreateOpen(true)}>
+                <Button data-fn="M04.F04.I02" onClick={() => setCreateOpen(true)}>
                   新建菜单
                 </Button>
               }
@@ -341,16 +341,16 @@ export function MenuTreePage() {
                       <StatusBadge status={r.status === "active" ? "active" : "suspended"} />
                     </TableCell>
                     <TableCell className="text-right space-x-1">
-                      <Button variant="ghost" size="sm" data-fn="M08.F02.I07" onClick={() => setMoveTarget(r)}>
+                      <Button variant="ghost" size="sm" data-fn="M04.F04.I07" onClick={() => setMoveTarget(r)}>
                         移动
                       </Button>
-                      <Button variant="ghost" size="sm" data-fn="M08.F01.I04" onClick={() => setEditTarget(r)}>
+                      <Button variant="ghost" size="sm" data-fn="M04.F04.I04" onClick={() => setEditTarget(r)}>
                         编辑
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
-                        data-fn="M08.F01.I05"
+                        data-fn="M04.F04.I05"
                         className="text-red-600 hover:text-red-700"
                         onClick={() => setDeleteTarget(r)}
                       >

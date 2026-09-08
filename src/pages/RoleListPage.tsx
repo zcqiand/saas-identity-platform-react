@@ -109,7 +109,7 @@ export function RoleListPage() {
         title="角色权限"
         description={`${tenantLabel} 的角色矩阵`}
         actions={
-          <Button onClick={() => setCreateOpen(true)} data-fn="M02.F01.I02">
+          <Button onClick={() => setCreateOpen(true)} data-fn="M00.F03.I02">
             新建角色
           </Button>
         }
@@ -142,19 +142,19 @@ export function RoleListPage() {
                     </span>
                   </TableCell>
                   <TableCell className="text-right space-x-1">
-                    <Button variant="ghost" size="sm" data-fn="M02.F02.I01" onClick={() => setPermTarget(r)}>
+                    <Button variant="ghost" size="sm" data-fn="M00.F04.I01" onClick={() => setPermTarget(r)}>
                       权限矩阵
                     </Button>
-                    <Button variant="ghost" size="sm" data-fn="M09.F01.I01" asChild>
+                    <Button variant="ghost" size="sm" data-fn="M00.F04.I02" asChild>
                       <Link to={`/tenants/${tenantId}/roles/${r.id}/menus`}>菜单授权</Link>
                     </Button>
-                    <Button variant="ghost" size="sm" data-fn="M02.F01.I04" onClick={() => setEditTarget(r)}>
+                    <Button variant="ghost" size="sm" data-fn="M00.F03.I04" onClick={() => setEditTarget(r)}>
                       编辑
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
-                      data-fn="M02.F01.I05"
+                      data-fn="M00.F03.I05"
                       className="text-red-600 hover:text-red-700"
                       onClick={() => setDeleteTarget(r)}
                     >

@@ -46,7 +46,7 @@ describe("sidebar 选中态唯一性回归", () => {
   it("在 /apps/{code}/menus 高亮「菜单管理」，「应用管理」不高亮", () => {
     renderApp("/apps/lab-management/menus");
 
-    const menuLink = screen.getByTestId("sidebar-nav-item-M08.F01.I01");
+    const menuLink = screen.getByTestId("sidebar-nav-item-M04.F04.I01");
     const appLink = screen.getByTestId("sidebar-nav-item-M04.F01.I01");
 
     expect(menuLink.className).toMatch(/bg-slate-700/);

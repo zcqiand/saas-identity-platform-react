@@ -10,7 +10,7 @@ beforeEach(() => {
 });
 
 describe("M02.F01 角色权限（tenant-scoped）", () => {
-  it("渲染角色列表，新建角色按钮挂 data-fn=M02.F01.I02", async () => {
+  it("渲染角色列表，新建角色按钮挂 data-fn=M00.F03.I02", async () => {
     const qc = new QueryClient();
     render(
       <QueryClientProvider client={qc}>
@@ -23,7 +23,7 @@ describe("M02.F01 角色权限（tenant-scoped）", () => {
     );
     const btn = await screen
       .findAllByRole("button")
-      .then((btns) => btns.find((b) => b.getAttribute("data-fn") === "M02.F01.I02"));
+      .then((btns) => btns.find((b) => b.getAttribute("data-fn") === "M00.F03.I02"));
     expect(btn).toBeTruthy();
   });
 });

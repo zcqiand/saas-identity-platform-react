@@ -29,14 +29,14 @@ beforeEach(() => {
 });
 
 describe("M08.F01 菜单树", () => {
-  it("默认选中 lab-management，渲染 27 项菜单行 + 新建按钮 data-fn=M08.F01.I02", async () => {
+  it("默认选中 lab-management，渲染 27 项菜单行 + 新建按钮 data-fn=M04.F04.I02", async () => {
     renderWithProviders();
     const rows = await screen.findAllByTestId("menu-row");
     expect(rows.length).toBe(27);
     expect(screen.getAllByText(/建筑工程实验室管理系统/).length).toBeGreaterThanOrEqual(1);
     const btn = screen
       .getAllByRole("button")
-      .find((b) => b.getAttribute("data-fn") === "M08.F01.I02");
+      .find((b) => b.getAttribute("data-fn") === "M04.F04.I02");
     expect(btn).toBeTruthy();
   });
 
@@ -87,12 +87,12 @@ describe("M08.F01 菜单树", () => {
     expect(rows.length).toBe(7);
   });
 
-  it("菜单行挂 data-fn=M08.F01.I05 删除按钮（每个菜单 1 个）", async () => {
+  it("菜单行挂 data-fn=M04.F04.I05 删除按钮（每个菜单 1 个）", async () => {
     renderWithProviders();
     await screen.findAllByTestId("menu-row");
     const btns = screen
       .getAllByRole("button")
-      .filter((b) => b.getAttribute("data-fn") === "M08.F01.I05");
+      .filter((b) => b.getAttribute("data-fn") === "M04.F04.I05");
     expect(btns.length).toBe(27);
   });
 

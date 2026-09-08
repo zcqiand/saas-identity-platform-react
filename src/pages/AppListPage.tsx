@@ -205,7 +205,7 @@ export function AppListPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        data-fn="M04.F02.I06"
+                        data-fn="M04.F02.I01"
                         onClick={() =>
                           statusMut.mutate({
                             appId: a.id,

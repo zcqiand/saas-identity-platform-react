@@ -33,12 +33,12 @@ describe("M04.F01 应用列表（平台级）", () => {
     expect(btn).toBeTruthy();
   });
 
-  it("应用行挂 data-fn=M04.F02.I06 启用/停用按钮", async () => {
+  it("应用行挂 data-fn=M04.F02.I01 启用/停用按钮", async () => {
     renderApp();
     await screen.findAllByTestId("app-row");
     const btns = screen
       .getAllByRole("button")
-      .filter((b) => b.getAttribute("data-fn") === "M04.F02.I06");
+      .filter((b) => b.getAttribute("data-fn") === "M04.F02.I01");
     expect(btns.length).toBeGreaterThanOrEqual(1);
   });
 
