@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "approved": true,
+  "base_sha": "57bced77f35f6e71",
+  "summary": "saas-react 对齐修复：M05.F01.I05（物理删除 API Key）+ M06.F03（审计写入助手）",
+  "changes": [
+    {
+      "id": "M05.F01.I05",
+      "action": "新增",
+      "name": "物理删除 API Key（区别于 I03 revoke 软删；幂等——重复删 → 404）",
+      "reason": "BASE 已上线；nextjs/aspnetcore/springboot/msw 已实现；react 缺，触发 nextjs 相对 reference 多出未声明 ID"
+    },
+    {
+      "id": "M06.F03",
+      "action": "新增",
+      "name": "审计写入助手（写端点副作用）",
+      "reason": "BASE 已声明契约面；react/vue/nextjs/aspnetcore/springboot 5 仓全缺，触发缺 BASE 契约面 ID"
+    }
+  ],
+  "sync_files": []
+}
