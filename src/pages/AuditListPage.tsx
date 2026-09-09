@@ -2,6 +2,7 @@
 
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import type { AuditEvent } from "@/api/endpoints/endpoints.schemas";
 import {
   tenantAuditListAuditEvents,
   useAdminTenantsGetTenant,
@@ -44,7 +45,7 @@ export function AuditListPage() {
   const tenant = tenantQ.data?.data ?? null;
   const tenantLabel = tenant ? `租户 ${tenant.name}（${tenant.code}）` : "租户未知";
 
-  const q = useQuery({
+  const q = useQuery<AuditEvent[]>({
     queryKey: ["tenantAuditListAuditEvents", tenantId],
     queryFn: async () => (await tenantAuditListAuditEvents(tenantId!)).data.items,
     enabled: !!tenantId,

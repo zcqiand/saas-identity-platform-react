@@ -37,7 +37,7 @@ export function ApiKeyListPage() {
   const tenant = tenantQ.data?.data ?? null;
   const tenantLabel = tenant ? `租户 ${tenant.name}（${tenant.code}）` : "租户未知";
 
-  const list = useQuery({
+  const list = useQuery<ApiKey[]>({
     queryKey: ["tenantApiKeysListApiKeys", tenantId],
     queryFn: async () => (await tenantApiKeysListApiKeys(tenantId!)).data.items,
     enabled: !!tenantId,

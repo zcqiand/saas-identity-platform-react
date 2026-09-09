@@ -87,7 +87,7 @@ function toAppInput(values: Record<string, any>): CreateAppRequest {
 export function AppListPage() {
   const qc = useQueryClient();
 
-  const list = useQuery({
+  const list = useQuery<App[]>({
     queryKey: ["adminAppsListApps"],
     queryFn: async () => (await adminAppsListApps()).data.items,
   });

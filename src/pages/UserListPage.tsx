@@ -13,7 +13,7 @@ import {
   tenantUsersUpdateUser,
   useAdminTenantsGetTenant,
 } from "@/api/endpoints/endpoints";
-import type { CreateUserRequest, UpdateUserRequest, User } from "@/api/endpoints/endpoints.schemas";
+import type { CreateUserRequest, UpdateUserRequest, User, Role } from "@/api/endpoints/endpoints.schemas";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -61,13 +61,13 @@ export function UserListPage() {
   const tenant = tenantQ.data?.data ?? null;
   const tenantLabel = tenant ? `租户 ${tenant.name}（${tenant.code}）` : "租户未知";
 
-  const usersQ = useQuery({
+  const usersQ = useQuery<User[]>({
     queryKey: ["tenantUsersListUsers", tenantId],
     queryFn: async () => (await tenantUsersListUsers(tenantId!)).data.items,
     enabled: !!tenantId,
   });
 
-  const rolesQ = useQuery({
+  const rolesQ = useQuery<Role[]>({
     queryKey: ["tenantRolesListRoles", tenantId],
     queryFn: async () => (await tenantRolesListRoles(tenantId!)).data.items,
     enabled: !!tenantId,

@@ -52,7 +52,7 @@ export function RoleListPage() {
   const tenant = tenantQ.data?.data ?? null;
   const tenantLabel = tenant ? `租户 ${tenant.name}（${tenant.code}）` : "租户未知";
 
-  const list = useQuery({
+  const list = useQuery<Role[]>({
     queryKey: ["tenantRolesListRoles", tenantId],
     queryFn: async () => (await tenantRolesListRoles(tenantId!)).data.items,
     enabled: !!tenantId,
