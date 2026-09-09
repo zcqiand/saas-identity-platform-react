@@ -82,7 +82,7 @@ export function ApiKeyListPage() {
         title="API Key"
         description={`${tenantLabel} 的 API 访问密钥`}
         actions={
-          <Button onClick={() => setCreateOpen(true)} data-fn="M05.F01.I02">
+          <Button onClick={() => setCreateOpen(true)}>
             创建 Key
           </Button>
         }
@@ -124,7 +124,7 @@ export function ApiKeyListPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      data-fn="M05.F01.I04"
+                      data-fn=""
                       onClick={() => setRotateTarget(k)}
                       disabled={k.status === "revoked"}
                     >
@@ -133,7 +133,7 @@ export function ApiKeyListPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      data-fn="M05.F01.I03"
+                      data-fn=""
                       className="text-red-600 hover:text-red-700"
                       onClick={() => setRevokeTarget(k)}
                       disabled={k.status === "revoked"}

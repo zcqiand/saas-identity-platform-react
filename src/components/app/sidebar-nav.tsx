@@ -44,6 +44,7 @@ export function SidebarNav({
     <aside
       className="w-60 shrink-0 bg-slate-900 text-white flex flex-col"
       data-testid="sidebar-nav"
+      data-fn="M04.F04.I08"
     >
       <div className="px-5 py-5 border-b border-white/10">
         <div className="flex items-center gap-2">
