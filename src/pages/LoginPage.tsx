@@ -1,22 +1,27 @@
 // M01.F04.I03 — 账号密码登录（独立布局：登录页绕过 AppShell）
 //
-// 提交：调 authLogin（orval 1:1 端点函数）；成功后写 tenant-context session；
-// 失败：toast.error（sonner）。
+// 提交：调 useSessionsLogin（orval hook；LoginRequest 契约 clientId required）；
+// 成功后写 tenant-context session；失败：toast.error（sonner，本页自挂 <Toaster/>）。
 // 演示账号：见页面底部（密码不再公开展示，需通过公众号 / 小红书获取）。
+//
+// clientId 门（B 方案 2026-09-11，对齐 vue 基准）：?client_id= ?? env VITE_LOGIN_CLIENT_ID
+// （值 = saas-console 自身应用）；两者皆缺 → toast 拒绝，不发请求。
 //
 // SSO 返回（OAuth 2.0 授权码模式，RFC 6749）：URL 带 ?code=&redirect_uri=&state=
 // （lab RP 经 /api/auth/sso/authorize 领 code 后跳来）。saas 认证资源所有者后，
 // 302 redirect_uri?code&state（§4.1.2）原样透传给 RP。镜像 saas-nextjs app/login。
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Toaster } from "@/components/ui/sonner";
 import { useTenant } from "@/state/tenant-context";
 import { getApiMode } from "@/api/backend-config";
-import { authLogin, useOAuthAuthorize } from "@/api/endpoints/endpoints";
+import { useOAuthAuthorize } from "@/api/endpoints/endpoints";
+import { useSessionsLogin } from "@/api/endpoints/auth/auth";
 import { toApiError } from "@/api/http-client";
 import { toast } from "sonner";
 
@@ -34,6 +39,17 @@ export function LoginPage() {
   const { login, isAuthenticated, currentTenantId } = useTenant();
   const apiMode = getApiMode();
   const navigate = useNavigate();
+  const loginMut = useSessionsLogin();
+
+  // B 方案：clientId 取 ?client_id= ?? env（saas-console 自身应用）。
+  // 禁 fallback 到 demo 字面量（ADR-0019）——缺即拒，不猜。
+  const loginClientId = useMemo(() => {
+    const fromUrl = new URLSearchParams(window.location.search).get("client_id");
+    if (fromUrl) return fromUrl;
+    const fromEnv = (import.meta.env.VITE_LOGIN_CLIENT_ID ?? "").trim();
+    if (fromEnv) return fromEnv;
+    return "";
+  }, []);
   const authorizeMut = useOAuthAuthorize();
   // RFC 6749 §4.1.1 授权码范式：lab 后端（confidential client）已替浏览器领到 code，
   // saas 登录页只负责认证资源所有者，成功后 302 redirect_uri?code&state（§4.1.2）。
@@ -107,16 +123,27 @@ export function LoginPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!loginClientId) {
+      toast.error("缺少 clientId：请通过 OAuth 跳转访问，或配置 VITE_LOGIN_CLIENT_ID");
+      return;
+    }
     setSubmitting(true);
     try {
-      const res = await authLogin({ username, password });
-      const data = res.data;
+      const res = await loginMut.mutateAsync({
+        data: { username, password, clientId: loginClientId },
+      });
+      const { accessToken, refreshToken } = res.data;
+      if (!accessToken || !refreshToken) {
+        toast.error("登录响应缺少 token，请联系管理员");
+        return;
+      }
       login({
-        accessToken: data.accessToken,
-        refreshToken: data.refreshToken,
-        userId: data.userId,
+        accessToken,
+        refreshToken,
+        userId: res.data.user?.id ?? "",
         username,
-        currentTenantId: data.currentTenantId,
+        email: res.data.user?.email,
+        currentTenantId: res.data.availableTenants?.[0]?.tenantId ?? "",
       });
       // OAuth 2.0 code 回跳：把 code+state 原样透传给 RP 的 redirect_uri。
       // 用 setTimeout(0) 让 React 先把 setSession 的 re-render 跑完之后再做导航，
@@ -186,6 +213,8 @@ export function LoginPage() {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-100 via-white to-slate-200 p-4">
+      {/* 登录页独立于 AppShell（其内才有全局 <Toaster/>）——错误 toast 靠这里自挂 */}
+      <Toaster />
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-2">
           <CardTitle className="text-lg">SaaS 多租户多应用身份平台</CardTitle>

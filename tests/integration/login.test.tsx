@@ -1,13 +1,14 @@
-// M01.F04.I03 - 账号密码登录 (PLAN-2026-001 T-9)
+// M01.F04.I03 - 账号密码登录 (PLAN-2026-001 T-9；2026-09-11 B 方案对齐 vue 基准)
 //
-// 策略：mock `authLogin`（orval 端点函数）与 sonner toast，
-// 验证表单提交 -> POST /auth/login 参数、错误提示（401 / 423 锁定）、
+// 策略：mock `useSessionsLogin`（orval hook）与 sonner toast，
+// 验证表单提交 -> POST /auth/login 参数（含 clientId，LoginRequest 契约 required）、
+// clientId 门（无 query 无 env 拒绝）、错误提示（401 / 423 锁定 / 缺 token）、
 // 成功后写 tenant-context session + 跳 /tenants。
 //
 // OAuth 2.0 授权码回跳（RFC 6749 §4.1.2，镜像 saas-nextjs app/login）：
 // lab 后端 pre-code 后把浏览器送到 /login?code=&redirect_uri=&state=，
 // 登录成功后 302 redirect_uri?code&state 回 RP；无参数时行为不变。
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -15,27 +16,41 @@ import { TenantProvider } from "../state-helpers";
 import { LoginPage } from "../../src/pages/LoginPage";
 import { ApiError } from "../../src/api/http-client";
 
-// mock orval 端点函数（Login 直接 await authLogin）
-const { authLoginMock } = vi.hoisted(() => ({ authLoginMock: vi.fn() }));
-vi.mock("../../src/api/endpoints/endpoints", async (importOriginal) => {
+// mock orval hook（LoginPage 用 useSessionsLogin().mutateAsync）
+const { sessionsLoginMock } = vi.hoisted(() => ({ sessionsLoginMock: vi.fn() }));
+vi.mock("../../src/api/endpoints/auth/auth", async (importOriginal) => {
   const actual = await importOriginal<
-    typeof import("../../src/api/endpoints/endpoints")
+    typeof import("../../src/api/endpoints/auth/auth")
   >();
-  return { ...actual, authLogin: authLoginMock };
+  return {
+    ...actual,
+    useSessionsLogin: () => ({ mutateAsync: sessionsLoginMock }),
+  };
 });
 
-// mock toast：捕获 toast.error 文案
+// mock toast：捕获 toast.error 文案（Toaster 组件随 LoginPage 自挂，mock 成空渲染）
 const { toastError } = vi.hoisted(() => ({ toastError: vi.fn() }));
 vi.mock("sonner", () => ({
   toast: { error: toastError, success: vi.fn() },
+  Toaster: () => null,
 }));
 
-function renderLogin() {
+const LOGIN_RESPONSE = {
+  accessToken: "at-1",
+  refreshToken: "rt-1",
+  user: { id: "u-1", email: "alice@acme.io" },
+  availableTenants: [{ tenantId: "t-1" }],
+  clientId: "cid-test",
+};
+
+function renderLogin(url = "/login?client_id=cid-test") {
+  // LoginPage 读 window.location.search（不依赖路由 query 时序）——jsdom 侧同步设 URL
+  window.history.replaceState({}, "", url);
   const qc = new QueryClient();
   return render(
     <QueryClientProvider client={qc}>
       <TenantProvider>
-        <MemoryRouter initialEntries={["/login"]}>
+        <MemoryRouter initialEntries={[url]}>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/tenants" element={<div data-testid="tenants-page" />} />
@@ -57,9 +72,14 @@ async function fillAndSubmit() {
 }
 
 beforeEach(() => {
-  authLoginMock.mockReset();
+  sessionsLoginMock.mockReset();
   toastError.mockReset();
   localStorage.clear();
+  window.history.replaceState({}, "", "/login");
+});
+
+afterEach(() => {
+  vi.unstubAllEnvs();
 });
 
 describe("M01.F04.I03 账号密码登录", () => {
@@ -80,25 +100,49 @@ describe("M01.F04.I03 账号密码登录", () => {
     expect(screen.getAllByText(/公众号/).length).toBeGreaterThanOrEqual(1);
   });
 
-  it("提交 username/password -> POST /auth/login（端点参数一致）", async () => {
-    authLoginMock.mockResolvedValue({
-      data: {
-        accessToken: "at-1",
-        refreshToken: "rt-1",
-        userId: "u-1",
-        currentTenantId: "t-1",
-      },
-    });
+  it("无 client_id（query 与 env 均缺）提交 -> toast 缺少 clientId 且不发请求", async () => {
+    vi.stubEnv("VITE_LOGIN_CLIENT_ID", "");
+    renderLogin("/login");
+    await fillAndSubmit();
+    await waitFor(() => expect(toastError).toHaveBeenCalled());
+    expect(String(toastError.mock.calls[0]?.[0])).toContain("clientId");
+    expect(sessionsLoginMock).not.toHaveBeenCalled();
+  });
+
+  it("env VITE_LOGIN_CLIENT_ID 可作兜底（无 query 时）", async () => {
+    vi.stubEnv("VITE_LOGIN_CLIENT_ID", "cid-from-env");
+    sessionsLoginMock.mockResolvedValue({ data: LOGIN_RESPONSE });
+    renderLogin("/login");
+    await fillAndSubmit();
+    await waitFor(() =>
+      expect(sessionsLoginMock).toHaveBeenCalledWith({
+        data: { username: "alice", password: "dev123456", clientId: "cid-from-env" },
+      }),
+    );
+  });
+
+  it("提交 username/password/clientId -> POST /auth/login（端点参数一致，LoginRequest required）", async () => {
+    sessionsLoginMock.mockResolvedValue({ data: LOGIN_RESPONSE });
     renderLogin();
     await fillAndSubmit();
-    expect(authLoginMock).toHaveBeenCalledWith({
-      username: "alice",
-      password: "dev123456",
+    expect(sessionsLoginMock).toHaveBeenCalledWith({
+      data: { username: "alice", password: "dev123456", clientId: "cid-test" },
     });
   });
 
+  it("登录响应缺 token -> toast 提示且不跳转", async () => {
+    sessionsLoginMock.mockResolvedValue({
+      data: { ...LOGIN_RESPONSE, accessToken: undefined, refreshToken: undefined },
+    });
+    renderLogin();
+    await fillAndSubmit();
+    await waitFor(() => expect(toastError).toHaveBeenCalled());
+    expect(String(toastError.mock.calls[0]?.[0])).toContain("token");
+    expect(screen.queryByTestId("tenants-page")).toBeNull();
+  });
+
   it("错密码（401）-> toast 显示用户名或密码错误", async () => {
-    authLoginMock.mockRejectedValue(
+    sessionsLoginMock.mockRejectedValue(
       new ApiError(401, null, "invalid credentials"),
     );
     renderLogin();
@@ -108,7 +152,7 @@ describe("M01.F04.I03 账号密码登录", () => {
   });
 
   it("账号锁定（423）-> toast 显示锁定提示", async () => {
-    authLoginMock.mockRejectedValue(
+    sessionsLoginMock.mockRejectedValue(
       new ApiError(423, { code: "ACCOUNT_LOCKED" }, "account locked"),
     );
     renderLogin();
@@ -118,14 +162,7 @@ describe("M01.F04.I03 账号密码登录", () => {
   });
 
   it("登录成功 -> tenant session 写 localStorage + 跳 /tenants", async () => {
-    authLoginMock.mockResolvedValue({
-      data: {
-        accessToken: "at-1",
-        refreshToken: "rt-1",
-        userId: "u-1",
-        currentTenantId: "t-1",
-      },
-    });
+    sessionsLoginMock.mockResolvedValue({ data: LOGIN_RESPONSE });
     renderLogin();
     await fillAndSubmit();
     await waitFor(() =>
@@ -133,6 +170,7 @@ describe("M01.F04.I03 账号密码登录", () => {
     );
     const stored = JSON.parse(localStorage.getItem("saas.tenant") ?? "{}");
     expect(stored.accessToken).toBe("at-1");
+    // userId/currentTenantId 来自 LoginResponse.user / availableTenants（B 基准，对齐 vue）
     expect(stored.currentTenantId).toBe("t-1");
   });
 });
@@ -170,21 +208,16 @@ function interceptLocationHref(): { assigned: () => string; restore: () => void 
 describe("M01.F04.I03 OAuth code 回跳", () => {
   it("带 ?code=&redirect_uri=&state= 登录成功 -> 302 redirect_uri?code&state（不跳 /tenants）", async () => {
     const loc = interceptLocationHref();
-    authLoginMock.mockResolvedValue({
-      data: {
-        accessToken: "at-1",
-        refreshToken: "rt-1",
-        userId: "u-1",
-        currentTenantId: "t-1",
-      },
-    });
+    sessionsLoginMock.mockResolvedValue({ data: LOGIN_RESPONSE });
     try {
       window.history.replaceState(
         {},
         "",
-        "/login?code=auth-code-1&redirect_uri=https%3A%2F%2Flab-react.xiangru.uk%2Flogin&state=xyz",
+        "/login?client_id=cid-test&code=auth-code-1&redirect_uri=https%3A%2F%2Flab-react.xiangru.uk%2Flogin&state=xyz",
       );
-      renderLogin();
+      renderLogin(
+        "/login?client_id=cid-test&code=auth-code-1&redirect_uri=https%3A%2F%2Flab-react.xiangru.uk%2Flogin&state=xyz",
+      );
       await fillAndSubmit();
       await waitFor(() => expect(loc.assigned()).toBeTruthy());
       const target = new URL(loc.assigned());
@@ -206,14 +239,7 @@ describe("M01.F04.I03 OAuth code 回跳", () => {
 
   it("无 OAuth 参数登录成功 -> 行为不变（跳 /tenants，不读 location.href）", async () => {
     const loc = interceptLocationHref();
-    authLoginMock.mockResolvedValue({
-      data: {
-        accessToken: "at-1",
-        refreshToken: "rt-1",
-        userId: "u-1",
-        currentTenantId: "t-1",
-      },
-    });
+    sessionsLoginMock.mockResolvedValue({ data: LOGIN_RESPONSE });
     try {
       renderLogin();
       await fillAndSubmit();

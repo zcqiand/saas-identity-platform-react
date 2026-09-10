@@ -6,7 +6,7 @@
     "features": 13,
     "items": 51
   },
-  "warnings_total": 82,
+  "warnings_total": 83,
   "warnings": {
     "已上线但无设计映射": [
       "M00.F01.I01",
@@ -24,6 +24,7 @@
       "M00.F04.I04",
       "M01.F02.I01",
       "M01.F03.I02",
+      "M01.F04.I03",
       "M01.F04.I06",
       "M04.F01.I01",
       "M04.F01.I02",
@@ -418,7 +419,8 @@
       "flows": [],
       "designs": [],
       "tests": [
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-applications.test.ts:970 (path)"
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-applications.test.ts:970 (path)",
+        "渲染租户应用页，订阅应用按钮挂 data-fn=M00.F05.I02"
       ],
       "entry": [
         "src\\pages\\TenantApplicationsListPage.tsx"
@@ -503,7 +505,7 @@
     },
     "M01.F04.I03": {
       "name": "密码登录 UI",
-      "status": "规划",
+      "status": "已上线",
       "type": "页面",
       "requirements": [],
       "flows": [],

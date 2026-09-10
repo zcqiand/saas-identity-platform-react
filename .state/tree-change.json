@@ -1,20 +1,15 @@
 {
   "schema": 1,
   "approved": true,
-  "base_sha": "4e3e2acb9c5c25c5",
-  "summary": "M04.F04.I08 当前用户有效菜单 cascade 状态改已上线（PLAN-2026-003 T1-T6 落地完成）",
+  "base_sha": "9c6d079e72037b00",
+  "summary": "密码登录 UI 规划→已上线（E2E REQ-2026-001 前置：E2E 只测已上线功能；登录页/表单/data-fn 锚点与测试已落地）",
   "changes": [
     {
-      "id": "M04.F04.I08",
+      "id": "M01.F04.I03",
       "action": "变更",
-      "name": "当前用户有效菜单",
-      "delivery": "前端+后端",
-      "reason": "cascade 对齐 PLAN-2026-003：端点 + UI 入口已实施完成（nextjs/aspnetcore/springboot/msw 端点 + react/vue SidebarNav data-fn）"
+      "name": "密码登录 UI",
+      "reason": "REQ(e2e)-2026-001 Q1 澄清：已收口"
     }
   ],
-  "sync_files": [
-    "docs/functions/function-tree.md",
-    "src/lib/oauth-flow.ts",
-    "tests/integration/oauth-client.test.ts"
-  ]
+  "sync_files": []
 }

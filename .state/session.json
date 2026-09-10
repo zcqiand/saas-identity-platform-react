@@ -1,31 +1,24 @@
 {
   "schema": 2,
   "project": "saas-identity-platform-react",
-  "current_task": "菜单树表化 + 统一加载图（v0.4.x 已 gate 绿）",
-  "last_session_at": "2026-09-03",
-  "last_session_summary": "MenuTreePage 从拍扁+paddingLeft 改成真树表（collapsedIds 倒过来维护，默认全展开）；新增 PageLoading 组件；7 个 list page（Tenant/User/Role/App/ApiKey/Audit/RoleMenuGrant）inline 用 PageLoading；AppShell 包 <Suspense fallback={<PageLoading/>}> 兜底；AuditListPage 文本「加载中…」换成 PageLoading。后端 Menu.children 不存在 → 改 buildTree 用 parentId 自构树（顺手修了原代码误读）。",
+  "current_task": "三端收口盘点（2026-09-10）：34/51 已上线，横向 I 级与 vue/nextjs 对齐一致，gate 全绿",
+  "last_session_at": "2026-09-10",
+  "last_session_summary": "本仓无代码改动，纯盘点收口。三端缺口完全一致（对齐是齐的，欠账是共享的）：M00.F02 成员管理 I01-I06/I08 开发中（列表/创建/邀请/状态切换连 UI entry 都没有）、M00.F04.I02 角色已授权菜单查询、M00.F05 应用订阅 4 项（cdf7e33 建了页面但状态未转已上线）、M01.F01.I01 whoami / M01.F03.I01 我的租户成员关系（API 侧 contract-test 已覆盖，纯前端欠账）、M01.F04.I03 密码登录 UI / I07 全局 SSO 登出（规划）。另有已上线无设计映射/无测试引用 warnings 82 条。",
   "done": [
-    "PageLoading.tsx：LoaderCircle + 居中文本",
-    "MenuTreePage.tsx：buildTree/flattenTree + collapsedIds 默认空 = 全展开 + PageLoading + EmptyState",
-    "tests/integration/menu-tree.test.tsx：新增 3 用例（toggle 按钮存在/点击收起/至少一行 depth>0）",
-    "TenantListPage/UserListPage/RoleListPage/AppListPage/ApiKeyListPage：inline PageLoading",
-    "AuditListPage：「加载中…」文本 → PageLoading",
-    "RoleMenuGrantPage：groupsQ.isPending || grantQ.isPending 时显示 PageLoading",
-    "AppShell：<Suspense fallback={<PageLoading/>}> 包 Outlet",
-    "data-fn 全部不动；MenuTreePage 5 个按钮 ID 保留",
-    "gate.py -p saas-identity-platform-react → L0/L0.5/L1/L2/L3/L4/L5 全绿"
+    "盘点：34/51 已上线 + 14 开发中 + 3 规划，与 vue 完全对齐",
+    "gate.py -p saas-identity-platform-react → 全绿（2026-09-10 21:10 gate --all 确认）"
   ],
   "next": [
-    "git add + commit（建议消息：feat(suite/react): 菜单管理页改真树表 + 统一加载图 + Suspense 兜底）；不打 tag 等用户发车",
-    "如需把 7 个 list page 进一步重构走 <DataTable>（目前 0 page 用它），单独 PR；本 PR 不做以保留 row-click 等交互"
+    "M00.F02 成员管理是最大缺口：先建 src/pages/members/ 列表页 + UI entry（路由/菜单项），走 orval adminMembers 系具名函数",
+    "M01.F01.I01 whoami / M01.F03.I01：contract-test 已有 API 覆盖，直接做 UI 即可，从 app/(dashboard)/profile/ 起步"
   ],
-  "open_questions": [],
+  "open_questions": [
+    "M00.F05 应用订阅 4 项页面 cdf7e33 已建但状态还是「开发中」——功能状态转「已上线」是走 /tree-change 还是补测试后自然转？"
+  ],
   "dont": [
-    "不要改 version-lock.json（CLAUDE.md §2）",
-    "不要给按钮加图标（CLAUDE.md §2）",
-    "MenuTreePage 不要手写 axios fetch（必须走 orval adminAppMenusListMenus）",
-    "不要相信旧代码 `useState(emptySession)+useEffect(loadSession)`（CLAUDE.md §2 禁）",
-    "不要把 DataTable 当通用层 —— 它没 row-click/conditional cell 支持，这 7 页交互丰富，硬塞会丢功能"
+    "不要改 version-lock.json / 给按钮加图标（CLAUDE.md §2）",
+    "不要手写 axios fetch（走 orval 具名函数）",
+    "成员管理 UI 别造新 fixture 形状——用 msw 仓 2026-09-08 apps→clients/users→members 重命名后的契约"
   ],
   "active_branch": "master"
 }
