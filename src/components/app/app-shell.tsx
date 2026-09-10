@@ -95,7 +95,7 @@ export function AppShell() {
   const navItems: NavItem[] = useMemo(
     () => [
       { to: "/tenants", label: "租户管理", group: "首页", icon: <Building2 className="h-4 w-4" />, fnId: "M00.F01.I01" },
-      { to: `/tenants/${tenantForNav}/users`, label: "用户管理", group: "身份管理", icon: <Users className="h-4 w-4" />, fnId: "M01.F01.I01" },
+      { to: `/tenants/${tenantForNav}/users`, label: "用户管理", group: "身份管理", icon: <Users className="h-4 w-4" />, fnId: "M00.F02.I01" },
       { to: `/tenants/${tenantForNav}/roles`, label: "角色管理", group: "身份管理", icon: <Shield className="h-4 w-4" />, fnId: "M00.F03.I01" },
       { to: `/tenants/${tenantForNav}/applications`, label: "租户应用", group: "应用与菜单", icon: <Boxes className="h-4 w-4" />, fnId: "M00.F05.I01" },
       { to: "/apps", label: "应用管理", group: "应用与菜单", icon: <Boxes className="h-4 w-4" />, fnId: "M04.F01.I01" },
