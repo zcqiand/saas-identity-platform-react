@@ -3,9 +3,9 @@
 // 生成的具名 export 重新汇成一个 barrel，让 `@/api/endpoints/endpoints` 重新
 // 可见。
 //
-// 不在本仓 orval 产物里、但被 pages/tests 引用的名字（api-keys / audit /
-// admin-app-menus / admin-apps / setPermissions / authLogin / tenantUsers*
-// 等旧名）在末尾用空函数/any 占位 export ——
+// 不在本仓 orval 产物里、但被 pages/tests 引用的旧名（admin-app-menus /
+// admin-apps / setPermissions / authLogin / tenantUsers* 等）在末尾用空
+// 函数/any 占位 export ——
 //   - 类型层：让 TS 认得这些名字，pages 编译过；
 //   - 测试运行时：tests/setup.ts 的 vi.mock("@/api/endpoints/endpoints") 会
 //     把整个模块替换掉，这些占位函数根本不会被调用；
@@ -259,29 +259,8 @@ export function useOAuthAuthorize(): {
 }
 
 // ===== 9/7 前 src/pages 引用、本仓 orval 尚未生成的函数 =====
-//（shared openapi.yaml 当前只覆盖 11 个 tag；api-keys/audit/admin-app-menus/
-//  admin-apps/auth 旧名/setPermissions 等模块尚未落 tsp。）
-
-// api-keys (tenant-scoped)
-// 显式 typed 返回让 useQuery 的 queryFn 推断成 ApiKey[]（否则 pages.map((k))
-// 的 k 会被推成 never / unknown）
-import type { ApiKey } from "./endpoints.schemas";
-export const tenantApiKeysListApiKeys: (
-  ...args: unknown[]
-) => Promise<{ data: { items: ApiKey[] } }> = (..._args: unknown[]) =>
-  Promise.resolve({ data: { items: [] as ApiKey[] } });
-export const tenantApiKeysCreateApiKey: AnyFn = () =>
-  Promise.resolve({ data: undefined });
-export const tenantApiKeysRevokeApiKey: AnyFn = () =>
-  Promise.resolve({ data: undefined });
-export const tenantApiKeysRotateApiKey: AnyFn = () =>
-  Promise.resolve({ data: undefined });
-
-// audit (tenant-scoped) —— 页代码 map((e) => ...)，e 必须 any 不能 unknown
-export const tenantAuditListAuditEvents: (
-  ...args: unknown[]
-) => Promise<{ data: { items: any[] } }> = (..._args: unknown[]) =>
-  Promise.resolve({ data: { items: [] as any[] } });
+//（shared openapi.yaml 当前只覆盖 11 个 tag；admin-app-menus/admin-apps/
+//  auth 旧名/setPermissions/tenantUsers*/tenantRoles* 等模块尚未落 tsp。）
 
 // admin-apps (平台级应用 = OAuth client，目前由 admin-clients 占位)
 export const adminAppsListApps: AnyFn = () =>

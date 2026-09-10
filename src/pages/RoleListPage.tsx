@@ -31,9 +31,6 @@ const PERMISSION_OPTIONS = [
   { value: "users.write", label: "users.write" },
   { value: "roles.read", label: "roles.read" },
   { value: "roles.write", label: "roles.write" },
-  { value: "api_keys.read", label: "api_keys.read" },
-  { value: "api_keys.write", label: "api_keys.write" },
-  { value: "audit.read", label: "audit.read" },
 ];
 
 const FIELDS: FieldDef[] = [

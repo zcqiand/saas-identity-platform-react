@@ -6,11 +6,9 @@ import {
   tenants,
   users,
   roles,
-  apiKeys,
   apps,
   menus,
   roleMenuGrants,
-  auditEvents,
 } from "@saas/identity-platform-msw/fixtures";
 
 // === Mock local orval api-client (@/api/endpoints/endpoints) ===
@@ -63,11 +61,6 @@ vi.mock("@/api/endpoints/endpoints", () => ({
   tenantRolesDeleteRole: async () => ({ data: undefined }),
   tenantRolesSetPermissions: async (_t: string, roleId: string, body: any) => ({ data: { id: roleId, ...body } }),
 
-  tenantApiKeysListApiKeys: async () => ({ data: page(apiKeys) }),
-  tenantApiKeysCreateApiKey: async (_t: string, body: any) => ({ data: { id: "new-key", prefix: "sk_live", status: "active", ...body } }),
-  tenantApiKeysRevokeApiKey: async (_t: string, keyId: string) => ({ data: { id: keyId, status: "revoked" } }),
-  tenantApiKeysRotateApiKey: async (_t: string, _k: string) => ({ data: { id: "rotated-key", prefix: "sk_live", status: "active" } }),
-
   adminAppsListApps: async () => ({ data: page(apps) }),
   adminAppsCreateApp: async (body: any) => ({ data: { id: "new-app", ...body } }),
   adminAppsGetApp: async (id: string) => ({ data: apps.find((a) => a.id === id) ?? apps[0] }),
@@ -91,8 +84,6 @@ vi.mock("@/api/endpoints/endpoints", () => ({
     data: { roleId, menuIds: body.menuIds, updatedAt: new Date().toISOString() },
   }),
   tenantRoleMenusClearRoleMenus: async () => ({ data: undefined }),
-
-  tenantAuditListAuditEvents: async () => ({ data: page(auditEvents) }),
 
   meWhoami: async () => ({ data: users[0] }),
   meGetMyMenus: async () => ({ data: {} }),

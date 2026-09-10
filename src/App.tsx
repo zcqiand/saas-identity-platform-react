@@ -5,8 +5,6 @@ import { LoginPage } from "./pages/LoginPage";
 import { TenantListPage } from "./pages/TenantListPage";
 import { UserListPage } from "./pages/UserListPage";
 import { RoleListPage } from "./pages/RoleListPage";
-import { ApiKeyListPage } from "./pages/ApiKeyListPage";
-import { AuditListPage } from "./pages/AuditListPage";
 import { AppListPage } from "./pages/AppListPage";
 import { MenuTreePage } from "./pages/MenuTreePage";
 import { RoleMenuGrantPage } from "./pages/RoleMenuGrantPage";
@@ -37,8 +35,6 @@ export default function App() {
         <Route path="/tenants/:tenantId/users" element={<UserListPage />} />
         <Route path="/tenants/:tenantId/roles" element={<RoleListPage />} />
         <Route path="/tenants/:tenantId/roles/:roleId/menus" element={<RoleMenuGrantPage />} />
-        <Route path="/tenants/:tenantId/api-keys" element={<ApiKeyListPage />} />
-        <Route path="/tenants/:tenantId/audit" element={<AuditListPage />} />
         <Route path="/apps" element={<AppListPage />} />
         <Route path="/apps/:appCode/menus" element={<MenuTreePage />} />
         <Route path="*" element={<Navigate to="/tenants" replace />} />

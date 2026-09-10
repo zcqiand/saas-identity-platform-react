@@ -191,21 +191,6 @@ export interface UpdateAppRequest {
   status?: "active" | "disabled";
 }
 
-// ApiKey：shared OpenAPI 暂无；按 msw fixture 形态定义。
-export interface ApiKey {
-  id: string;
-  name: string;
-  prefix: string;
-  status: "active" | "revoked";
-  scopes: string[];
-  createdAt?: string;
-  lastUsedAt?: string | null;
-}
-export interface CreateApiKeyRequest {
-  name: string;
-  scopes?: string[];
-}
-
 // SetRoleMenusRequest：shared OpenAPI 暂无；按页代码形态定义。
 export interface SetRoleMenusRequest {
   menuIds: string[];
@@ -223,15 +208,4 @@ export interface AuthorizeCodeRequest {
   state: string;
   /** 9/7 后页代码新增：登录后用户所属租户，OIDC authorize 透传给 RP */
   tenantId?: string;
-}
-
-// AuditEvent：shared OpenAPI 暂无；按 msw fixture 形态定义。
-export interface AuditEvent {
-  id: string;
-  occurredAt: string;
-  action: string;
-  actorUserId?: string;
-  targetUserId?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
 }
