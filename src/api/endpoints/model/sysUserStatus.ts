@@ -11,5 +11,6 @@ export type SysUserStatus = typeof SysUserStatus[keyof typeof SysUserStatus];
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const SysUserStatus = {
   active: 'active',
+  invited: 'invited',
   disabled: 'disabled',
 } as const;

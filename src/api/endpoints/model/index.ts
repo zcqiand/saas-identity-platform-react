@@ -34,6 +34,7 @@ export * from './oAuthClient';
 export * from './oAuthClientPublicInfo';
 export * from './oidcCallbackRequest';
 export * from './reorderSysMenuRequest';
+export * from './roleMenuGrant';
 export * from './sessionsLoginDefault';
 export * from './setSysRoleMenusRequest';
 export * from './setTenantMemberRolesRequest';
