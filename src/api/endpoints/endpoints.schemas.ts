@@ -44,6 +44,19 @@ export type {
 export type {
   SysMenuType,
 } from "./model/sysMenuType";
+export type { TenantApplication } from "./model/tenantApplication";
+export type {
+  SubscribeTenantApplicationRequest,
+} from "./model/subscribeTenantApplicationRequest";
+export type {
+  UpdateTenantApplicationRequest,
+} from "./model/updateTenantApplicationRequest";
+export type {
+  TenantApplicationsListTenantApplications200,
+} from "./model/tenantApplicationsListTenantApplications200";
+export type {
+  TenantApplicationsListTenantApplicationsParams,
+} from "./model/tenantApplicationsListTenantApplicationsParams";
 
 // ===== 9/7 前 src/pages 引用、本仓 orval 生成结构对不齐的 override =====
 

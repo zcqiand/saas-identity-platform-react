@@ -8,6 +8,7 @@ import { RoleListPage } from "./pages/RoleListPage";
 import { AppListPage } from "./pages/AppListPage";
 import { MenuTreePage } from "./pages/MenuTreePage";
 import { RoleMenuGrantPage } from "./pages/RoleMenuGrantPage";
+import { TenantApplicationsListPage } from "./pages/TenantApplicationsListPage";
 import { useTenant } from "./state/tenant-context";
 
 /** 路由守卫：未登录（accessToken 缺失）一律重定向 /login */
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="/tenants/:tenantId/users" element={<UserListPage />} />
         <Route path="/tenants/:tenantId/roles" element={<RoleListPage />} />
         <Route path="/tenants/:tenantId/roles/:roleId/menus" element={<RoleMenuGrantPage />} />
+        <Route path="/tenants/:tenantId/applications" element={<TenantApplicationsListPage />} />
         <Route path="/apps" element={<AppListPage />} />
         <Route path="/apps/:appCode/menus" element={<MenuTreePage />} />
         <Route path="*" element={<Navigate to="/tenants" replace />} />

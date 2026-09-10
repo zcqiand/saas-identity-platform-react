@@ -85,6 +85,34 @@ vi.mock("@/api/endpoints/endpoints", () => ({
   }),
   tenantRoleMenusClearRoleMenus: async () => ({ data: undefined }),
 
+  // M00.F05 — tenant applications
+  tenantApplicationsListTenantApplications: async () => ({ data: page([]) }),
+  tenantApplicationsSubscribeTenantApplication: async (_t: string, body: any) => ({
+    data: {
+      id: "ta-new",
+      tenantId: _t,
+      clientId: body.clientId,
+      status: 1,
+      expireTime: body.expireTime,
+      createdAt: new Date().toISOString(),
+    },
+  }),
+  tenantApplicationsUpdateTenantApplication: async (
+    _t: string,
+    clientId: string,
+    body: any,
+  ) => ({
+    data: {
+      id: "ta-1",
+      tenantId: _t,
+      clientId,
+      status: body.status,
+      expireTime: body.expireTime,
+      createdAt: new Date().toISOString(),
+    },
+  }),
+  tenantApplicationsRemoveTenantApplication: async () => ({ data: undefined }),
+
   meWhoami: async () => ({ data: users[0] }),
   meGetMyMenus: async () => ({ data: {} }),
   meListMyTenants: async () => ({ data: [] }),

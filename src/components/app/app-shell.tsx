@@ -39,6 +39,7 @@ interface Crumb {
 const SUB_PATH_LABEL: Record<string, string> = {
   users: "用户",
   roles: "角色",
+  applications: "应用",
 };
 
 // 面包屑租户名：getTenant（msw 包内嵌 fixtures）的 HTTP 替代（ADR-0012 运行时
@@ -96,6 +97,7 @@ export function AppShell() {
       { to: "/tenants", label: "租户管理", group: "首页", icon: <Building2 className="h-4 w-4" />, fnId: "M00.F01.I01" },
       { to: `/tenants/${tenantForNav}/users`, label: "用户管理", group: "身份管理", icon: <Users className="h-4 w-4" />, fnId: "M01.F01.I01" },
       { to: `/tenants/${tenantForNav}/roles`, label: "角色管理", group: "身份管理", icon: <Shield className="h-4 w-4" />, fnId: "M00.F03.I01" },
+      { to: `/tenants/${tenantForNav}/applications`, label: "租户应用", group: "应用与菜单", icon: <Boxes className="h-4 w-4" />, fnId: "M00.F05.I01" },
       { to: "/apps", label: "应用管理", group: "应用与菜单", icon: <Boxes className="h-4 w-4" />, fnId: "M04.F01.I01" },
       { to: "/apps/lab-management/menus", label: "菜单管理", group: "应用与菜单", icon: <FolderTree className="h-4 w-4" />, fnId: "M04.F04.I01" },
     ],
