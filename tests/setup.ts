@@ -43,7 +43,7 @@ vi.mock("@/api/endpoints/admin-tenants/admin-tenants", () => ({
 // 2026-09-11 REQ-2026-005：角色/菜单授权页改从真 orval tag 模块 import，mock 跟随真源路径。
 // Sys 系契约字段：SysRole{roleCode,roleName}、SysMenu{title,path}、AdminClient{clientId,clientName}。
 vi.mock("@/api/endpoints/tenant-roles/tenant-roles", () => ({
-  tenantRolesListSysRoles: async () => ({ data: { items: page(roles), page: 1, pageSize: roles.length, total: roles.length } }),
+  tenantRolesListSysRoles: async () => ({ data: page(roles) }),
   tenantRolesCreateSysRole: async (_t: string, body: any) => ({ data: { id: "new-role", ...body } }),
   tenantRolesGetSysRole: async () => ({ data: roles[0] }),
   tenantRolesUpdateSysRole: async (_t: string, id: string, body: any) => ({ data: { id, ...body } }),
@@ -61,6 +61,24 @@ vi.mock("@/api/endpoints/client-menus/client-menus", () => ({
   clientMenusListSysMenus: async (clientId: string) => ({
     data: menus.filter((m: { clientId: string }) => m.clientId === clientId),
   }),
+}));
+vi.mock("@/api/endpoints/tenant-applications/tenant-applications", () => ({
+  tenantApplicationsListTenantApplications: async (_t: string) => ({ data: page([]) }),
+  tenantApplicationsSubscribeTenantApplication: async (_t: string, body: any) => ({
+    data: { id: "ta-new", tenantId: _t, clientId: body.clientId, status: 1, createdAt: "" },
+  }),
+  tenantApplicationsUpdateTenantApplication: async (_t: string, _c: string, body: any) => ({
+    data: { id: "ta-1", tenantId: _t, clientId: "c1", status: body.status, createdAt: "" },
+  }),
+  tenantApplicationsRemoveTenantApplication: async () => ({ data: undefined }),
+}));
+vi.mock("@/api/endpoints/tenant-members/tenant-members", () => ({
+  tenantMembersListTenantUsers: async (_t: string) => ({ data: page(users) }),
+  tenantMembersCreateTenantUser: async (_t: string, body: any) => ({ data: { id: "new-user", ...body } }),
+  tenantMembersGetTenantUser: async () => ({ data: users[0] }),
+  tenantMembersUpdateTenantUser: async (_t: string, userId: string, body: any) => ({ data: { id: userId, ...body } }),
+  tenantMembersDeleteTenantUser: async () => ({ data: undefined }),
+  tenantMembersAssignTenantMemberRoles: async () => ({ data: users[0] }),
 }));
 vi.mock("@/api/endpoints/admin-clients/admin-clients", () => ({
   adminClientsListClients: async () => ({ data: page(apps) }),

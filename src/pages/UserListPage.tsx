@@ -1,18 +1,18 @@
 // M01.F01 — tenant-scoped 用户列表（CRUD）
-// 走 tenantUsersListUsers / createUser / updateUser / deleteUser（orval 1:1 端点）
+// 走 tenantMembersListTenantUsers / createUser / updateUser / deleteUser（orval 1:1 端点）
 
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAdminTenantsGetTenant } from "@/api/endpoints/admin-tenants/admin-tenants";
 import {
-  tenantRolesListRoles,
-  tenantUsersAssignRoles,
-  tenantUsersCreateUser,
-  tenantUsersDeleteUser,
-  tenantUsersListUsers,
-  tenantUsersUpdateUser,
-  useAdminTenantsGetTenant,
-} from "@/api/endpoints/endpoints";
+  tenantMembersAssignTenantMemberRoles,
+  tenantMembersCreateTenantUser,
+  tenantMembersDeleteTenantUser,
+  tenantMembersListTenantUsers,
+  tenantMembersUpdateTenantUser,
+} from "@/api/endpoints/tenant-members/tenant-members";
+import { tenantRolesListSysRoles } from "@/api/endpoints/tenant-roles/tenant-roles";
 import type { CreateUserRequest, UpdateUserRequest, User, Role } from "@/api/endpoints/endpoints.schemas";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,24 +59,27 @@ export function UserListPage() {
   // 不发请求，加载中/失败显示 fallback。
   const tenantQ = useAdminTenantsGetTenant(tenantId!, { query: { enabled: !!tenantId } });
   const tenant = tenantQ.data?.data ?? null;
-  const tenantLabel = tenant ? `租户 ${tenant.name}（${tenant.code}）` : "租户未知";
+  const tenantLabel = tenant
+    ? `租户 ${tenant.name}（${(tenant as unknown as { tenantKey?: string }).tenantKey ?? ""}）`
+    : "租户未知";
 
   const usersQ = useQuery<User[]>({
-    queryKey: ["tenantUsersListUsers", tenantId],
-    queryFn: async () => (await tenantUsersListUsers(tenantId!)).data.items,
+    queryKey: ["tenantMembersListTenantUsers", tenantId],
+    queryFn: async () =>
+      (await tenantMembersListTenantUsers(tenantId!)).data.items as unknown as User[],
     enabled: !!tenantId,
   });
 
   const rolesQ = useQuery<Role[]>({
-    queryKey: ["tenantRolesListRoles", tenantId],
-    queryFn: async () => (await tenantRolesListRoles(tenantId!)).data.items,
+    queryKey: ["tenantRolesListSysRoles", tenantId],
+    queryFn: async () => (await tenantRolesListSysRoles(tenantId!, { clientId: "" } as never)).data.items as unknown as Role[],
     enabled: !!tenantId,
   });
 
   const createMut = useMutation({
-    mutationFn: (data: CreateUserRequest) => tenantUsersCreateUser(tenantId!, data),
+    mutationFn: (data: CreateUserRequest) => tenantMembersCreateTenantUser(tenantId!, data as never),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["tenantUsersListUsers", tenantId] });
+      qc.invalidateQueries({ queryKey: ["tenantMembersListTenantUsers", tenantId] });
       toast.success("用户已创建");
     },
     onError: (err) => toast.error(`创建失败：${toApiError(err).message}`),
@@ -84,18 +87,18 @@ export function UserListPage() {
 
   const updateMut = useMutation({
     mutationFn: ({ userId, data }: { userId: string; data: UpdateUserRequest }) =>
-      tenantUsersUpdateUser(tenantId!, userId, data),
+      tenantMembersUpdateTenantUser(tenantId!, userId, data as never),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["tenantUsersListUsers", tenantId] });
+      qc.invalidateQueries({ queryKey: ["tenantMembersListTenantUsers", tenantId] });
       toast.success("用户已更新");
     },
     onError: (err) => toast.error(`更新失败：${toApiError(err).message}`),
   });
 
   const deleteMut = useMutation({
-    mutationFn: (userId: string) => tenantUsersDeleteUser(tenantId!, userId),
+    mutationFn: (userId: string) => tenantMembersDeleteTenantUser(tenantId!, userId),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["tenantUsersListUsers", tenantId] });
+      qc.invalidateQueries({ queryKey: ["tenantMembersListTenantUsers", tenantId] });
       toast.success("用户已删除");
     },
     onError: (err) => toast.error(`删除失败：${toApiError(err).message}`),
@@ -103,9 +106,9 @@ export function UserListPage() {
 
   const roleAssignMut = useMutation({
     mutationFn: ({ userId, roleIds }: { userId: string; roleIds: string[] }) =>
-      tenantUsersAssignRoles(tenantId!, userId, { roleIds }),
+      tenantMembersAssignTenantMemberRoles(tenantId!, userId, { roleIds }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["tenantUsersListUsers", tenantId] });
+      qc.invalidateQueries({ queryKey: ["tenantMembersListTenantUsers", tenantId] });
       toast.success("角色已分配");
     },
     onError: (err) => toast.error(`角色分配失败：${toApiError(err).message}`),
@@ -118,6 +121,9 @@ export function UserListPage() {
 
   const users = usersQ.data ?? [];
   const roles = rolesQ.data ?? [];
+  // SysRole 契约字段 roleCode/roleName（msw 运行时一致）；legacy Role 类型缺 —— 就地兜底
+  const roleCode = (r: Role) => (r as unknown as { roleCode?: string }).roleCode ?? "";
+  const roleName = (r: Role) => (r as unknown as { roleName?: string }).roleName ?? "";
 
   return (
     <div className="space-y-6">
@@ -239,7 +245,7 @@ export function UserListPage() {
             name: "roleIds",
             label: "角色（多选）",
             type: "select",
-            options: roles.map((r) => ({ value: r.id, label: `${r.code} · ${r.name}` })),
+            options: roles.map((r) => ({ value: r.id, label: `${roleCode(r)} · ${roleName(r)}` })),
           },
         ]}
         submitText="保存角色"
@@ -262,8 +268,8 @@ export function UserListPage() {
                       onChange(Array.from(next));
                     }}
                   />
-                  <span className="font-mono text-xs">{r.code}</span>
-                  <span>{r.name}</span>
+                  <span className="font-mono text-xs">{roleCode(r)}</span>
+                  <span>{roleName(r)}</span>
                 </label>
               );
             })}

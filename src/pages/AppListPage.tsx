@@ -4,12 +4,12 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  adminAppsCreateApp,
-  adminAppsDeleteApp,
-  adminAppsListApps,
-  adminAppsSetAppStatus,
-  adminAppsUpdateApp,
-} from "@/api/endpoints/endpoints";
+  adminClientsCreateClient,
+  adminClientsDeleteClient,
+  adminClientsListClients,
+  adminClientsSetClientStatus,
+  adminClientsUpdateClient,
+} from "@/api/endpoints/admin-clients/admin-clients";
 import type { App, CreateAppRequest, UpdateAppRequest } from "@/api/endpoints/endpoints.schemas";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -88,14 +88,22 @@ export function AppListPage() {
   const qc = useQueryClient();
 
   const list = useQuery<App[]>({
-    queryKey: ["adminAppsListApps"],
-    queryFn: async () => (await adminAppsListApps()).data.items,
+    queryKey: ["adminClientsListClients"],
+    queryFn: async () =>
+      (await adminClientsListClients()).data.items as unknown as App[],
   });
 
   const createMut = useMutation({
-    mutationFn: (data: CreateAppRequest) => adminAppsCreateApp(data),
+    // msw/契约字段漂移兜底：页面按 App 形状构造，真源要 CreateOAuthClientRequest
+    mutationFn: (data: CreateAppRequest) =>
+      adminClientsCreateClient({
+        ...(data as unknown as Record<string, unknown>),
+        clientName: (data as unknown as { name?: string }).name ?? "",
+        clientSecret: `sec-${Math.random().toString(36).slice(2, 14)}`,
+        redirectUris: "",
+      } as never),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["adminAppsListApps"] });
+      qc.invalidateQueries({ queryKey: ["adminClientsListClients"] });
       toast.success("应用已创建");
     },
     onError: (err) => toast.error(`创建失败：${toApiError(err).message}`),
@@ -103,18 +111,18 @@ export function AppListPage() {
 
   const updateMut = useMutation({
     mutationFn: ({ appId, data }: { appId: string; data: UpdateAppRequest }) =>
-      adminAppsUpdateApp(appId, data),
+      adminClientsUpdateClient(appId, data as never),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["adminAppsListApps"] });
+      qc.invalidateQueries({ queryKey: ["adminClientsListClients"] });
       toast.success("应用已更新");
     },
     onError: (err) => toast.error(`更新失败：${toApiError(err).message}`),
   });
 
   const deleteMut = useMutation({
-    mutationFn: (appId: string) => adminAppsDeleteApp(appId),
+    mutationFn: (appId: string) => adminClientsDeleteClient(appId),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["adminAppsListApps"] });
+      qc.invalidateQueries({ queryKey: ["adminClientsListClients"] });
       toast.success("应用已删除");
     },
     onError: (err) => toast.error(`删除失败：${toApiError(err).message}`),
@@ -122,9 +130,10 @@ export function AppListPage() {
 
   const statusMut = useMutation({
     mutationFn: ({ appId, status }: { appId: string; status: "active" | "disabled" }) =>
-      adminAppsSetAppStatus(appId, { status }),
+      // AdminClientsSetClientStatusBody.status 为 number（家族约定 0/1/2）
+      adminClientsSetClientStatus(appId, { status: status === "active" ? 1 : 2 } as never),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["adminAppsListApps"] });
+      qc.invalidateQueries({ queryKey: ["adminClientsListClients"] });
       toast.success("状态已切换");
     },
     onError: (err) => toast.error(`状态切换失败：${toApiError(err).message}`),

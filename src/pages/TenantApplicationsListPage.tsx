@@ -3,14 +3,14 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAdminClientsListClients } from "@/api/endpoints/admin-clients/admin-clients";
+import { useAdminTenantsGetTenant } from "@/api/endpoints/admin-tenants/admin-tenants";
 import {
   tenantApplicationsListTenantApplications,
   tenantApplicationsRemoveTenantApplication,
   tenantApplicationsSubscribeTenantApplication,
   tenantApplicationsUpdateTenantApplication,
-  useAdminClientsListClients,
-  useAdminTenantsGetTenant,
-} from "@/api/endpoints/endpoints";
+} from "@/api/endpoints/tenant-applications/tenant-applications";
 import type {
   SubscribeTenantApplicationRequest,
   TenantApplication,
@@ -72,7 +72,9 @@ export function TenantApplicationsListPage() {
   const qc = useQueryClient();
   const tenantQ = useAdminTenantsGetTenant(tenantId!, { query: { enabled: !!tenantId } });
   const tenant = tenantQ.data?.data ?? null;
-  const tenantLabel = tenant ? `租户 ${tenant.name}（${tenant.code}）` : "租户未知";
+  const tenantLabel = tenant
+    ? `租户 ${tenant.name}（${(tenant as unknown as { tenantKey?: string }).tenantKey ?? ""}）`
+    : "租户未知";
 
   const list = useQuery<TenantApplication[]>({
     queryKey: ["tenantApplicationsListTenantApplications", tenantId],

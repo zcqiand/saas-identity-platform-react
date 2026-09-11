@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { PageLoading } from "./page-loading";
 import { useQuery } from "@tanstack/react-query";
-import { adminTenantsListTenants } from "@/api/endpoints/endpoints";
+import { adminTenantsListTenants } from "@/api/endpoints/admin-tenants/admin-tenants";
 import { useTenant } from "@/state/tenant-context";
 import { useSelection } from "@/state/selection-context";
 
@@ -40,13 +40,19 @@ const SUB_PATH_LABEL: Record<string, string> = {
 
 // 面包屑租户名：getTenant（msw 包内嵌 fixtures）的 HTTP 替代（ADR-0012 运行时
 // import 清零）。拉一次租户列表建 id->tenant 字典；加载中/未命中显示「未知租户」。
-function useTenantMap(): Map<string, { id: string; name: string; code: string }> {
+function useTenantMap(): Map<string, { id: string; name: string; tenantKey?: string }> {
   const q = useQuery({
     queryKey: ["adminTenantsListTenants", "breadcrumb"],
     queryFn: async () => (await adminTenantsListTenants()).data.items,
     staleTime: Infinity,
   });
-  return new Map((q.data ?? []).map((t) => [t.id, t]));
+  // 双键索引：URL 段既可能是 UUID 也可能是 tenantKey
+  const m = new Map<string, { id: string; name: string; tenantKey?: string }>();
+  for (const t of q.data ?? []) {
+    m.set(t.id, t);
+    if (t.tenantKey) m.set(t.tenantKey, t);
+  }
+  return m;
 }
 
 function useBreadcrumbs(pathname: string, fallbackTenantId: string): Crumb[] {

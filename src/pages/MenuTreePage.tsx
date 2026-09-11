@@ -6,16 +6,15 @@
 import { useMemo, useState } from "react";
 import { ChevronDown, ChevronRight, FolderTree } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAdminClientsListClients } from "@/api/endpoints/admin-clients/admin-clients";
 import {
-  adminAppMenusCreateMenu,
-  adminAppMenusDeleteMenu,
-  adminAppMenusListMenus,
-  adminAppMenusMoveMenu,
-  adminAppMenusUpdateMenu,
-  useAdminAppsListApps,
-} from "@/api/endpoints/endpoints";
-// 2026-09-11 契约对齐：菜单类型切真源 model（SysMenu/CreateSysMenuRequest）；
-// 函数层（adminAppMenus* barrel）仍是 M04 域死桩，待该域 E2E 铺开时迁移真源。
+  clientMenusCreateSysMenu,
+  clientMenusDeleteSysMenu,
+  clientMenusListSysMenus,
+  clientMenusMoveSysMenu,
+  clientMenusUpdateSysMenu,
+} from "@/api/endpoints/client-menus/client-menus";
+// 2026-09-11 契约对齐 + B 扫尾：函数层已接真源 client-menus（死桩层已删除）。
 import type {
   CreateSysMenuRequest as CreateMenuRequest,
   SysMenu as Menu,
@@ -136,28 +135,33 @@ export function MenuTreePage() {
   const qc = useQueryClient();
 
   // 应用列表（平台 admin 视角 → 用 useAdminAppsListApps,跨 msw/后端模式同源）
-  const appsQ = useAdminAppsListApps();
+  const appsQ = useAdminClientsListClients();
+  // OAuthClient 契约无 code/name；msw App fixture 有 —— 显示层兜底
+  const appCode = (a: unknown) =>
+    ((a as { code?: string }).code ?? (a as { clientId?: string }).clientId ?? "") as string;
+  const appName = (a: unknown) =>
+    ((a as { name?: string }).name ?? (a as { clientName?: string }).clientName ?? "") as string;
   const allApps = appsQ.data?.data?.items ?? [];
   // selection-context 按 code 持久化（路由 :appCode + DEFAULT_APP_ID="lab-management"），
   // fixture 中 id 是 UUID、code 是 "lab-management"/"erp"/"crm"。同时匹配 id/code 两路：
   // 真实场景 localStorage 存 code，UUID 路径留给极少数外部直接 set id 的迁移历史。
   const currentApp = useMemo(
     () =>
-      allApps.find((a) => a.id === selectedApp.id || a.code === selectedApp.id) ??
+      allApps.find((a) => appCode(a) === selectedApp.id || a.id === selectedApp.id) ??
       allApps[0],
     [selectedApp, allApps],
   );
 
   const menusQ = useQuery({
-    queryKey: ["adminAppMenusListMenus", currentApp?.id],
-    queryFn: async () => (await adminAppMenusListMenus(currentApp!.id)).data,
+    queryKey: ["clientMenusListSysMenus", currentApp?.id],
+    queryFn: async () => (await clientMenusListSysMenus(currentApp!.id)).data,
     enabled: !!currentApp,
   });
 
   const createMut = useMutation({
-    mutationFn: (data: CreateMenuRequest) => adminAppMenusCreateMenu(currentApp!.id, data),
+    mutationFn: (data: CreateMenuRequest) => clientMenusCreateSysMenu(currentApp!.id, data),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["adminAppMenusListMenus", currentApp!.id] });
+      qc.invalidateQueries({ queryKey: ["clientMenusListSysMenus", currentApp!.id] });
       toast.success("菜单已创建");
     },
     onError: (err) => toast.error(`创建失败：${toApiError(err).message}`),
@@ -165,18 +169,18 @@ export function MenuTreePage() {
 
   const updateMut = useMutation({
     mutationFn: ({ menuId, data }: { menuId: string; data: Partial<CreateMenuRequest> }) =>
-      adminAppMenusUpdateMenu(currentApp!.id, menuId, data),
+      clientMenusUpdateSysMenu(currentApp!.id, menuId, data),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["adminAppMenusListMenus", currentApp!.id] });
+      qc.invalidateQueries({ queryKey: ["clientMenusListSysMenus", currentApp!.id] });
       toast.success("菜单已更新");
     },
     onError: (err) => toast.error(`更新失败：${toApiError(err).message}`),
   });
 
   const deleteMut = useMutation({
-    mutationFn: (menuId: string) => adminAppMenusDeleteMenu(currentApp!.id, menuId),
+    mutationFn: (menuId: string) => clientMenusDeleteSysMenu(currentApp!.id, menuId),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["adminAppMenusListMenus", currentApp!.id] });
+      qc.invalidateQueries({ queryKey: ["clientMenusListSysMenus", currentApp!.id] });
       toast.success("菜单已删除");
     },
     onError: (err) => toast.error(`删除失败：${toApiError(err).message}`),
@@ -184,9 +188,9 @@ export function MenuTreePage() {
 
   const moveMut = useMutation({
     mutationFn: ({ menuId, parentId }: { menuId: string; parentId?: string }) =>
-      adminAppMenusMoveMenu(currentApp!.id, menuId, { parentId }),
+      clientMenusMoveSysMenu(currentApp!.id, menuId, { parentId }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["adminAppMenusListMenus", currentApp!.id] });
+      qc.invalidateQueries({ queryKey: ["clientMenusListSysMenus", currentApp!.id] });
       toast.success("父级已切换");
     },
     onError: (err) => toast.error(`移动失败：${toApiError(err).message}`),
@@ -231,8 +235,8 @@ export function MenuTreePage() {
         description={
           <span>
             当前应用{" "}
-            <span className="font-semibold text-slate-700">{currentApp?.name ?? "—"}</span>{" "}
-            <span className="font-mono text-xs text-slate-500">({currentApp?.code})</span>
+            <span className="font-semibold text-slate-700">{currentApp ? appName(currentApp) : "—"}</span>{" "}
+            <span className="font-mono text-xs text-slate-500">({currentApp ? appCode(currentApp) : ""})</span>
           </span>
         }
         actions={
@@ -241,7 +245,7 @@ export function MenuTreePage() {
               value={currentApp?.id}
               onValueChange={(id) => {
                 const a = allApps.find((x) => x.id === id);
-                if (a) setSelectedApp({ id: a.id, name: a.name });
+                if (a) setSelectedApp({ id: appCode(a), name: appName(a) });
               }}
             >
               <SelectTrigger className="w-64" data-testid="app-selector-trigger">
@@ -250,7 +254,7 @@ export function MenuTreePage() {
               <SelectContent>
                 {allApps.map((a) => (
                   <SelectItem key={a.id} value={a.id} data-testid={`app-option-${a.id}`}>
-                    {a.name}
+                    {appName(a)}
                   </SelectItem>
                 ))}
               </SelectContent>
