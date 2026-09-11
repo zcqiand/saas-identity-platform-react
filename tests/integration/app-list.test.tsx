@@ -51,11 +51,10 @@ describe("M04.F01 应用列表（平台级）", () => {
     expect(btns.length).toBeGreaterThanOrEqual(3);
   });
 
-  it("应用行展示 clientId 与一方/三方标记", async () => {
+  it("应用行展示 clientId（2026-09-12 用户裁定：列表精简为 Code/ClientID、名称、状态、操作）", async () => {
     renderApp();
     await screen.findAllByTestId("app-row");
     expect(screen.getAllByText(/clientId:/).length).toBeGreaterThanOrEqual(3);
-    expect(screen.getAllByText("一方").length).toBeGreaterThanOrEqual(3);
   });
 
   it("展示 3 个应用：lab-management / erp / crm", async () => {

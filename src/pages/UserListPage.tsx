@@ -32,6 +32,31 @@ import { CrudDialog, type FieldDef } from "@/components/app/crud-dialog";
 import { toApiError } from "@/api/http-client";
 import { toast } from "sonner";
 
+// ADR-0029 双形态兼容：嵌套 TenantMemberView（aspnetcore）/扁平 User（msw/nextjs）统一归一化
+interface MemberUserRow {
+  id: string;
+  username: string;
+  email: string;
+  status: "active" | "suspended" | "archived" | "invited" | "disabled" | "revoked" | "expired";
+  roleIds?: string[];
+}
+function normalizeMemberRow(raw: unknown): MemberUserRow {
+  const r = raw as Record<string, unknown>;
+  if (r.member && r.user) {
+    const member = r.member as { id: string; status?: MemberUserRow["status"] };
+    const user = r.user as { id: string; username: string; email: string; status?: MemberUserRow["status"] };
+    const status = (member.status ?? user.status ?? "active") as MemberUserRow["status"];
+    return {
+      id: user.id ?? member.id,
+      username: user.username,
+      email: user.email,
+      status,
+      roleIds: (r.roles as string[] | undefined) ?? [],
+    };
+  }
+  return r as unknown as MemberUserRow;
+}
+
 const FIELDS: FieldDef[] = [
   { name: "username", label: "用户名", required: true, placeholder: "alice" },
   { name: "email", label: "邮箱", required: true, placeholder: "alice@acme.io" },
@@ -63,10 +88,12 @@ export function UserListPage() {
     ? `租户 ${tenant.name}（${(tenant as unknown as { tenantKey?: string }).tenantKey ?? ""}）`
     : "租户未知";
 
-  const usersQ = useQuery<User[]>({
+  const usersQ = useQuery<MemberUserRow[]>({
     queryKey: ["tenantMembersListTenantUsers", tenantId],
     queryFn: async () =>
-      (await tenantMembersListTenantUsers(tenantId!)).data.items as unknown as User[],
+      ((await tenantMembersListTenantUsers(tenantId!)).data.items as unknown as unknown[]).map(
+        normalizeMemberRow,
+      ),
     enabled: !!tenantId,
   });
 
@@ -115,9 +142,9 @@ export function UserListPage() {
   });
 
   const [createOpen, setCreateOpen] = useState(false);
-  const [editTarget, setEditTarget] = useState<User | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
-  const [roleTarget, setRoleTarget] = useState<User | null>(null);
+  const [editTarget, setEditTarget] = useState<MemberUserRow | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<MemberUserRow | null>(null);
+  const [roleTarget, setRoleTarget] = useState<MemberUserRow | null>(null);
 
   const users = usersQ.data ?? [];
   const roles = rolesQ.data ?? [];
@@ -170,7 +197,7 @@ export function UserListPage() {
                       variant="ghost"
                       size="sm"
                       data-fn="M01.F02.I01"
-                      onClick={() => setRoleTarget(u)}
+                      onClick={() => setRoleTarget(u as unknown as MemberUserRow)}
                     >
                       分配角色
                     </Button>
@@ -178,7 +205,7 @@ export function UserListPage() {
                       variant="ghost"
                       size="sm"
                       data-fn="M00.F02.I04"
-                      onClick={() => setEditTarget(u)}
+                      onClick={() => setEditTarget(u as unknown as MemberUserRow)}
                     >
                       编辑
                     </Button>
@@ -187,7 +214,7 @@ export function UserListPage() {
                       size="sm"
                       data-fn="M00.F02.I05"
                       className="text-red-600 hover:text-red-700"
-                      onClick={() => setDeleteTarget(u)}
+                      onClick={() => setDeleteTarget(u as unknown as MemberUserRow)}
                     >
                       删除
                     </Button>
