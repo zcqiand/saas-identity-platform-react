@@ -166,6 +166,7 @@ vi.mock("@/api/endpoints/endpoints", () => ({
 
   // === react-query hook mocks（M08/M09 异步消费点） ===
   useAdminAppsListApps: () => okHook(page(apps)),
+  useAdminClientsListClients: () => okHook(page(apps)),
   useAdminTenantsGetTenant: (_id: string) =>
     okHook({ id: _id, code: "acme", name: "ACME", status: "active", createdAt: "", updatedAt: "" }),
   // 2026-08-29 OAuth 跳板场景: 已登录用户访问 /login?redirect_uri=&state=&client_id=
