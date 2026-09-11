@@ -1,20 +1,20 @@
 {
   "schema": 1,
   "project": "saas-identity-platform-react",
-  "passed": false,
+  "passed": true,
   "partial": true,
   "ran": [
-    "L0.5"
+    "L0"
   ],
-  "checked_at": "2026-09-11T07:12:34+0800",
+  "checked_at": "2026-09-11T10:19:00+0800",
   "gates": [
     {
-      "level": "L0.5",
-      "name": "env 一致性",
-      "passed": false,
-      "returncode": 1,
-      "duration_s": 0.093,
-      "output": "- react: .env.production 缺 key: VITE_LOGIN_CLIENT_ID\r\n  - vue: .env.production 缺 key: VITE_LOGIN_CLIENT_ID\r\n  - nextjs: .env.production 缺 key: NEXT_PUBLIC_LOGIN_CLIENT_ID\r\n  - nextjs: deploy 脚本(docker-entrypoint.sh, saas-identity-platform-nextjs.sh, setup-vps.sh)不会写入这些 key,而 .env.example 声明了它们: NEXT_PUBLIC_LOGIN_CLIENT_ID。本地加 key 必须同步教 deploy 脚本(线上 env 由 CI 生成)。"
+      "level": "L0",
+      "name": "结构完整性",
+      "passed": true,
+      "returncode": 0,
+      "duration_s": 0.094,
+      "output": ""
     }
   ]
 }

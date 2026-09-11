@@ -24,6 +24,9 @@ dev server 端口：**5102**（2026-09-02 端口分段 §6；saas 段 X02）。
 - 禁止给按钮加图标（纯文字按钮；保留清单见迁移指南）
 - 禁止 `useState(emptySession)+useEffect(loadSession)`（Provider 必须 lazy initializer 同步 hydrate）
 - 禁止 demo 密码出现在 UI / 注释 / 测试断言
+- msw 是**独立 HTTP mock server**（传统 Mock Server 模式，真 TCP :5100）：本仓**零 npm 依赖**；
+  单测 fixtures 相对路径直连 `../../saas-identity-platform-msw/src/fixtures/seed`（2026-09-11 起，
+  废 node_modules 拷贝）；禁止回引 `@saas/identity-platform-msw` 包依赖或浏览器 SW 模式
 - 细则（shadcn/ui、data-fn 登记等）→ `docs/conventions/`
 
 ## 3. 技术栈与版本（钉死于 version-lock.json）

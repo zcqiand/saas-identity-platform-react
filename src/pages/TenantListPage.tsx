@@ -9,12 +9,12 @@ import {
   adminTenantsDeleteTenant,
   adminTenantsListTenants,
   adminTenantsUpdateTenant,
-} from "@/api/endpoints/endpoints";
+} from "@/api/endpoints/admin-tenants/admin-tenants";
 import type {
   CreateTenantRequest,
   Tenant,
   UpdateTenantRequest,
-} from "@/api/endpoints/endpoints.schemas";
+} from "@/api/endpoints/model";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -31,7 +31,8 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 
 const FIELDS: FieldDef[] = [
-  { name: "code", label: "Code", required: true, placeholder: "acme" },
+  // 契约字段 tenantKey（shared OpenAPI；9/7 起 code→tenantKey，页面 2026-09-11 随 E2E 铺开迁移）
+  { name: "tenantKey", label: "Code", required: true, placeholder: "acme" },
   { name: "name", label: "名称", required: true, placeholder: "ACME Corp" },
   {
     name: "status",
@@ -42,7 +43,6 @@ const FIELDS: FieldDef[] = [
     options: [
       { value: "active", label: "启用" },
       { value: "suspended", label: "暂停" },
-      { value: "archived", label: "归档" },
     ],
   },
 ];
@@ -150,10 +150,10 @@ export function TenantListPage() {
                           <Check className="h-4 w-4 text-blue-600" data-testid="tenant-selected-mark" />
                         )}
                       </TableCell>
-                      <TableCell className="font-mono text-xs">{t.code}</TableCell>
+                      <TableCell className="font-mono text-xs">{t.tenantKey}</TableCell>
                       <TableCell className="font-medium">{t.name}</TableCell>
                       <TableCell>
-                        <StatusBadge status={t.status as "active" | "suspended" | "archived"} />
+                        <StatusBadge status={t.status} />
                       </TableCell>
                       <TableCell className="text-right space-x-1">
                         <Button
@@ -210,7 +210,7 @@ export function TenantListPage() {
         fields={FIELDS}
         initialValues={
           editTarget
-            ? { code: editTarget.code, name: editTarget.name, status: editTarget.status }
+            ? { tenantKey: editTarget.tenantKey, name: editTarget.name, status: editTarget.status }
             : undefined
         }
         loading={updateMut.isPending}
@@ -218,7 +218,7 @@ export function TenantListPage() {
           if (!editTarget) return;
           await updateMut.mutateAsync({
             id: editTarget.id,
-            data: { name: values.name as string, status: values.status as "active" | "suspended" | "archived" },
+            data: { name: values.name as string, status: values.status as "active" | "suspended" },
           });
           setEditTarget(null);
         }}

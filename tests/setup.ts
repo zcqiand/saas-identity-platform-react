@@ -9,7 +9,7 @@ import {
   apps,
   menus,
   roleMenuGrants,
-} from "@saas/identity-platform-msw/fixtures";
+} from "../../saas-identity-platform-msw/src/fixtures/seed";
 
 // === Mock local orval api-client (@/api/endpoints/endpoints) ===
 // orval 生成的 endpoints.ts 在模块加载时引 axios，vi.mock('axios') 会让本仓
@@ -23,6 +23,17 @@ function page<T>(items: T[]) {
 function okHook<T>(payload: T) {
   return { data: { data: payload }, isPending: false, isLoading: false, error: null } as any;
 }
+
+
+// 2026-09-11 REQ-003：tenants page 改从真 orval tag 模块 import（barrel 死桩
+// shadow 真函数，列表恒空）。测试 mock 跟随真源路径。
+vi.mock("@/api/endpoints/admin-tenants/admin-tenants", () => ({
+  adminTenantsListTenants: async () => ({ data: page(tenants) }),
+  adminTenantsCreateTenant: async (body: any) => ({ data: { id: "new-tenant", ...body } }),
+  adminTenantsGetTenant: async (id: string) => ({ data: { id, tenantKey: "acme", name: "ACME", status: "active" } }),
+  adminTenantsUpdateTenant: async (id: string, body: any) => ({ data: { id, ...body } }),
+  adminTenantsDeleteTenant: async () => ({ data: undefined }),
+}));
 
 vi.mock("@/api/endpoints/endpoints", () => ({
   authLogin: async (body: { username: string }) => ({
