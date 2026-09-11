@@ -32,7 +32,7 @@ export function SidebarNav({
   subtitle = "Identity Platform",
   footerAction,
   footerExtras,
-  version = "v0.1.0 · SaaS 多租户多应用身份平台",
+  version = "v0.2.0",
 }: SidebarNavProps) {
   const groups = items.reduce<Record<string, NavItem[]>>((acc, item) => {
     (acc[item.group] ??= []).push(item);
