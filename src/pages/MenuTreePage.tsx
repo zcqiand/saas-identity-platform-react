@@ -301,10 +301,8 @@ export function MenuTreePage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Code / 路径</TableHead>
                   <TableHead>名称</TableHead>
                   <TableHead>类型</TableHead>
-                  <TableHead>排序</TableHead>
                   <TableHead>状态</TableHead>
                   <TableHead className="text-right">操作</TableHead>
                 </TableRow>
@@ -342,20 +340,15 @@ export function MenuTreePage() {
                         <span>{r.title}</span>
                       </span>
                     </TableCell>
-                    <TableCell className="font-medium">
-                      {r.path}
-                      {r.path && (
-                        <span className="ml-2 text-xs text-slate-500 font-mono">{r.path}</span>
-                      )}
+                    <TableCell>
+                      <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-700">
+                        {r.type === "directory" ? "目录" : r.type === "button" ? "按钮" : "菜单"}
+                      </span>
                     </TableCell>
                     <TableCell>
                       <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-700">
-                        {r.type}
+                        {r.status === 0 ? "停用" : "启用"}
                       </span>
-                    </TableCell>
-                    <TableCell className="text-slate-600">{r.sortOrder}</TableCell>
-                    <TableCell>
-                      <StatusBadge status={r.status === 1 ? "active" : "suspended"} />
                     </TableCell>
                     <TableCell className="text-right space-x-1">
                       <Button variant="ghost" size="sm" data-fn="M04.F04.I07" onClick={() => setMoveTarget(r)}>
