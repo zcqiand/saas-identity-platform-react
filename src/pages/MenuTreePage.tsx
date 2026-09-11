@@ -76,10 +76,10 @@ const FIELDS: FieldDef[] = [
     label: "状态",
     type: "select",
     required: true,
-    defaultValue: "active",
+    defaultValue: "1",
     options: [
-      { value: "active", label: "启用" },
-      { value: "disabled", label: "停用" },
+      { value: "1", label: "启用" },
+      { value: "0", label: "停用" },
     ],
   },
 ];
@@ -205,6 +205,18 @@ export function MenuTreePage() {
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
 
   const allMenus = (menusQ.data ?? []) as Menu[];
+  // 父菜单下拉用：无视展开状态的扁平视图（深度缩进）
+  const flatForSelect = useMemo(() => {
+    const out: Array<{ menu: Menu; depth: number }> = [];
+    const walk = (nodes: MenuNode[], depth: number) => {
+      for (const n of nodes) {
+        out.push({ menu: n.menu, depth });
+        walk(n.children, depth + 1);
+      }
+    };
+    walk(buildTree(allMenus), 0);
+    return out;
+  }, [allMenus]);
 
   const rows = useMemo(() => {
     const tree = buildTree(allMenus);
@@ -409,15 +421,31 @@ export function MenuTreePage() {
         open={Boolean(editTarget)}
         onOpenChange={(o) => !o && setEditTarget(null)}
         title="编辑菜单"
-        fields={EDIT_FIELDS}
+        fields={EDIT_FIELDS.map((f) =>
+          f.name === "parentId"
+            ? {
+                ...f,
+                options: [
+                  { value: "", label: "（无，顶级）" },
+                  ...flatForSelect
+                    .filter((m) => m.menu.id !== editTarget?.id)
+                    .map((m) => ({
+                      value: m.menu.id,
+                      label: `${"  ".repeat(m.depth)}${m.menu.path ?? ""} · ${m.menu.title}`,
+                    })),
+                ],
+              }
+            : f,
+        )}
         initialValues={
           editTarget
             ? {
                 title: editTarget.title,
                 path: editTarget.path,
                 type: editTarget.type,
+                parentId: editTarget.parentId ?? "",
                 sortOrder: editTarget.sortOrder,
-                status: editTarget.status,
+                status: String(editTarget.status ?? 1),
               }
             : undefined
         }
@@ -431,7 +459,8 @@ export function MenuTreePage() {
               path: (values.path as string) || undefined,
               type: values.type as "directory" | "menu" | "button",
               sortOrder: Number(values.sortOrder ?? 0),
-            },
+              status: Number(values.status ?? 1),
+            } as never,
           });
           setEditTarget(null);
         }}
