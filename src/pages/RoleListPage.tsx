@@ -1,21 +1,23 @@
-// M02.F01 — tenant-scoped 角色列表（CRUD + 菜单授权入口）
+// M00.F03 — tenant-scoped 角色列表（CRUD + 菜单授权入口）
+// 2026-09-11 E2E REQ-2026-005：barrel 死桩切真源（tenant-roles tag）+ 契约字段
+// code/name→roleCode/roleName + 删 I01 权限矩阵死按钮（PUT permissions 契约已废弃，
+// 权限面由 role-menus 承接，对齐 vue/nextjs 基准）。
 
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  tenantRolesCreateRole,
-  tenantRolesDeleteRole,
-  tenantRolesListRoles,
-  tenantRolesSetPermissions,
-  tenantRolesUpdateRole,
-  useAdminTenantsGetTenant,
-} from "@/api/endpoints/endpoints";
+  tenantRolesCreateSysRole,
+  tenantRolesDeleteSysRole,
+  tenantRolesListSysRoles,
+  tenantRolesUpdateSysRole,
+} from "@/api/endpoints/tenant-roles/tenant-roles";
+import { useAdminTenantsGetTenant } from "@/api/endpoints/admin-tenants/admin-tenants";
 import type {
-  CreateRoleRequest,
-  Role,
-  UpdateRoleRequest,
-} from "@/api/endpoints/endpoints.schemas";
+  CreateSysRoleRequest,
+  SysRole,
+  UpdateSysRoleRequest,
+} from "@/api/endpoints/model";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -26,77 +28,57 @@ import { CrudDialog, type FieldDef } from "@/components/app/crud-dialog";
 import { toApiError } from "@/api/http-client";
 import { toast } from "sonner";
 
-const PERMISSION_OPTIONS = [
-  { value: "users.read", label: "users.read" },
-  { value: "users.write", label: "users.write" },
-  { value: "roles.read", label: "roles.read" },
-  { value: "roles.write", label: "roles.write" },
-];
-
 const FIELDS: FieldDef[] = [
-  { name: "code", label: "Code", required: true, placeholder: "admin" },
-  { name: "name", label: "名称", required: true, placeholder: "管理员" },
+  { name: "roleCode", label: "Code", required: true, placeholder: "admin" },
+  { name: "roleName", label: "名称", required: true, placeholder: "管理员" },
 ];
 
-const EDIT_FIELDS = FIELDS.filter((f) => f.name !== "code");
+const EDIT_FIELDS = FIELDS.filter((f) => f.name !== "roleCode");
 
 export function RoleListPage() {
   const { tenantId } = useParams<{ tenantId: string }>();
   const qc = useQueryClient();
-  // orval 生成的 react-query hook：拉取当前 tenant 的元数据。tenantId 缺失时
-  // 不发请求，加载中/失败显示 fallback。
   const tenantQ = useAdminTenantsGetTenant(tenantId!, { query: { enabled: !!tenantId } });
   const tenant = tenantQ.data?.data ?? null;
-  const tenantLabel = tenant ? `租户 ${tenant.name}（${tenant.code}）` : "租户未知";
+  const tenantLabel = tenant ? `租户 ${tenant.name}（${tenant.tenantKey}）` : "租户未知";
 
-  const list = useQuery<Role[]>({
-    queryKey: ["tenantRolesListRoles", tenantId],
-    queryFn: async () => (await tenantRolesListRoles(tenantId!)).data.items,
+  const list = useQuery<SysRole[]>({
+    queryKey: ["tenantRolesListSysRoles", tenantId],
+    queryFn: async () => (await tenantRolesListSysRoles(tenantId!, { clientId: "" })).data.items,
     enabled: !!tenantId,
   });
 
   const createMut = useMutation({
-    mutationFn: (data: CreateRoleRequest) => tenantRolesCreateRole(tenantId!, data),
+    mutationFn: (data: CreateSysRoleRequest) => tenantRolesCreateSysRole(tenantId!, data),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["tenantRolesListRoles", tenantId] });
+      qc.invalidateQueries({ queryKey: ["tenantRolesListSysRoles", tenantId] });
       toast.success("角色已创建");
     },
     onError: (err) => toast.error(`创建失败：${toApiError(err).message}`),
   });
 
   const updateMut = useMutation({
-    mutationFn: ({ roleId, data }: { roleId: string; data: UpdateRoleRequest }) =>
-      tenantRolesUpdateRole(tenantId!, roleId, data),
+    mutationFn: ({ roleId, data }: { roleId: string; data: UpdateSysRoleRequest }) =>
+      tenantRolesUpdateSysRole(tenantId!, roleId, data),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["tenantRolesListRoles", tenantId] });
+      qc.invalidateQueries({ queryKey: ["tenantRolesListSysRoles", tenantId] });
       toast.success("角色已更新");
     },
     onError: (err) => toast.error(`更新失败：${toApiError(err).message}`),
   });
 
   const deleteMut = useMutation({
-    mutationFn: (roleId: string) => tenantRolesDeleteRole(tenantId!, roleId),
+    mutationFn: (roleId: string) => tenantRolesDeleteSysRole(tenantId!, roleId),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["tenantRolesListRoles", tenantId] });
+      qc.invalidateQueries({ queryKey: ["tenantRolesListSysRoles", tenantId] });
       toast.success("角色已删除");
     },
     onError: (err) => toast.error(`删除失败：${toApiError(err).message}`),
   });
 
-  const permMut = useMutation({
-    mutationFn: ({ roleId, permissionIds }: { roleId: string; permissionIds: string[] }) =>
-      tenantRolesSetPermissions(tenantId!, roleId, { permissionIds }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["tenantRolesListRoles", tenantId] });
-      toast.success("权限已更新");
-    },
-    onError: (err) => toast.error(`权限更新失败：${toApiError(err).message}`),
-  });
-
   const [createOpen, setCreateOpen] = useState(false);
-  const [editTarget, setEditTarget] = useState<Role | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<Role | null>(null);
-  const [permTarget, setPermTarget] = useState<Role | null>(null);
+  const [editTarget, setEditTarget] = useState<SysRole | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<SysRole | null>(null);
 
   const roles = list.data ?? [];
 
@@ -124,24 +106,15 @@ export function RoleListPage() {
               <TableRow>
                 <TableHead>Code</TableHead>
                 <TableHead>名称</TableHead>
-                <TableHead>权限</TableHead>
                 <TableHead className="text-right">操作</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {roles.map((r) => (
                 <TableRow key={r.id} data-testid="role-row">
-                  <TableCell className="font-mono text-xs">{r.code}</TableCell>
-                  <TableCell className="font-medium">{r.name}</TableCell>
-                  <TableCell>
-                    <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-700">
-                      {(r.permissionIds ?? []).length} 项
-                    </span>
-                  </TableCell>
+                  <TableCell className="font-mono text-xs">{r.roleCode}</TableCell>
+                  <TableCell className="font-medium">{r.roleName}</TableCell>
                   <TableCell className="text-right space-x-1">
-                    <Button variant="ghost" size="sm" data-fn="M00.F04.I01" onClick={() => setPermTarget(r)}>
-                      权限矩阵
-                    </Button>
                     <Button variant="ghost" size="sm" data-fn="M00.F04.I02" asChild>
                       <Link to={`/tenants/${tenantId}/roles/${r.id}/menus`}>菜单授权</Link>
                     </Button>
@@ -174,7 +147,7 @@ export function RoleListPage() {
         submitText="创建"
         loading={createMut.isPending}
         onSubmit={async (values) => {
-          await createMut.mutateAsync(values as unknown as CreateRoleRequest);
+          await createMut.mutateAsync({ ...(values as unknown as CreateSysRoleRequest), clientId: "saas-console" });
           setCreateOpen(false);
         }}
       />
@@ -184,63 +157,19 @@ export function RoleListPage() {
         onOpenChange={(o) => !o && setEditTarget(null)}
         title="编辑角色"
         fields={EDIT_FIELDS}
-        initialValues={editTarget ? { name: editTarget.name } : undefined}
+        initialValues={editTarget ? { roleName: editTarget.roleName } : undefined}
         loading={updateMut.isPending}
         onSubmit={async (values) => {
           if (!editTarget) return;
-          await updateMut.mutateAsync({ roleId: editTarget.id, data: { name: values.name as string } });
+          await updateMut.mutateAsync({ roleId: editTarget.id, data: { roleName: values.roleName as string } });
           setEditTarget(null);
-        }}
-      />
-
-      <CrudDialog
-        open={Boolean(permTarget)}
-        onOpenChange={(o) => !o && setPermTarget(null)}
-        title={`权限矩阵：${permTarget?.name ?? ""}`}
-        fields={[
-          {
-            name: "permissionIds",
-            label: "权限（多选）",
-            type: "select",
-            options: PERMISSION_OPTIONS,
-          },
-        ]}
-        submitText="保存权限"
-        loading={permMut.isPending}
-        renderField={(_field, _value, onChange) => (
-          <div className="space-y-1 max-h-48 overflow-y-auto border rounded p-2">
-            {PERMISSION_OPTIONS.map((p) => {
-              const checked = (permTarget?.permissionIds ?? []).includes(p.value);
-              return (
-                <label key={p.value} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={(e) => {
-                      const next = new Set(permTarget?.permissionIds ?? []);
-                      if (e.target.checked) next.add(p.value);
-                      else next.delete(p.value);
-                      onChange(Array.from(next));
-                    }}
-                  />
-                  <span className="font-mono text-xs">{p.value}</span>
-                </label>
-              );
-            })}
-          </div>
-        )}
-        onSubmit={async (values) => {
-          if (!permTarget) return;
-          const permissionIds = Array.isArray(values.permissionIds) ? (values.permissionIds as string[]) : [];
-          await permMut.mutateAsync({ roleId: permTarget.id, permissionIds });
-          setPermTarget(null);
         }}
       />
 
       <ConfirmDialog
         open={Boolean(deleteTarget)}
         onOpenChange={(o) => !o && setDeleteTarget(null)}
-        title={`删除角色「${deleteTarget?.name ?? ""}」？`}
+        title={`删除角色「${deleteTarget?.roleName ?? ""}」？`}
         description="角色删除将一并解除角色与用户的绑定关系。"
         confirmText="删除"
         destructive

@@ -1,16 +1,18 @@
-// M09 — 角色 ↔ 菜单授权（按 app 分组的勾选矩阵 + 保存）
+// M00.F04 — 角色 ↔ 菜单授权（按 client 分组的勾选矩阵 + 保存）
+// 2026-09-11 E2E REQ-2026-005：barrel 死桩切真源（client-menus/admin-clients/
+// tenant-role-menus tag）+ 契约字段对齐（AdminClient.clientId/clientName、SysMenu.title/path）。
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { clientMenusListSysMenus } from "@/api/endpoints/client-menus/client-menus";
+import { useAdminClientsListClients } from "@/api/endpoints/admin-clients/admin-clients";
 import {
-  adminAppMenusListMenus,
-  tenantRoleMenusListRoleMenus,
-  tenantRoleMenusSetRoleMenus,
-  useAdminAppsListApps,
-  useAdminTenantsGetTenant,
-} from "@/api/endpoints/endpoints";
-import type { SetRoleMenusRequest } from "@/api/endpoints/endpoints.schemas";
+  tenantRoleMenusListSysRoleMenus,
+  tenantRoleMenusSetSysRoleMenus,
+} from "@/api/endpoints/tenant-role-menus/tenant-role-menus";
+import { useAdminTenantsGetTenant } from "@/api/endpoints/admin-tenants/admin-tenants";
+import type { SysMenu } from "@/api/endpoints/model";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/app/page-header";
@@ -22,31 +24,31 @@ export function RoleMenuGrantPage() {
   const { tenantId, roleId } = useParams<{ tenantId: string; roleId: string }>();
   const qc = useQueryClient();
   const [granted, setGranted] = useState<Set<string>>(new Set());
-  // orval 生成的 react-query hook：拉取当前 tenant 的元数据。tenantId 缺失时
-  // 不发请求，加载中/失败显示 fallback。
   const tenantQ = useAdminTenantsGetTenant(tenantId!, { query: { enabled: !!tenantId } });
   const tenant = tenantQ.data?.data ?? null;
-  const tenantLabel = tenant ? `${tenant.name}（${tenant.code}）` : "未知租户";
+  const tenantLabel = tenant ? `${tenant.name}（${tenant.tenantKey}）` : "未知租户";
 
-  // 平台所有 app 下的菜单，按 app 分组
-  const appsQ = useAdminAppsListApps();
+  // 平台所有 client 下的菜单，按 client 分组（每张 Card 独立 menus，勿共享）
+  const appsQ = useAdminClientsListClients();
   const apps = appsQ.data?.data?.items ?? [];
   const groupsQ = useQuery({
-    queryKey: ["roleMenuGrantApps", tenantId, roleId],
+    queryKey: ["roleMenuGrantAllGroups", tenantId, roleId, apps.map((a) => a.id).join(",")],
     queryFn: async () => {
-      const result: Array<{ appCode: string; appName: string; menus: any[] }> = [];
-      for (const a of apps) {
-        const menus = (await adminAppMenusListMenus(a.id)).data;
-        result.push({ appCode: a.code, appName: a.name, menus });
-      }
-      return result;
+      const items = apps;
+      return Promise.all(
+        items.map(async (a) => ({
+          appCode: a.clientId,
+          appName: a.clientName,
+          menus: (await clientMenusListSysMenus(a.id)).data,
+        })),
+      );
     },
     enabled: !!tenantId && !!roleId && apps.length > 0,
   });
 
   const grantQ = useQuery({
-    queryKey: ["tenantRoleMenusListRoleMenus", tenantId, roleId],
-    queryFn: async () => (await tenantRoleMenusListRoleMenus(tenantId!, roleId!)).data,
+    queryKey: ["tenantRoleMenusListSysRoleMenus", tenantId, roleId],
+    queryFn: async () => (await tenantRoleMenusListSysRoleMenus(tenantId!, roleId!, { clientId: "" })).data,
     enabled: !!tenantId && !!roleId,
   });
 
@@ -56,9 +58,9 @@ export function RoleMenuGrantPage() {
 
   const saveMut = useMutation({
     mutationFn: (menuIds: string[]) =>
-      tenantRoleMenusSetRoleMenus(tenantId!, roleId!, { menuIds } as SetRoleMenusRequest),
+      tenantRoleMenusSetSysRoleMenus(tenantId!, roleId!, { menuIds }, { clientId: "" }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["tenantRoleMenusListRoleMenus", tenantId, roleId] });
+      qc.invalidateQueries({ queryKey: ["tenantRoleMenusListSysRoleMenus", tenantId, roleId] });
       toast.success("菜单授权已保存");
     },
     onError: (err) => toast.error(`保存失败：${toApiError(err).message}`),
@@ -76,6 +78,9 @@ export function RoleMenuGrantPage() {
   function clearAll() {
     setGranted(new Set());
   }
+
+  const groups: Array<{ appCode: string; appName: string; menus: SysMenu[] }> =
+    groupsQ.data ?? [];
 
   return (
     <div className="space-y-6">
@@ -107,7 +112,7 @@ export function RoleMenuGrantPage() {
         <PageLoading />
       ) : (
         <>
-      {groupsQ.data?.map((g) => (
+      {groups.map((g) => (
         <Card key={g.appCode}>
           <CardHeader>
             <CardTitle>
@@ -131,8 +136,8 @@ export function RoleMenuGrantPage() {
                     onChange={() => toggle(m.id)}
                     className="h-4 w-4"
                   />
-                  <span className="font-medium text-sm">{m.name}</span>
-                  <span className="font-mono text-xs text-slate-500">{m.code}</span>
+                  <span className="font-medium text-sm">{m.title}</span>
+                  <span className="font-mono text-xs text-slate-500">{m.path}</span>
                 </label>
               );
             })}

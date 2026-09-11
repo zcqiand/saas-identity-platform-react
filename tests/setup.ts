@@ -14,6 +14,9 @@ import {
 // === Mock local orval api-client (@/api/endpoints/endpoints) ===
 // orval 生成的 endpoints.ts 在模块加载时引 axios，vi.mock('axios') 会让本仓
 // endpoints 模块初始化失败（只剩 getTitle 一个 export）。直接 mock api-client 模块更稳。
+function queryStub<T>(data: T) {
+  return { data, isLoading: false, isFetching: false, isError: false, error: null, refetch: () => Promise.resolve() } as any;
+}
 function page<T>(items: T[]) {
   return { items, page: 1, pageSize: items.length, total: items.length };
 }
@@ -28,11 +31,40 @@ function okHook<T>(payload: T) {
 // 2026-09-11 REQ-003：tenants page 改从真 orval tag 模块 import（barrel 死桩
 // shadow 真函数，列表恒空）。测试 mock 跟随真源路径。
 vi.mock("@/api/endpoints/admin-tenants/admin-tenants", () => ({
+  useAdminTenantsGetTenant: (_id?: string) => queryStub({ data: tenants[0] }),
   adminTenantsListTenants: async () => ({ data: page(tenants) }),
   adminTenantsCreateTenant: async (body: any) => ({ data: { id: "new-tenant", ...body } }),
   adminTenantsGetTenant: async (id: string) => ({ data: { id, tenantKey: "acme", name: "ACME", status: "active" } }),
   adminTenantsUpdateTenant: async (id: string, body: any) => ({ data: { id, ...body } }),
   adminTenantsDeleteTenant: async () => ({ data: undefined }),
+}));
+
+
+// 2026-09-11 REQ-2026-005：角色/菜单授权页改从真 orval tag 模块 import，mock 跟随真源路径。
+// Sys 系契约字段：SysRole{roleCode,roleName}、SysMenu{title,path}、AdminClient{clientId,clientName}。
+vi.mock("@/api/endpoints/tenant-roles/tenant-roles", () => ({
+  tenantRolesListSysRoles: async () => ({ data: { items: page(roles), page: 1, pageSize: roles.length, total: roles.length } }),
+  tenantRolesCreateSysRole: async (_t: string, body: any) => ({ data: { id: "new-role", ...body } }),
+  tenantRolesGetSysRole: async () => ({ data: roles[0] }),
+  tenantRolesUpdateSysRole: async (_t: string, id: string, body: any) => ({ data: { id, ...body } }),
+  tenantRolesDeleteSysRole: async () => ({ data: undefined }),
+}));
+vi.mock("@/api/endpoints/tenant-role-menus/tenant-role-menus", () => ({
+  tenantRoleMenusListSysRoleMenus: async (_t: string, roleId: string) => ({
+    data: roleMenuGrants.find((x) => x.roleId === roleId) ?? { roleId, menuIds: [], updatedAt: "" },
+  }),
+  tenantRoleMenusSetSysRoleMenus: async (_t: string, roleId: string, body: any) => ({
+    data: { roleId, menuIds: body.menuIds, updatedAt: "" },
+  }),
+}));
+vi.mock("@/api/endpoints/client-menus/client-menus", () => ({
+  clientMenusListSysMenus: async (clientId: string) => ({
+    data: menus.filter((m: { appId: string }) => m.appId === clientId),
+  }),
+}));
+vi.mock("@/api/endpoints/admin-clients/admin-clients", () => ({
+  adminClientsListClients: async () => ({ data: page(apps) }),
+  useAdminClientsListClients: () => queryStub({ data: page(apps) }),
 }));
 
 vi.mock("@/api/endpoints/endpoints", () => ({

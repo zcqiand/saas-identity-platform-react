@@ -345,9 +345,7 @@
       "flows": [],
       "designs": [],
       "tests": [],
-      "entry": [
-        "src\\pages\\RoleListPage.tsx"
-      ]
+      "entry": []
     },
     "M00.F04.I02": {
       "name": "角色已授权菜单查询",
