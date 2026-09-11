@@ -1,23 +1,19 @@
 // AppShell — top bar with breadcrumbs + left sidebar + main content.
 //
 // Sidebar links with `:tenantId` placeholder are dynamically substituted with
-// `selectedTenantId` (from SelectionContext). This way clicking "用户管理" while
+// `selectedTenantId` (from SelectionContext). This way clicking "租户成员" while
 // tenant = globex goes to `/tenants/globex/users`, not literal `/tenants/:tenantId/users`.
 
 import { useLocation, Outlet, Link, useNavigate } from "react-router-dom";
 import { Suspense, useMemo } from "react";
 import {
-  Building2,
-  Users,
-  Shield,
   LogOut,
   ChevronRight,
   Home,
-  Boxes,
-  FolderTree,
 } from "lucide-react";
 import type { ReactNode } from "react";
-import { SidebarNav, type NavItem } from "./sidebar-nav";
+import { SidebarNav } from "./sidebar-nav";
+import { buildNavItems } from "./nav-items";
 import { TenantSwitcher } from "@/components/tenant-switcher";
 import { BackendBadge } from "./backend-badge";
 import { Separator } from "@/components/ui/separator";
@@ -92,14 +88,9 @@ export function AppShell() {
   const crumbs = useBreadcrumbs(location.pathname, tenantForNav);
 
   // Sidebar links: substitute `:tenantId` placeholder with selectedTenantId.
-  const navItems: NavItem[] = useMemo(
+  const navItems = useMemo(
     () => [
-      { to: "/tenants", label: "租户管理", group: "首页", icon: <Building2 className="h-4 w-4" />, fnId: "M00.F01.I01" },
-      { to: `/tenants/${tenantForNav}/users`, label: "用户管理", group: "身份管理", icon: <Users className="h-4 w-4" />, fnId: "M00.F02.I01" },
-      { to: `/tenants/${tenantForNav}/roles`, label: "角色管理", group: "身份管理", icon: <Shield className="h-4 w-4" />, fnId: "M00.F03.I01" },
-      { to: `/tenants/${tenantForNav}/applications`, label: "租户应用", group: "应用与菜单", icon: <Boxes className="h-4 w-4" />, fnId: "M00.F05.I01" },
-      { to: "/apps", label: "应用管理", group: "应用与菜单", icon: <Boxes className="h-4 w-4" />, fnId: "M04.F01.I01" },
-      { to: "/apps/lab-management/menus", label: "菜单管理", group: "应用与菜单", icon: <FolderTree className="h-4 w-4" />, fnId: "M04.F04.I01" },
+      ...buildNavItems(tenantForNav),
     ],
     [tenantForNav],
   );
