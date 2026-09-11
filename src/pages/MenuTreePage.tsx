@@ -14,11 +14,12 @@ import {
   adminAppMenusUpdateMenu,
   useAdminAppsListApps,
 } from "@/api/endpoints/endpoints";
+// 2026-09-11 契约对齐：菜单类型切真源 model（SysMenu/CreateSysMenuRequest）；
+// 函数层（adminAppMenus* barrel）仍是 M04 域死桩，待该域 E2E 铺开时迁移真源。
 import type {
-  CreateMenuRequest,
-  Menu,
-  UpdateMenuRequest,
-} from "@/api/endpoints/endpoints.schemas";
+  CreateSysMenuRequest as CreateMenuRequest,
+  SysMenu as Menu,
+} from "@/api/endpoints/model";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -48,19 +49,19 @@ import { toApiError } from "@/api/http-client";
 import { toast } from "sonner";
 
 const FIELDS: FieldDef[] = [
-  { name: "code", label: "Code", required: true, placeholder: "m-xxx" },
-  { name: "name", label: "名称", required: true, placeholder: "接样管理" },
+  // 2026-09-11 契约对齐：SysMenu{title,type(directory|menu|button),status:number}
+  { name: "title", label: "标题", required: true, placeholder: "接样管理" },
   { name: "path", label: "路径", placeholder: "receipts" },
   {
     name: "type",
     label: "类型",
     type: "select",
     required: true,
-    defaultValue: "page",
+    defaultValue: "menu",
     options: [
-      { value: "group", label: "分组（容器）" },
-      { value: "page", label: "页面（叶子）" },
-      { value: "action", label: "操作（按钮）" },
+      { value: "directory", label: "目录（容器）" },
+      { value: "menu", label: "菜单（叶子）" },
+      { value: "button", label: "按钮（操作）" },
     ],
   },
   {
@@ -84,7 +85,7 @@ const FIELDS: FieldDef[] = [
   },
 ];
 
-const EDIT_FIELDS = FIELDS.filter((f) => f.name !== "code");
+const EDIT_FIELDS = FIELDS.filter((f) => f.name !== "title");
 
 interface MenuNode {
   menu: Menu;
@@ -106,7 +107,7 @@ function buildTree(menus: Menu[]): MenuNode[] {
   }
   for (const n of byId.values()) n.hasChildren = n.children.length > 0;
   const sortByOrder = (a: MenuNode, b: MenuNode) =>
-    a.menu.sortOrder - b.menu.sortOrder || a.menu.code.localeCompare(b.menu.code);
+    a.menu.sortOrder - b.menu.sortOrder || a.menu.title.localeCompare(b.menu.title);
   const recurse = (ns: MenuNode[]) => {
     ns.sort(sortByOrder);
     for (const n of ns) recurse(n.children);
@@ -163,7 +164,7 @@ export function MenuTreePage() {
   });
 
   const updateMut = useMutation({
-    mutationFn: ({ menuId, data }: { menuId: string; data: UpdateMenuRequest }) =>
+    mutationFn: ({ menuId, data }: { menuId: string; data: Partial<CreateMenuRequest> }) =>
       adminAppMenusUpdateMenu(currentApp!.id, menuId, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["adminAppMenusListMenus", currentApp!.id] });
@@ -322,11 +323,11 @@ export function MenuTreePage() {
                         ) : (
                           <span className="mr-1 inline-block h-4 w-4" />
                         )}
-                        <span>{r.code}</span>
+                        <span>{r.title}</span>
                       </span>
                     </TableCell>
                     <TableCell className="font-medium">
-                      {r.name}
+                      {r.path}
                       {r.path && (
                         <span className="ml-2 text-xs text-slate-500 font-mono">{r.path}</span>
                       )}
@@ -338,7 +339,7 @@ export function MenuTreePage() {
                     </TableCell>
                     <TableCell className="text-slate-600">{r.sortOrder}</TableCell>
                     <TableCell>
-                      <StatusBadge status={r.status === "active" ? "active" : "suspended"} />
+                      <StatusBadge status={r.status === 1 ? "active" : "suspended"} />
                     </TableCell>
                     <TableCell className="text-right space-x-1">
                       <Button variant="ghost" size="sm" data-fn="M04.F04.I07" onClick={() => setMoveTarget(r)}>
@@ -379,7 +380,7 @@ export function MenuTreePage() {
               { value: "", label: "（无，顶级）" },
               ...rows.map((m) => ({
                 value: m.id,
-                label: `${"  ".repeat(m.depth)}${m.code} · ${m.name}`,
+                label: `${"  ".repeat(m.depth)}${m.title} · ${m.path ?? ""}`,
               })),
             ],
             defaultValue: "",
@@ -390,13 +391,11 @@ export function MenuTreePage() {
         onSubmit={async (values) => {
           const parentId = values.parentId && values.parentId !== "" ? String(values.parentId) : undefined;
           await createMut.mutateAsync({
-            code: String(values.code ?? "").trim(),
-            name: String(values.name ?? "").trim(),
+            title: String(values.title ?? "").trim(),
             path: (values.path as string) || undefined,
-            type: values.type as "group" | "page" | "action",
+            type: values.type as "directory" | "menu" | "button",
             parentId,
             sortOrder: Number(values.sortOrder ?? 0),
-            status: values.status as "active" | "disabled",
           });
           setCreateOpen(false);
         }}
@@ -410,7 +409,7 @@ export function MenuTreePage() {
         initialValues={
           editTarget
             ? {
-                name: editTarget.name,
+                title: editTarget.title,
                 path: editTarget.path,
                 type: editTarget.type,
                 sortOrder: editTarget.sortOrder,
@@ -424,11 +423,10 @@ export function MenuTreePage() {
           await updateMut.mutateAsync({
             menuId: editTarget.id,
             data: {
-              name: values.name as string,
+              title: values.title as string,
               path: (values.path as string) || undefined,
-              type: values.type as "group" | "page" | "action",
+              type: values.type as "directory" | "menu" | "button",
               sortOrder: Number(values.sortOrder ?? 0),
-              status: values.status as "active" | "disabled",
             },
           });
           setEditTarget(null);
@@ -438,7 +436,7 @@ export function MenuTreePage() {
       <CrudDialog
         open={Boolean(moveTarget)}
         onOpenChange={(o) => !o && setMoveTarget(null)}
-        title={`移动菜单：${moveTarget?.code ?? ""}`}
+        title={`移动菜单：${moveTarget?.title ?? ""}`}
         description="选择新的父级菜单。无父级 = 顶级。"
         fields={[
           {
@@ -449,7 +447,7 @@ export function MenuTreePage() {
               { value: "", label: "（无，顶级）" },
               ...rows
                 .filter((m) => m.id !== moveTarget?.id)
-                .map((m) => ({ value: m.id, label: `${"  ".repeat(m.depth)}${m.code} · ${m.name}` })),
+                .map((m) => ({ value: m.id, label: `${"  ".repeat(m.depth)}${m.title} · ${m.path ?? ""}` })),
             ],
           },
         ]}
@@ -467,7 +465,7 @@ export function MenuTreePage() {
       <ConfirmDialog
         open={Boolean(deleteTarget)}
         onOpenChange={(o) => !o && setDeleteTarget(null)}
-        title={`删除菜单「${deleteTarget?.name ?? ""}」？`}
+        title={`删除菜单「${deleteTarget?.title ?? ""}」？`}
         description="删除菜单会同时移除其下所有子菜单。不可撤销。"
         confirmText="删除"
         destructive

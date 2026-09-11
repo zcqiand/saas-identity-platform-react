@@ -59,7 +59,7 @@ vi.mock("@/api/endpoints/tenant-role-menus/tenant-role-menus", () => ({
 }));
 vi.mock("@/api/endpoints/client-menus/client-menus", () => ({
   clientMenusListSysMenus: async (clientId: string) => ({
-    data: menus.filter((m: { appId: string }) => m.appId === clientId),
+    data: menus.filter((m: { clientId: string }) => m.clientId === clientId),
   }),
 }));
 vi.mock("@/api/endpoints/admin-clients/admin-clients", () => ({
@@ -111,7 +111,7 @@ vi.mock("@/api/endpoints/endpoints", () => ({
   adminAppsDeleteApp: async () => ({ data: undefined }),
   adminAppsSetAppStatus: async (appId: string, body: any) => ({ data: { id: appId, ...body } }),
 
-  adminAppMenusListMenus: async (appId: string) => ({ data: menus.filter((m) => m.appId === appId) }),
+  adminAppMenusListMenus: async (appId: string) => ({ data: menus.filter((m) => m.clientId === appId) }),
   adminAppMenusCreateMenu: async (_a: string, body: any) => ({ data: { id: "new-menu", ...body } }),
   adminAppMenusGetMenu: async (_a: string, menuId: string) => ({ data: menus.find((m) => m.id === menuId) ?? menus[0] }),
   adminAppMenusUpdateMenu: async (_a: string, menuId: string, body: any) => ({ data: { id: menuId, ...body } }),

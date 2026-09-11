@@ -20,7 +20,8 @@ import { Label } from "@/components/ui/label";
 import { Toaster } from "@/components/ui/sonner";
 import { useTenant } from "@/state/tenant-context";
 import { getApiMode } from "@/api/backend-config";
-import { useOAuthAuthorize } from "@/api/endpoints/endpoints";
+// 2026-09-11 ④：authorize 切真源（barrel 死桩会假成功跳 RP——假 code）
+import { useOAuthAuthorize } from "@/api/endpoints/oauth/oauth";
 import { useSessionsLogin } from "@/api/endpoints/auth/auth";
 import { toApiError } from "@/api/http-client";
 import { toast } from "sonner";
@@ -107,7 +108,6 @@ export function LoginPage() {
             responseType: "code",
             scope: "lab.read lab.write",
             state,
-            tenantId: currentTenantId ?? "00000000-0000-0000-0000-000000000001",
           },
         });
         const target = new URL(redirectUri);
@@ -178,7 +178,6 @@ export function LoginPage() {
                   responseType: "code",
                   scope: "lab.read lab.write",
                   state,
-                  tenantId: currentTenantId ?? "00000000-0000-0000-0000-000000000001",
                 },
               });
               const target = new URL(redirectUri);
