@@ -66,12 +66,9 @@ function useBreadcrumbs(pathname: string, fallbackTenantId: string): Crumb[] {
     if (seg === "tenants" && i + 1 < segments.length) continue;
     if (prev === "tenants") {
       // 优先用 URL 段；找不到再回退 selectedTenantId（应对 sidebar 残留的 :tenantId 字面量）
+      // 用户裁定 2026-09-11：面包屑显示租户名称，不再展示括号中的 ID
       const tenant = tenantById.get(seg) ?? tenantById.get(fallbackTenantId);
-      if (tenant) {
-        crumbs.push({ label: tenant.name, to: path, hint: tenant.code });
-      } else {
-        crumbs.push({ label: "未知租户", to: path, hint: seg.slice(0, 8) });
-      }
+      crumbs.push({ label: tenant ? tenant.name : "未知租户", to: path });
       continue;
     }
     crumbs.push({ label: SUB_PATH_LABEL[seg] ?? seg, to: path });
