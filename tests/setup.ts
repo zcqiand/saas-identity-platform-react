@@ -58,9 +58,15 @@ vi.mock("@/api/endpoints/tenant-role-menus/tenant-role-menus", () => ({
   }),
 }));
 vi.mock("@/api/endpoints/client-menus/client-menus", () => ({
-  clientMenusListSysMenus: async (clientId: string) => ({
-    data: menus.filter((m: { clientId: string }) => m.clientId === clientId),
-  }),
+  // 入参现在是契约 clientId（code 形，2026-09-12 收敛后页面统一按 code 寻址）。
+  // seed fixture 的 menus.clientId 存的是 oauth_client 行 id（UUID 形），与 msw HTTP 层
+  // resolveAppId 同款：先把 id|clientId 双路解析到 app 行，再按行 id 过滤。
+  clientMenusListSysMenus: async (clientId: string) => {
+    const app = apps.find((a: any) => a.id === clientId || a.clientId === clientId);
+    return {
+      data: menus.filter((m: { clientId: string }) => m.clientId === (app ? app.id : clientId)),
+    };
+  },
 }));
 vi.mock("@/api/endpoints/tenant-applications/tenant-applications", () => ({
   tenantApplicationsListTenantApplications: async (_t: string) => ({ data: page([]) }),

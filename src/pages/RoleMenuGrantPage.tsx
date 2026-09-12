@@ -32,14 +32,20 @@ export function RoleMenuGrantPage() {
   const appsQ = useAdminClientsListClients();
   const apps = appsQ.data?.data?.items ?? [];
   const groupsQ = useQuery({
-    queryKey: ["roleMenuGrantAllGroups", tenantId, roleId, apps.map((a) => a.id).join(",")],
+    // app 寻址统一 code 形（clientId）：真后端按 client_id 列查，行 UUID 会 404
+    queryKey: [
+      "roleMenuGrantAllGroups",
+      tenantId,
+      roleId,
+      apps.map((a) => a.clientId).join(","),
+    ],
     queryFn: async () => {
       const items = apps;
       return Promise.all(
         items.map(async (a) => ({
           appCode: a.clientId,
           appName: a.clientName,
-          menus: (await clientMenusListSysMenus(a.id)).data,
+          menus: (await clientMenusListSysMenus(a.clientId)).data,
         })),
       );
     },

@@ -150,16 +150,18 @@ export function MenuTreePage() {
     [selectedApp, allApps],
   );
 
+  // app 寻址统一 code 形（clientId）：真后端按 client_id 列查，行 UUID 会 404。
+  // queryKey 与 invalidateQueries 必须同源（appCode），否则失效不命中。
   const menusQ = useQuery({
-    queryKey: ["clientMenusListSysMenus", currentApp?.id],
-    queryFn: async () => (await clientMenusListSysMenus(currentApp!.id)).data,
+    queryKey: ["clientMenusListSysMenus", currentApp ? appCode(currentApp) : undefined],
+    queryFn: async () => (await clientMenusListSysMenus(appCode(currentApp!))).data,
     enabled: !!currentApp,
   });
 
   const createMut = useMutation({
-    mutationFn: (data: CreateMenuRequest) => clientMenusCreateSysMenu(currentApp!.id, data),
+    mutationFn: (data: CreateMenuRequest) => clientMenusCreateSysMenu(appCode(currentApp!), data),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["clientMenusListSysMenus", currentApp!.id] });
+      qc.invalidateQueries({ queryKey: ["clientMenusListSysMenus", appCode(currentApp!)] });
       toast.success("菜单已创建");
     },
     onError: (err) => toast.error(`创建失败：${toApiError(err).message}`),
@@ -167,18 +169,18 @@ export function MenuTreePage() {
 
   const updateMut = useMutation({
     mutationFn: ({ menuId, data }: { menuId: string; data: Partial<CreateMenuRequest> }) =>
-      clientMenusUpdateSysMenu(currentApp!.id, menuId, data),
+      clientMenusUpdateSysMenu(appCode(currentApp!), menuId, data),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["clientMenusListSysMenus", currentApp!.id] });
+      qc.invalidateQueries({ queryKey: ["clientMenusListSysMenus", appCode(currentApp!)] });
       toast.success("菜单已更新");
     },
     onError: (err) => toast.error(`更新失败：${toApiError(err).message}`),
   });
 
   const deleteMut = useMutation({
-    mutationFn: (menuId: string) => clientMenusDeleteSysMenu(currentApp!.id, menuId),
+    mutationFn: (menuId: string) => clientMenusDeleteSysMenu(appCode(currentApp!), menuId),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["clientMenusListSysMenus", currentApp!.id] });
+      qc.invalidateQueries({ queryKey: ["clientMenusListSysMenus", appCode(currentApp!)] });
       toast.success("菜单已删除");
     },
     onError: (err) => toast.error(`删除失败：${toApiError(err).message}`),
@@ -186,9 +188,9 @@ export function MenuTreePage() {
 
   const moveMut = useMutation({
     mutationFn: ({ menuId, parentId }: { menuId: string; parentId?: string }) =>
-      clientMenusMoveSysMenu(currentApp!.id, menuId, { parentId }),
+      clientMenusMoveSysMenu(appCode(currentApp!), menuId, { parentId }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["clientMenusListSysMenus", currentApp!.id] });
+      qc.invalidateQueries({ queryKey: ["clientMenusListSysMenus", appCode(currentApp!)] });
       toast.success("父级已切换");
     },
     onError: (err) => toast.error(`移动失败：${toApiError(err).message}`),
