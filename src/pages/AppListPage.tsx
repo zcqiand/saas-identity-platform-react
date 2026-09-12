@@ -232,7 +232,7 @@ export function AppListPage() {
                         data-fn="M04.F02.I01"
                         onClick={() =>
                           statusMut.mutate({
-                            appId: a.id,
+                            appId: a.clientId,
                             active: !statusIsActive(a.status),
                           })
                         }
@@ -303,7 +303,7 @@ export function AppListPage() {
         onSubmit={async (values) => {
           if (!editTarget) return;
           await updateMut.mutateAsync({
-            appId: editTarget.id,
+            appId: editTarget.clientId,
             data: {
               clientName: values.clientName as string,
               icon: (values.icon as string) || undefined,
@@ -333,7 +333,7 @@ export function AppListPage() {
         loading={deleteMut.isPending}
         onConfirm={async () => {
           if (!deleteTarget) return;
-          await deleteMut.mutateAsync(deleteTarget.id);
+          await deleteMut.mutateAsync(deleteTarget.clientId);
           setDeleteTarget(null);
         }}
       />

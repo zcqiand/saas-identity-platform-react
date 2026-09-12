@@ -1,8 +1,6 @@
-// 2026-09-12 契约形状回归（ADR-0029 待裁决漂移的消费侧兼容）：
-// 真后端 /admin/clients 返回 shared 契约 OAuthClient——clientName / status:1 / scopes:string；
-// msw fixture 是旧 App 形状——name / status:"active" / scopes:[]。
-// 修前页面直读 a.name / a.status === "active" → 真后端下名称列空白、状态全误判停用。
-// 修法对齐 saas-nextjs app/admin/clients 的双形态读兼容。
+// 2026-09-12 契约形状收敛（ADR-0032 终审修复轮）：fixture 与后端均为 shared 契约
+// OAuthClient——clientId / clientName / status:number（1=启用 / 2=ADR-0032 suspended 语义）/
+// scopes:string。页面按契约字段渲染，写路径按 clientId（code 形）寻址（真后端按 client_id 列查）。
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
@@ -69,14 +67,14 @@ function renderApp() {
   );
 }
 
-describe("M04.F01 应用列表——契约 OAuthClient 形状（真后端）双形态兼容", () => {
+describe("M04.F01 应用列表——契约 OAuthClient 形状", () => {
   it("clientName 渲染到名称列（真后端下名称不再空白）", async () => {
     renderApp();
     expect(await screen.findByText("建筑工程实验室管理系统")).toBeTruthy();
     expect(screen.getByText("企业资源计划系统")).toBeTruthy();
   });
 
-  it("数字 status：1 渲染活跃徽章、2 渲染停用徽章（不再全误判停用）", async () => {
+  it("数字 status：1 渲染活跃徽章、2（ADR-0032 suspended）渲染停用徽章", async () => {
     renderApp();
     await screen.findByText("建筑工程实验室管理系统");
     expect(screen.getByText("活跃")).toBeTruthy();
