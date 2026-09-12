@@ -91,7 +91,23 @@ const rowName = (a: AppRow) => a.clientName;
 const rowScopes = (a: AppRow): string[] =>
   Array.isArray(a.scopes) ? a.scopes : a.scopes ? String(a.scopes).split(",").filter(Boolean) : [];
 
-function toClientInput(values: Record<string, any>): CreateOAuthClientRequest {
+/** 契约请求 + 行扩展列（icon/sortOrder/isFirstParty/status——msw PATCH Object.assign
+ * 持久化；POST 创建时 msw 只落契约字段、真后端 DTO 忽略未知字段）。显式交叉类型
+ * 替代 as unknown as 双投：扩展列对 tsc 可见，不隐身。 */
+type ClientCreateInput = CreateOAuthClientRequest & {
+  icon?: string;
+  sortOrder?: number;
+  isFirstParty?: boolean;
+  status?: number;
+};
+type ClientUpdateInput = UpdateOAuthClientRequest & {
+  icon?: string;
+  sortOrder?: number;
+  isFirstParty?: boolean;
+  status?: number;
+};
+
+function toClientInput(values: Record<string, any>): ClientCreateInput {
   return {
     // 契约 CreateOAuthClientRequest 必填：clientId/clientName/clientSecret/grantTypes/redirectUris
     clientId: String(values.clientId ?? "").trim(),
@@ -111,7 +127,7 @@ function toClientInput(values: Record<string, any>): CreateOAuthClientRequest {
     icon: values.icon ? String(values.icon) : undefined,
     sortOrder: Number(values.sortOrder ?? 0),
     isFirstParty: Boolean(values.isFirstParty),
-  } as unknown as CreateOAuthClientRequest;
+  };
 }
 
 export function AppListPage() {
@@ -123,7 +139,7 @@ export function AppListPage() {
   });
 
   const createMut = useMutation({
-    mutationFn: (data: CreateOAuthClientRequest) => adminClientsCreateClient(data),
+    mutationFn: (data: ClientCreateInput) => adminClientsCreateClient(data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["adminClientsListClients"] });
       toast.success("应用已创建");
@@ -132,7 +148,7 @@ export function AppListPage() {
   });
 
   const updateMut = useMutation({
-    mutationFn: ({ appId, data }: { appId: string; data: UpdateOAuthClientRequest }) =>
+    mutationFn: ({ appId, data }: { appId: string; data: ClientUpdateInput }) =>
       adminClientsUpdateClient(appId, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["adminClientsListClients"] });
@@ -301,7 +317,7 @@ export function AppListPage() {
                     .filter(Boolean)
                     .join(",")
                 : "",
-            } as unknown as UpdateOAuthClientRequest,
+            },
           });
           setEditTarget(null);
         }}
