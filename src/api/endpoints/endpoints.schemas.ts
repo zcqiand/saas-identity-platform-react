@@ -15,48 +15,25 @@
 export type { CurrentUser } from "./model/currentUser";
 export type { ErrorResponse } from "./model/errorResponse";
 export type { ErrorResponseDetails } from "./model/errorResponseDetails";
-export type {
-  AdminTenantsListTenants200,
-} from "./model/adminTenantsListTenants200";
-export type {
-  AdminTenantsListTenantsParams,
-} from "./model/adminTenantsListTenantsParams";
-export type {
-  AdminClientsListClients200,
-} from "./model/adminClientsListClients200";
-export type {
-  AdminClientsListClientsParams,
-} from "./model/adminClientsListClientsParams";
+export type { AdminTenantsListTenants200 } from "./model/adminTenantsListTenants200";
+export type { AdminTenantsListTenantsParams } from "./model/adminTenantsListTenantsParams";
+export type { AdminClientsListClients200 } from "./model/adminClientsListClients200";
+export type { AdminClientsListClientsParams } from "./model/adminClientsListClientsParams";
 export type { LoginRequest } from "./model/loginRequest";
 export type { LoginResponse } from "./model/loginResponse";
-export type {
-  OAuthAuthorize200,
-} from "./model/oAuthAuthorize200";
-export type {
-  OAuthClientPublicInfo,
-} from "./model/oAuthClientPublicInfo";
-export type {
-  TenantStatus,
-} from "./model/tenantStatus";
-export type {
-  SysUserStatus,
-} from "./model/sysUserStatus";
-export type {
-  SysMenuType,
-} from "./model/sysMenuType";
+export type { OAuthAuthorize200 } from "./model/oAuthAuthorize200";
+export type { OAuthClientPublicInfo } from "./model/oAuthClientPublicInfo";
+export type { OAuthClient } from "./model/oAuthClient";
+export type { CreateOAuthClientRequest } from "./model/createOAuthClientRequest";
+export type { UpdateOAuthClientRequest } from "./model/updateOAuthClientRequest";
+export type { TenantStatus } from "./model/tenantStatus";
+export type { SysUserStatus } from "./model/sysUserStatus";
+export type { SysMenuType } from "./model/sysMenuType";
 export type { TenantApplication } from "./model/tenantApplication";
-export type {
-  SubscribeTenantApplicationRequest,
-} from "./model/subscribeTenantApplicationRequest";
-export type {
-  UpdateTenantApplicationRequest,
-} from "./model/updateTenantApplicationRequest";
-export type {
-  TenantApplicationsListTenantApplications200,
-} from "./model/tenantApplicationsListTenantApplications200";
-export type {
-  TenantApplicationsListTenantApplicationsParams,
-} from "./model/tenantApplicationsListTenantApplicationsParams";
+export type { SubscribeTenantApplicationRequest } from "./model/subscribeTenantApplicationRequest";
+export type { UpdateTenantApplicationRequest } from "./model/updateTenantApplicationRequest";
+export type { TenantApplicationsListTenantApplications200 } from "./model/tenantApplicationsListTenantApplications200";
+export type { TenantApplicationsListTenantApplicationsParams } from "./model/tenantApplicationsListTenantApplicationsParams";
 
 // ===== 9/7 前 src/pages 引用、本仓 orval 生成结构对不齐的 override =====
 
@@ -89,14 +66,7 @@ export interface User {
   code: string;
   displayName: string;
   email?: string;
-  status:
-    | "active"
-    | "suspended"
-    | "archived"
-    | "invited"
-    | "disabled"
-    | "revoked"
-    | "expired";
+  status: "active" | "suspended" | "archived" | "invited" | "disabled" | "revoked" | "expired";
   roleIds: string[];
   createdAt?: string;
   updatedAt?: string;
@@ -169,40 +139,9 @@ export interface UpdateMenuRequest {
   status?: "active" | "disabled";
 }
 
-// App：生成版 OAuthClientPublicInfo 是 clientId/clientName/status；
-// pages 用 id/code/clientId/name/scopes/isFirstParty/sortOrder/icon/status。
-export interface App {
-  id: string;
-  code: string;
-  clientId: string;
-  name: string;
-  scopes: string[];
-  isFirstParty: boolean;
-  sortOrder: number;
-  icon?: string;
-  status: "active" | "disabled";
-}
-export interface CreateAppRequest {
-  code: string;
-  name: string;
-  clientId?: string;
-  scopes?: string[];
-  redirectUris?: string[];
-  grantTypes?: string[];
-  icon?: string;
-  sortOrder?: number;
-  isFirstParty?: boolean;
-  status?: "active" | "disabled";
-}
-export interface UpdateAppRequest {
-  name?: string;
-  scopes?: string[];
-  redirectUris?: string[];
-  icon?: string;
-  sortOrder?: number;
-  isFirstParty?: boolean;
-  status?: "active" | "disabled";
-}
+// App 旧形状 override（App/CreateAppRequest/UpdateAppRequest）已随 2026-09-12
+// OAuthClient 契约形状收敛删除——fixture/后端统一契约 OAuthClient，页面直读
+// clientId/clientName/status:number（对齐 saas-nextjs cb0ab13）。
 
 // SetRoleMenusRequest：shared OpenAPI 暂无；按页代码形态定义。
 export interface SetRoleMenusRequest {

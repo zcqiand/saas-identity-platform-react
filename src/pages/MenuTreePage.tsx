@@ -17,6 +17,7 @@ import {
 // 2026-09-11 契约对齐 + B 扫尾：函数层已接真源 client-menus（死桩层已删除）。
 import type {
   CreateSysMenuRequest as CreateMenuRequest,
+  OAuthClient,
   SysMenu as Menu,
 } from "@/api/endpoints/model";
 import { Button } from "@/components/ui/button";
@@ -134,21 +135,18 @@ export function MenuTreePage() {
   const { currentTenantId } = useTenant();
   const qc = useQueryClient();
 
-  // 应用列表（平台 admin 视角 → 用 useAdminAppsListApps,跨 msw/后端模式同源）
+  // 应用列表（平台 admin 视角 → 用 useAdminClientsListClients，跨 msw/后端模式同源）
   const appsQ = useAdminClientsListClients();
-  // OAuthClient 契约无 code/name；msw App fixture 有 —— 显示层兜底
-  const appCode = (a: unknown) =>
-    ((a as { code?: string }).code ?? (a as { clientId?: string }).clientId ?? "") as string;
-  const appName = (a: unknown) =>
-    ((a as { name?: string }).name ?? (a as { clientName?: string }).clientName ?? "") as string;
+  // 2026-09-12 形状收敛：fixture/后端统一契约 OAuthClient，直读 clientId/clientName
+  const appCode = (a: OAuthClient) => a.clientId;
+  const appName = (a: OAuthClient) => a.clientName;
   const allApps = appsQ.data?.data?.items ?? [];
   // selection-context 按 code 持久化（路由 :appCode + DEFAULT_APP_ID="lab-management"），
   // fixture 中 id 是 UUID、code 是 "lab-management"/"erp"/"crm"。同时匹配 id/code 两路：
   // 真实场景 localStorage 存 code，UUID 路径留给极少数外部直接 set id 的迁移历史。
   const currentApp = useMemo(
     () =>
-      allApps.find((a) => appCode(a) === selectedApp.id || a.id === selectedApp.id) ??
-      allApps[0],
+      allApps.find((a) => appCode(a) === selectedApp.id || a.id === selectedApp.id) ?? allApps[0],
     [selectedApp, allApps],
   );
 
@@ -247,16 +245,20 @@ export function MenuTreePage() {
         description={
           <span>
             当前应用{" "}
-            <span className="font-semibold text-slate-700">{currentApp ? appName(currentApp) : "—"}</span>{" "}
-            <span className="font-mono text-xs text-slate-500">({currentApp ? appCode(currentApp) : ""})</span>
+            <span className="font-semibold text-slate-700">
+              {currentApp ? appName(currentApp) : "—"}
+            </span>{" "}
+            <span className="font-mono text-xs text-slate-500">
+              ({currentApp ? appCode(currentApp) : ""})
+            </span>
           </span>
         }
         actions={
           <div className="flex gap-2">
             <Select
-              value={currentApp?.id}
-              onValueChange={(id) => {
-                const a = allApps.find((x) => x.id === id);
+              value={currentApp?.clientId}
+              onValueChange={(clientId) => {
+                const a = allApps.find((x) => x.clientId === clientId);
                 if (a) setSelectedApp({ id: appCode(a), name: appName(a) });
               }}
             >
@@ -265,7 +267,7 @@ export function MenuTreePage() {
               </SelectTrigger>
               <SelectContent>
                 {allApps.map((a) => (
-                  <SelectItem key={a.id} value={a.id} data-testid={`app-option-${a.id}`}>
+                  <SelectItem key={a.id} value={a.clientId} data-testid={`app-option-${a.id}`}>
                     {appName(a)}
                   </SelectItem>
                 ))}
@@ -351,10 +353,20 @@ export function MenuTreePage() {
                       </span>
                     </TableCell>
                     <TableCell className="text-right space-x-1">
-                      <Button variant="ghost" size="sm" data-fn="M04.F04.I07" onClick={() => setMoveTarget(r)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        data-fn="M04.F04.I07"
+                        onClick={() => setMoveTarget(r)}
+                      >
                         移动
                       </Button>
-                      <Button variant="ghost" size="sm" data-fn="M04.F04.I04" onClick={() => setEditTarget(r)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        data-fn="M04.F04.I04"
+                        onClick={() => setEditTarget(r)}
+                      >
                         编辑
                       </Button>
                       <Button
@@ -398,7 +410,8 @@ export function MenuTreePage() {
         submitText="创建"
         loading={createMut.isPending}
         onSubmit={async (values) => {
-          const parentId = values.parentId && values.parentId !== "" ? String(values.parentId) : undefined;
+          const parentId =
+            values.parentId && values.parentId !== "" ? String(values.parentId) : undefined;
           await createMut.mutateAsync({
             title: String(values.title ?? "").trim(),
             path: (values.path as string) || undefined,
@@ -473,7 +486,10 @@ export function MenuTreePage() {
               { value: "", label: "（无，顶级）" },
               ...rows
                 .filter((m) => m.id !== moveTarget?.id)
-                .map((m) => ({ value: m.id, label: `${"  ".repeat(m.depth)}${m.title} · ${m.path ?? ""}` })),
+                .map((m) => ({
+                  value: m.id,
+                  label: `${"  ".repeat(m.depth)}${m.title} · ${m.path ?? ""}`,
+                })),
             ],
           },
         ]}
@@ -482,7 +498,8 @@ export function MenuTreePage() {
         initialValues={moveTarget ? { parentId: moveTarget.parentId ?? "" } : undefined}
         onSubmit={async (values) => {
           if (!moveTarget) return;
-          const parentId = values.parentId && values.parentId !== "" ? String(values.parentId) : undefined;
+          const parentId =
+            values.parentId && values.parentId !== "" ? String(values.parentId) : undefined;
           await moveMut.mutateAsync({ menuId: moveTarget.id, parentId });
           setMoveTarget(null);
         }}
