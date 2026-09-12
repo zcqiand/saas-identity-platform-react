@@ -8,7 +8,7 @@
 // OAuth 2.0 授权码回跳（RFC 6749 §4.1.2，镜像 saas-nextjs app/login）：
 // lab 后端 pre-code 后把浏览器送到 /login?code=&redirect_uri=&state=，
 // 登录成功后 302 redirect_uri?code&state 回 RP；无参数时行为不变。
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -34,6 +34,27 @@ vi.mock("sonner", () => ({
   toast: { error: toastError, success: vi.fn() },
   Toaster: () => null,
 }));
+
+// Radix DropdownMenu 在 jsdom 下缺 PointerEvent：不 polyfill 时 testing-library 退化为
+// 基础 Event，button/pointerType 被 Event 构造器丢弃，Radix 的 whenMouse/button===0
+// 判断全挂，菜单永远打不开（saas-nextjs login.test.tsx 同款 shim）。
+beforeAll(() => {
+  if (!window.PointerEvent) {
+    class PointerEventPolyfill extends MouseEvent {
+      pointerType: string;
+      pointerId: number;
+      constructor(type: string, params: PointerEventInit = {}) {
+        super(type, params);
+        this.pointerType = params.pointerType ?? "";
+        this.pointerId = params.pointerId ?? 0;
+      }
+    }
+    (window as { PointerEvent?: unknown }).PointerEvent = PointerEventPolyfill;
+  }
+  window.HTMLElement.prototype.scrollIntoView = () => {};
+  window.HTMLElement.prototype.hasPointerCapture = () => false;
+  window.HTMLElement.prototype.releasePointerCapture = () => {};
+});
 
 const LOGIN_RESPONSE = {
   accessToken: "at-1",
@@ -250,5 +271,41 @@ describe("M01.F04.I03 OAuth code 回跳", () => {
     } finally {
       loc.restore();
     }
+  });
+});
+
+// 2026-09-12：登录页「当前后端模式」静态标签 → BackendBadge 切换器
+// （对齐 saas-nextjs；dev 诊断工具，不挂功能 ID）
+describe("登录页后端切换器", () => {
+  function badgeTrigger(): HTMLElement {
+    const badge = screen.getByTestId("backend-badge");
+    const btn = badge.querySelector("button");
+    expect(btn).toBeTruthy();
+    return btn as HTMLElement;
+  }
+
+  it("渲染 BackendBadge，未选择时显示 env 默认", () => {
+    renderLogin();
+    expect(badgeTrigger().textContent).toContain("(env 默认)");
+  });
+
+  it("选 springboot -> localStorage 持久化 + 触发按钮显示 springboot", () => {
+    renderLogin();
+    // jsdom 无 PointerEvent 构造器 -> 需显式给 button（Radix 判 event.button===0）
+    fireEvent.pointerDown(badgeTrigger(), { button: 0, ctrlKey: false, pointerType: "mouse" });
+    // DropdownMenu 内容挂 document.body（portal），screen 全局查
+    fireEvent.click(screen.getByText("springboot"));
+    expect(localStorage.getItem("saas.api.backend")).toBe("springboot");
+    expect(badgeTrigger().textContent).toContain("springboot");
+  });
+
+  it("切回 env 默认 -> localStorage 清除", () => {
+    localStorage.setItem("saas.api.backend", "springboot");
+    renderLogin();
+    expect(badgeTrigger().textContent).toContain("springboot");
+    fireEvent.pointerDown(badgeTrigger(), { button: 0, ctrlKey: false, pointerType: "mouse" });
+    fireEvent.click(screen.getByText("env 默认（部署配置）"));
+    expect(localStorage.getItem("saas.api.backend")).toBeNull();
+    expect(badgeTrigger().textContent).toContain("(env 默认)");
   });
 });

@@ -19,7 +19,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Toaster } from "@/components/ui/sonner";
 import { useTenant } from "@/state/tenant-context";
-import { getApiMode } from "@/api/backend-config";
+import { getApiMode, getSelectedBackend } from "@/api/backend-config";
+import { BackendBadge } from "@/components/app/backend-badge";
 // 2026-09-11 ④：authorize 切真源（barrel 死桩会假成功跳 RP——假 code）
 import { useOAuthAuthorize } from "@/api/endpoints/oauth/oauth";
 import { useSessionsLogin } from "@/api/endpoints/auth/auth";
@@ -202,7 +203,8 @@ export function LoginPage() {
           : apiErr.status === 401
             ? "用户名或密码错误"
             : apiErr.status === 0
-              ? `后端不可达（${apiMode}）：${apiErr.message}`
+              // 显示实际请求目标（选择器可切，env 标签会误导）：未选择 = env 默认
+              ? `后端不可达（${getSelectedBackend() || `${apiMode}·env 默认`}）：${apiErr.message}`
               : apiErr.message;
       toast.error(msg);
     } finally {
@@ -284,9 +286,12 @@ export function LoginPage() {
               </ul>
             </div>
 
-            <p className="text-xs text-slate-400">
-              当前后端模式：<span className="font-medium text-slate-700">{apiMode}</span>
-            </p>
+            {/* 2026-09-12：静态 env 标签 → BackendBadge 切换器（dev 诊断，
+                选择持久化 localStorage，下一个请求即生效，含登录 POST 本身） */}
+            <div className="space-y-1">
+              <p className="text-xs text-slate-400">后端模式（切换后下一个请求即生效）</p>
+              <BackendBadge variant="plain" />
+            </div>
           </div>
         </CardContent>
       </Card>
