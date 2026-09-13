@@ -36,6 +36,9 @@ COPY . .
 # 跨仓约定:saas-react→springboot(vue→aspnetcore)。公开 URL 非 secret。
 ENV VITE_API_BASE_URL=https://saas-springboot.xiangru.uk
 ENV VITE_API_MODE=springboot
+# B 方案（ADR-0030 REQ-2026-001）登录页 clientId 门：直接访问 /login 时兜底到
+# saas-console 自身应用；值须= oauth_client.client_id（与 .env.example/nextjs 同源）
+ENV VITE_LOGIN_CLIENT_ID=saas-console
 # prebuild hook (gen:shared) 自动跑;需要 ../saas-identity-platform-shared 存在
 RUN npm run build
 
