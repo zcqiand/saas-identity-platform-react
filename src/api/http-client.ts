@@ -42,8 +42,19 @@ export function toApiError(err: unknown): ApiError {
 
 /** 401 时清本地会话并跳登录页（保留后端切换选择）。 */
 function handleUnauthorized(): void {
-  for (const key of ["saas.react.session", "saas.selected.tenant", "saas.selected.app"]) {
-    try { window.localStorage.removeItem(key); } catch { /* ignore */ }
+  // 2026-09-13 修 prod 登录死循环（同 saas-vue 报告）：此处曾删 `saas.react.session`
+  // 等旧 schema 键名，而 tenant-context 实际持久化在 `saas.tenant` —— 401 从未
+  // 清掉真会话 → /login 守卫见 isAuthenticated=true 又送回 /tenants →
+  // me/tenants 401 → location.assign("/login") → 无限跳。改扫全部 saas.* 键。
+  try {
+    const stale: string[] = [];
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const k = window.localStorage.key(i);
+      if (k && k.startsWith("saas.") && k !== "saas.api.backend") stale.push(k);
+    }
+    stale.forEach((k) => window.localStorage.removeItem(k));
+  } catch {
+    /* localStorage 不可用：ignore */
   }
   window.location.assign("/login");
 }

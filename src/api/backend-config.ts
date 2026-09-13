@@ -17,12 +17,49 @@ import { env } from "./env";
 // === 2026-09-11 用户裁定：恢复 4 后端运行时切换（用户指令覆盖 ADR-0014 dev 单 URL）===
 // prod 仍走部署期 env 同源反代；切换器是 dev/local 诊断工具（localStorage 持久化，
 // 每次请求经 http-client 拦截器动态读取，切完下一个请求即生效）。端口表 = multi-repo-family §6。
+//
+// === 2026-09-13 用户裁定：切换器 prod 指生产路径 ===
+// 此前候选全是 localhost:510x —— prod 浏览器里点谁都指向用户自己机器。
+// build 期 import.meta.env.PROD 区分两端：dev 端口表见上；prod 域名 = 各仓
+// deploy nginx vhost（saas-nextjs/aspnetcore/springboot.xiangru.uk）。msw 是
+// 本地 mock 层无 prod 部署 → prod 构建从切换器剔除（key 保留，防旧 localStorage
+// 残留让 find 落空）。
+const IS_PROD_BUILD = import.meta.env.PROD;
+
 export const BACKENDS = [
-  { key: "msw", baseUrl: "http://localhost:5100" },
-  { key: "nextjs", baseUrl: "http://localhost:5101" },
-  { key: "aspnetcore", baseUrl: "http://localhost:5104" },
-  { key: "springboot", baseUrl: "http://localhost:5105" },
+  { key: "msw", baseUrl: "http://localhost:5100", prodBaseUrl: null },
+  {
+    key: "nextjs",
+    baseUrl: "http://localhost:5101",
+    prodBaseUrl: "https://saas-nextjs.xiangru.uk",
+  },
+  {
+    key: "aspnetcore",
+    baseUrl: "http://localhost:5104",
+    prodBaseUrl: "https://saas-aspnetcore.xiangru.uk",
+  },
+  {
+    key: "springboot",
+    baseUrl: "http://localhost:5105",
+    prodBaseUrl: "https://saas-springboot.xiangru.uk",
+  },
 ] as const;
+
+/** 切换器可见项：prod 构建剔除 msw（无 prod 部署）。 */
+export const SELECTABLE_BACKENDS = BACKENDS.filter(
+  (b) => !IS_PROD_BUILD || b.prodBaseUrl !== null,
+);
+
+/** 按构建形态解析实际 base URL（prod 构建已确保 prodBaseUrl 非空才可见）。 */
+function resolveBaseUrl(b: (typeof BACKENDS)[number]): string {
+  return (IS_PROD_BUILD && b.prodBaseUrl) || b.baseUrl;
+}
+
+/** 展示用：某后端 key 的实际 base URL（prod 构建 → prod 域名，dev → localhost）。 */
+export function resolveSelectedBackendUrl(key: string): string {
+  const hit = BACKENDS.find((b) => b.key === key);
+  return hit ? resolveBaseUrl(hit) : "";
+}
 
 const BACKEND_LS_KEY = "saas.api.backend";
 
@@ -45,11 +82,11 @@ export function setSelectedBackend(key: string): void {
 }
 
 export function getApiBaseUrl(): string {
-  // 运行时切换优先；未选择时走 env。
+  // 运行时切换优先；未选择（或选中项在当前构建不可见，如 prod 残留 msw）时走 env。
   const selected = getSelectedBackend();
   if (selected) {
-    const hit = BACKENDS.find((b) => b.key === selected);
-    if (hit) return hit.baseUrl;
+    const hit = SELECTABLE_BACKENDS.find((b) => b.key === selected);
+    if (hit) return resolveBaseUrl(hit);
   }
   return env.VITE_API_BASE_URL || "http://localhost:5100";
 }
