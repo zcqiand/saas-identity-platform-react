@@ -21,13 +21,12 @@ import { env } from "./env";
 // === 2026-09-13 用户裁定：切换器 prod 指生产路径 ===
 // 此前候选全是 localhost:510x —— prod 浏览器里点谁都指向用户自己机器。
 // build 期 import.meta.env.PROD 区分两端：dev 端口表见上；prod 域名 = 各仓
-// deploy nginx vhost（saas-nextjs/aspnetcore/springboot.xiangru.uk）。msw 是
-// 本地 mock 层无 prod 部署 → prod 构建从切换器剔除（key 保留，防旧 localStorage
-// 残留让 find 落空）。
+// deploy nginx vhost（saas-msw/nextjs/aspnetcore/springboot.xiangru.uk）。
+// 2026-09-13 用户裁定追加：msw 也有 prod 端 saas-msw.xiangru.uk，进 prod 可选表。
 const IS_PROD_BUILD = import.meta.env.PROD;
 
 export const BACKENDS = [
-  { key: "msw", baseUrl: "http://localhost:5100", prodBaseUrl: null },
+  { key: "msw", baseUrl: "http://localhost:5100", prodBaseUrl: "https://saas-msw.xiangru.uk" },
   {
     key: "nextjs",
     baseUrl: "http://localhost:5101",
@@ -45,7 +44,7 @@ export const BACKENDS = [
   },
 ] as const;
 
-/** 切换器可见项：prod 构建剔除 msw（无 prod 部署）。 */
+/** 切换器可见项：prod 构建剔除无 prodBaseUrl 的项（防旧 localStorage 残留让 find 落空）。 */
 export const SELECTABLE_BACKENDS = BACKENDS.filter(
   (b) => !IS_PROD_BUILD || b.prodBaseUrl !== null,
 );
