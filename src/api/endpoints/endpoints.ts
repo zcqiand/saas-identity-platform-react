@@ -7,10 +7,10 @@
 // admin-apps / setPermissions / authLogin / tenantUsers* 等）在末尾用空
 // 函数/any 占位 export ——
 //   - 类型层：让 TS 认得这些名字，pages 编译过；
-//   - 测试运行时：tests/setup.ts 的 vi.mock("@/api/endpoints/endpoints") 会
-//     把整个模块替换掉，这些占位函数根本不会被调用；
-//   - 生产运行时：当前 shared OpenAPI 没有这些端点，调用即 404，由 msw
-//     提供本地 handler。本占位的目的是**编译通过**，不是行为正确。
+//   - 运行时：msw 剔除 Phase 2（Task 10）起 vi.mock 墙已拆，页面统一从
+//     per-tag 真源模块 import，barrel 占位不应被任何运行时路径调用；
+//     真后端 = saas-nextjs :5101（VITE_API_BASE_URL）。本占位的目的是
+//     **编译通过**，不是行为正确。
 //
 // owned by react 仓；其他前端（vue/nextjs）有独立副本。
 

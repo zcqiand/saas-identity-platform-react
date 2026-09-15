@@ -1,32 +1,23 @@
 // M01.F04.I03 - 账号密码登录 (PLAN-2026-001 T-9；2026-09-11 B 方案对齐 vue 基准)
 //
-// 策略：mock `useSessionsLogin`（orval hook）与 sonner toast，
-// 验证表单提交 -> POST /auth/login 参数（含 clientId，LoginRequest 契约 required）、
-// clientId 门（无 query 无 env 拒绝）、错误提示（401 / 423 锁定 / 缺 token）、
-// 成功后写 tenant-context session + 跳 /tenants。
+// Phase 2 真化（Task 10，处置矩阵「保留 component 级」）：mock 墙里的
+// useSessionsLogin hook mock 拆除。注入面收敛到 HTTP 层 `vi.spyOn(axios,"post")`
+// ——仅负路径（401/423/缺 token）打桩；正路径真打 saas-nextjs :5101
+// /api/v1/auth/login（凭证 = shared/scripts/seed-db.mjs 的家族 dev 约定
+// plain:dev123456 + 种子用户 alice），token 持久化断言走真响应。
 //
 // OAuth 2.0 授权码回跳（RFC 6749 §4.1.2，镜像 saas-nextjs app/login）：
 // lab 后端 pre-code 后把浏览器送到 /login?code=&redirect_uri=&state=，
 // 登录成功后 302 redirect_uri?code&state 回 RP；无参数时行为不变。
+// （完整 SSO 矩阵的端到端属于 Phase 3 SSO E2E 边界。）
 import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import axios, { AxiosError } from "axios";
 import { TenantProvider } from "../state-helpers";
 import { LoginPage } from "../../src/pages/LoginPage";
-import { ApiError } from "../../src/api/http-client";
-
-// mock orval hook（LoginPage 用 useSessionsLogin().mutateAsync）
-const { sessionsLoginMock } = vi.hoisted(() => ({ sessionsLoginMock: vi.fn() }));
-vi.mock("../../src/api/endpoints/auth/auth", async (importOriginal) => {
-  const actual = await importOriginal<
-    typeof import("../../src/api/endpoints/auth/auth")
-  >();
-  return {
-    ...actual,
-    useSessionsLogin: () => ({ mutateAsync: sessionsLoginMock }),
-  };
-});
+import { installRealChain, SEED } from "../helpers/real-chain";
 
 // mock toast：捕获 toast.error 文案（Toaster 组件随 LoginPage 自挂，mock 成空渲染）
 const { toastError } = vi.hoisted(() => ({ toastError: vi.fn() }));
@@ -56,15 +47,17 @@ beforeAll(() => {
   window.HTMLElement.prototype.releasePointerCapture = () => {};
 });
 
-const LOGIN_RESPONSE = {
-  accessToken: "at-1",
-  refreshToken: "rt-1",
-  user: { id: "u-1", email: "alice@acme.io" },
-  availableTenants: [{ tenantId: "t-1" }],
-  clientId: "cid-test",
-};
+/** 家族 dev 约定口令（shared/scripts/seed-db.mjs：sys_user.password = plain:dev123456）。 */
+const SEED_DEV_PASSWORD = "dev123456";
 
-function renderLogin(url = "/login?client_id=cid-test") {
+/** 构造 axios 形状的错误（toApiError 读 response.status 分支文案）。 */
+function axiosErrorWith(status: number, body: unknown): AxiosError {
+  const err = new AxiosError(`Request failed with status code ${status}`);
+  (err as { response: unknown }).response = { status, data: body };
+  return err;
+}
+
+function renderLogin(url = "/login?client_id=saas-console") {
   // LoginPage 读 window.location.search（不依赖路由 query 时序）——jsdom 侧同步设 URL
   window.history.replaceState({}, "", url);
   const qc = new QueryClient();
@@ -82,25 +75,26 @@ function renderLogin(url = "/login?client_id=cid-test") {
   );
 }
 
-async function fillAndSubmit() {
+async function fillAndSubmit(username = "alice", password = SEED_DEV_PASSWORD) {
   fireEvent.change(screen.getByLabelText(/用户名/), {
-    target: { value: "alice" },
+    target: { value: username },
   });
   fireEvent.change(screen.getByLabelText(/密码/), {
-    target: { value: "dev123456" },
+    target: { value: password },
   });
   fireEvent.submit(screen.getByRole("button", { name: /登/ }));
 }
 
 beforeEach(() => {
-  sessionsLoginMock.mockReset();
   toastError.mockReset();
   localStorage.clear();
+  installRealChain();
   window.history.replaceState({}, "", "/login");
 });
 
 afterEach(() => {
   vi.unstubAllEnvs();
+  vi.restoreAllMocks();
 });
 
 describe("M01.F04.I03 账号密码登录", () => {
@@ -123,58 +117,84 @@ describe("M01.F04.I03 账号密码登录", () => {
 
   it("无 client_id（query 与 env 均缺）提交 -> toast 缺少 clientId 且不发请求", async () => {
     vi.stubEnv("VITE_LOGIN_CLIENT_ID", "");
+    const postSpy = vi.spyOn(axios, "post");
     renderLogin("/login");
     await fillAndSubmit();
     await waitFor(() => expect(toastError).toHaveBeenCalled());
     expect(String(toastError.mock.calls[0]?.[0])).toContain("clientId");
-    expect(sessionsLoginMock).not.toHaveBeenCalled();
+    expect(postSpy).not.toHaveBeenCalled();
   });
 
-  it("env VITE_LOGIN_CLIENT_ID 可作兜底（无 query 时）", async () => {
-    vi.stubEnv("VITE_LOGIN_CLIENT_ID", "cid-from-env");
-    sessionsLoginMock.mockResolvedValue({ data: LOGIN_RESPONSE });
+  it("env VITE_LOGIN_CLIENT_ID 可作兜底（无 query 时，真请求体带该 clientId）", async () => {
+    vi.stubEnv("VITE_LOGIN_CLIENT_ID", "saas-console");
+    const postSpy = vi.spyOn(axios, "post");
     renderLogin("/login");
     await fillAndSubmit();
-    await waitFor(() =>
-      expect(sessionsLoginMock).toHaveBeenCalledWith({
-        data: { username: "alice", password: "dev123456", clientId: "cid-from-env" },
-      }),
-    );
-  });
+    await waitFor(() => {
+      // orval 生成的 sessionsLogin 以 (path, body, options) 三参调用 axios.post
+      // —— 断言必须带第三参（undefined），否则 waitFor 永不满足（vitest
+      // toHaveBeenCalledWith 严格比对元数）。
+      expect(postSpy).toHaveBeenCalledWith(
+        "/api/v1/auth/login",
+        {
+          username: "alice",
+          password: SEED_DEV_PASSWORD,
+          clientId: "saas-console",
+        },
+        undefined,
+      );
+    });
+    // 放宽说明：真 POST 落 dev server，CI 冷机上 /api/v1/auth/login 首次编译
+    // 实测 7.5-10s+（next dev 惰性编译，家族实测指纹），给 per-it 显式放宽。
+  }, 30_000);
 
-  it("提交 username/password/clientId -> POST /auth/login（端点参数一致，LoginRequest required）", async () => {
-    sessionsLoginMock.mockResolvedValue({ data: LOGIN_RESPONSE });
+  it("提交 username/password/clientId -> 真 POST /api/v1/auth/login（LoginRequest 契约 required）", async () => {
+    const postSpy = vi.spyOn(axios, "post");
     renderLogin();
     await fillAndSubmit();
-    expect(sessionsLoginMock).toHaveBeenCalledWith({
-      data: { username: "alice", password: "dev123456", clientId: "cid-test" },
+    await waitFor(() => {
+      // 同上：orval 三参调用，断言带第三参
+      expect(postSpy).toHaveBeenCalledWith(
+        "/api/v1/auth/login",
+        {
+          username: "alice",
+          password: SEED_DEV_PASSWORD,
+          clientId: "saas-console",
+        },
+        undefined,
+      );
     });
-  });
+  }, 30_000);
 
-  it("登录响应缺 token -> toast 提示且不跳转", async () => {
-    sessionsLoginMock.mockResolvedValue({
-      data: { ...LOGIN_RESPONSE, accessToken: undefined, refreshToken: undefined },
+  it("登录响应缺 token -> toast 提示且不跳转（HTTP 层打桩）", async () => {
+    vi.spyOn(axios, "post").mockResolvedValueOnce({
+      data: {
+        accessToken: undefined,
+        refreshToken: undefined,
+        user: { id: "u-1" },
+        availableTenants: [{ tenantId: SEED.tenants[0].id }],
+      },
     });
     renderLogin();
-    await fillAndSubmit();
+    await fillAndSubmit("alice", "whatever");
     await waitFor(() => expect(toastError).toHaveBeenCalled());
     expect(String(toastError.mock.calls[0]?.[0])).toContain("token");
     expect(screen.queryByTestId("tenants-page")).toBeNull();
   });
 
-  it("错密码（401）-> toast 显示用户名或密码错误", async () => {
-    sessionsLoginMock.mockRejectedValue(
-      new ApiError(401, null, "invalid credentials"),
+  it("错密码（401，HTTP 层打桩）-> toast 显示用户名或密码错误", async () => {
+    vi.spyOn(axios, "post").mockRejectedValueOnce(
+      axiosErrorWith(401, { code: "UNAUTHORIZED", message: "Invalid credentials" }),
     );
     renderLogin();
-    await fillAndSubmit();
+    await fillAndSubmit("alice", "wrong-password");
     await waitFor(() => expect(toastError).toHaveBeenCalled());
     expect(toastError).toHaveBeenCalledWith("用户名或密码错误");
   });
 
-  it("账号锁定（423）-> toast 显示锁定提示", async () => {
-    sessionsLoginMock.mockRejectedValue(
-      new ApiError(423, { code: "ACCOUNT_LOCKED" }, "account locked"),
+  it("账号锁定（423，HTTP 层打桩）-> toast 显示锁定提示", async () => {
+    vi.spyOn(axios, "post").mockRejectedValueOnce(
+      axiosErrorWith(423, { code: "ACCOUNT_LOCKED", message: "account locked" }),
     );
     renderLogin();
     await fillAndSubmit();
@@ -182,26 +202,37 @@ describe("M01.F04.I03 账号密码登录", () => {
     expect(String(toastError.mock.calls[0]?.[0])).toContain("锁定");
   });
 
-  it("登录成功 -> tenant session 写 localStorage + 跳 /tenants", async () => {
-    sessionsLoginMock.mockResolvedValue({ data: LOGIN_RESPONSE });
+  it("登录成功（真凭证 alice）-> tenant session 写 localStorage + 跳 /tenants", async () => {
     renderLogin();
     await fillAndSubmit();
-    await waitFor(() =>
-      expect(screen.getByTestId("tenants-page")).toBeTruthy(),
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("tenants-page")).toBeTruthy();
+      },
+      { timeout: 30_000 },
     );
     const stored = JSON.parse(localStorage.getItem("saas.tenant") ?? "{}");
-    expect(stored.accessToken).toBe("at-1");
-    // userId/currentTenantId 来自 LoginResponse.user / availableTenants（B 基准，对齐 vue）
-    expect(stored.currentTenantId).toBe("t-1");
-  });
+    // 真 HS256 JWT（三段式），不是 mock 字面量
+    expect(String(stored.accessToken)).toMatch(/^[\w-]+\.[\w-]+\.[\w-]+$/);
+    // alice 的首个 active membership（tenant.created_at ASC）= 种子 acme
+    expect(stored.currentTenantId).toBe(SEED.tenants[0].id);
+  }, 45_000);
 });
 
 // === M01.F04.I03 OAuth 2.0 授权码回跳（RFC 6749 §4.1.2）===
 
 // jsdom 的 window.location.href 只读 — 用 Proxy 拦截赋值记录目标 URL（lab-react 同款手法）。
-function interceptLocationHref(): { assigned: () => string; restore: () => void } {
+// 记录赋值次数：code 回跳在真实现里会发生两次（mount 回跳 + 登录成功后 onSubmit
+// 的 setTimeout(0) 二次回跳），两次都等齐才收测试，否则游离定时器会把赋值落到
+// 下一个测试的 Proxy 里（Phase 2 实测假红指纹）。
+function interceptLocationHref(): {
+  assigned: () => string;
+  count: () => number;
+  restore: () => void;
+} {
   const original = window.location;
   let assignedHref = "";
+  let hits = 0;
   Object.defineProperty(window, "location", {
     configurable: true,
     get() {
@@ -209,6 +240,7 @@ function interceptLocationHref(): { assigned: () => string; restore: () => void 
         set(target, prop, value) {
           if (prop === "href") {
             assignedHref = String(value);
+            hits += 1;
             return true;
           }
           return Reflect.set(target, prop, value);
@@ -218,6 +250,7 @@ function interceptLocationHref(): { assigned: () => string; restore: () => void 
   });
   return {
     assigned: () => assignedHref,
+    count: () => hits,
     restore: () =>
       Object.defineProperty(window, "location", {
         configurable: true,
@@ -227,51 +260,53 @@ function interceptLocationHref(): { assigned: () => string; restore: () => void 
 }
 
 describe("M01.F04.I03 OAuth code 回跳", () => {
-  it("带 ?code=&redirect_uri=&state= 登录成功 -> 302 redirect_uri?code&state（不跳 /tenants）", async () => {
+  it("带 ?code=&redirect_uri=&state= 真登录成功 -> 302 redirect_uri?code&state（不跳 /tenants）", async () => {
     const loc = interceptLocationHref();
-    sessionsLoginMock.mockResolvedValue({ data: LOGIN_RESPONSE });
     try {
       window.history.replaceState(
         {},
         "",
-        "/login?client_id=cid-test&code=auth-code-1&redirect_uri=https%3A%2F%2Flab-react.xiangru.uk%2Flogin&state=xyz",
+        "/login?client_id=saas-console&code=auth-code-1&redirect_uri=https%3A%2F%2Flab-react.xiangru.uk%2Flogin&state=xyz",
       );
       renderLogin(
-        "/login?client_id=cid-test&code=auth-code-1&redirect_uri=https%3A%2F%2Flab-react.xiangru.uk%2Flogin&state=xyz",
+        "/login?client_id=saas-console&code=auth-code-1&redirect_uri=https%3A%2F%2Flab-react.xiangru.uk%2Flogin&state=xyz",
       );
+      // 真实现（react 与 saas-nextjs app/login 同款 effect）：mount 解析出
+      // code+redirect_uri 即回跳，不 gate 登录态 —— 第一次赋值 = mount 回跳。
+      await waitFor(() => expect(loc.count()).toBeGreaterThanOrEqual(1));
       await fillAndSubmit();
-      await waitFor(() => expect(loc.assigned()).toBeTruthy());
+      // 登录成功（真凭证 alice）后 onSubmit 的 setTimeout(0) 二次回跳，URL 相同
+      await waitFor(() => expect(loc.count()).toBeGreaterThanOrEqual(2), {
+        timeout: 30_000,
+      });
       const target = new URL(loc.assigned());
-      expect(target.origin + target.pathname).toBe(
-        "https://lab-react.xiangru.uk/login",
-      );
+      expect(target.origin + target.pathname).toBe("https://lab-react.xiangru.uk/login");
       expect(target.searchParams.get("code")).toBe("auth-code-1");
       expect(target.searchParams.get("state")).toBe("xyz");
       // 回跳 RP，而不是进 saas 自己的 /tenants
       expect(screen.queryByTestId("tenants-page")).toBeNull();
-      // 吸干 onSubmit 路径的 setTimeout(0)（waitFor 可能被挂载期自动回跳先行满足），
-      // 否则游离定时器会在下一个测试的 Proxy 里落赋值。
-      await new Promise((r) => setTimeout(r, 20));
     } finally {
       loc.restore();
       window.history.replaceState({}, "", "/login");
     }
-  });
+  }, 45_000);
 
-  it("无 OAuth 参数登录成功 -> 行为不变（跳 /tenants，不读 location.href）", async () => {
+  it("无 OAuth 参数真登录成功 -> 行为不变（跳 /tenants，不读 location.href）", async () => {
     const loc = interceptLocationHref();
-    sessionsLoginMock.mockResolvedValue({ data: LOGIN_RESPONSE });
     try {
       renderLogin();
       await fillAndSubmit();
-      await waitFor(() =>
-        expect(screen.getByTestId("tenants-page")).toBeTruthy(),
+      await waitFor(
+        () => {
+          expect(screen.getByTestId("tenants-page")).toBeTruthy();
+        },
+        { timeout: 30_000 },
       );
       expect(loc.assigned()).toBe("");
     } finally {
       loc.restore();
     }
-  });
+  }, 45_000);
 });
 
 // 2026-09-12：登录页「当前后端模式」静态标签 → BackendBadge 切换器

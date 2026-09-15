@@ -17,11 +17,5 @@
     }
   },
   "include": ["src", "tests", "scripts"],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "build",
-    "../saas-identity-platform-shared",
-    "../saas-identity-platform-msw"
-  ]
+  "exclude": ["node_modules", "dist", "build", "../saas-identity-platform-shared"]
 }

@@ -1,12 +1,13 @@
 // M00.F01 — 租户列表（平台）
 // 选中行高亮 + 默认选中 acme + 选中后 localStorage 同时存 id+name + reload 还原
-
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+// Phase 2 真化：直连真 nextjs :5101，断言锚 saas-shared seeds/tenant.json。
+import { describe, it, expect, beforeEach } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TenantProvider, SelectionProvider } from "../state-helpers";
 import { TenantListPage } from "../../src/pages/TenantListPage";
+import { installRealChain, SEED } from "../helpers/real-chain";
 
 function renderWithProviders() {
   const qc = new QueryClient();
@@ -27,13 +28,14 @@ function renderWithProviders() {
 
 beforeEach(() => {
   localStorage.clear();
+  installRealChain();
 });
 
 describe("M00.F01 租户列表（平台）", () => {
-  it("渲染 3 行租户（来自 mocked fetch），新建按钮挂 data-fn=M00.F01.I02", async () => {
+  it("渲染 3 行租户（来自种子数据），新建按钮挂 data-fn=M00.F01.I02", async () => {
     renderWithProviders();
     const rows = await screen.findAllByTestId("tenant-row");
-    expect(rows.length).toBe(3);
+    expect(rows.length).toBe(SEED.tenants.length);
     const btn = screen
       .getAllByRole("button")
       .find((b) => b.getAttribute("data-fn") === "M00.F01.I02");
@@ -44,7 +46,7 @@ describe("M00.F01 租户列表（平台）", () => {
     renderWithProviders();
     await screen.findAllByTestId("tenant-row");
     const rows = screen.getAllByTestId("tenant-row");
-    const acmeRow = rows.find((r) => r.textContent?.includes("acme"));
+    const acmeRow = rows.find((r) => r.textContent?.includes(SEED.tenants[0].tenantKey));
     expect(acmeRow?.getAttribute("data-selected")).toBe("true");
     expect(screen.getAllByTestId("tenant-selected-mark").length).toBe(1);
   });
@@ -53,7 +55,7 @@ describe("M00.F01 租户列表（平台）", () => {
     renderWithProviders();
     await screen.findAllByTestId("tenant-row");
     const rows = screen.getAllByTestId("tenant-row");
-    const globexRow = rows.find((r) => r.textContent?.includes("globex"))!;
+    const globexRow = rows.find((r) => r.textContent?.includes(SEED.tenants[1].tenantKey))!;
     fireEvent.click(globexRow);
     expect(globexRow.getAttribute("data-selected")).toBe("true");
     expect(screen.getAllByTestId("tenant-selected-mark").length).toBe(1);
@@ -63,24 +65,24 @@ describe("M00.F01 租户列表（平台）", () => {
     renderWithProviders();
     await screen.findAllByTestId("tenant-row");
     const rows = screen.getAllByTestId("tenant-row");
-    const globexRow = rows.find((r) => r.textContent?.includes("globex"))!;
+    const globexRow = rows.find((r) => r.textContent?.includes(SEED.tenants[1].tenantKey))!;
     fireEvent.click(globexRow);
     const raw = localStorage.getItem("saas.selected.tenant");
     expect(raw).toBeTruthy();
     const parsed = JSON.parse(raw!);
-    expect(parsed.id).toBe("00000000-0000-0000-0000-000000000002");
-    expect(parsed.name).toBe("Globex Industries");
+    expect(parsed.id).toBe(SEED.tenants[1].id);
+    expect(parsed.name).toBe(SEED.tenants[1].name);
   });
 
   it("reload 后从 localStorage 还原选中", async () => {
     localStorage.setItem(
       "saas.selected.tenant",
-      JSON.stringify({ id: "00000000-0000-0000-0000-000000000002", name: "Globex Industries" }),
+      JSON.stringify({ id: SEED.tenants[1].id, name: SEED.tenants[1].name }),
     );
     renderWithProviders();
     await screen.findAllByTestId("tenant-row");
     const rows = screen.getAllByTestId("tenant-row");
-    const globexRow = rows.find((r) => r.textContent?.includes("globex"))!;
+    const globexRow = rows.find((r) => r.textContent?.includes(SEED.tenants[1].tenantKey))!;
     expect(globexRow.getAttribute("data-selected")).toBe("true");
   });
 });

@@ -16,6 +16,33 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    # msw 剔除 Phase 2：单测真化（Task 10）——jsdom dom 测试经 tests/global-setup.ts
+    # 起真 saas-nextjs :5101（对齐 lab-react T7–T9），需要 ephemeral PG（服务容器，
+    # 凭据随容器销毁，非真实 secret）。scratch DB = saas_p2_test（不碰 saas_dev/saas_test）。
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: saas_p2_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # 真化基座用 DB（migrate + seed + nextjs dev 同一连接串，job 级注入全局生效）
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/saas_p2_test
+      # JWT 铸造/验签（tests/global-setup.ts 铸 + nextjs src/lib/jwt.ts 验）：
+      # CI 域自洽值（>=32 bytes），只在本 job 的 globalSetup 与 nextjs 进程间保持
+      # 一致，非部署 secret；改走 GitHub secrets 时换 ${{ secrets.JWT_SIGNING_KEY }}
+      # 即可（缺配置会 fail-fast 而非静默兜底）。
+      JWT_SIGNING_KEY: ci-saas-jwt-secret-phase2-0123456789abcdef
+      JWT_ISSUER: saas-identity-platform
+      JWT_AUDIENCE: saas-identity-platform-clients
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -25,12 +52,51 @@ jobs:
           registry-url: https://registry.npmmirror.com/
       - name: Checkout shared sibling
         run: git clone --depth 1 https://x-access-token:${GITHUB_TOKEN}@github.com/zcqiand/saas-identity-platform-shared.git ../saas-identity-platform-shared
-      - name: Checkout msw sibling
-        run: git clone --depth 1 https://x-access-token:${GITHUB_TOKEN}@github.com/zcqiand/saas-identity-platform-msw.git ../saas-identity-platform-msw
+      # msw sibling 已随 Phase 2 移除：本仓与 nextjs sibling 均无 file: 依赖 msw 仓
+      - name: Checkout nextjs sibling
+        run: git clone --depth 1 https://x-access-token:${GITHUB_TOKEN}@github.com/zcqiand/saas-identity-platform-nextjs.git ../saas-identity-platform-nextjs
+      - name: Install nextjs sibling dependencies
+        run: npm ci --no-audit --no-fund
+        working-directory: ../saas-identity-platform-nextjs
+      - name: gen:shared (nextjs sibling)
+        run: npm run gen:shared
+        working-directory: ../saas-identity-platform-nextjs
       - name: Install dependencies
         run: npm ci
       - name: gen:shared
         run: npm run gen:shared
+      # 真化基座前置：schema 迁移 + 种子灌库（TRUNCATE 全量重播幂等，对 saas_p2_test）。
+      # seed-db.mjs require pg（dependencies），migrate-db.mjs 走 drizzle-kit
+      # （devDependencies）——不能 --omit=dev，这里必须全量装。
+      - name: Install shared sibling dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+        working-directory: ../saas-identity-platform-shared
+      # drizzle.config.ts 强制读 PG_* 五件套（即便 DATABASE_URL 已设）——显式注入
+      - name: Migrate DB
+        run: node scripts/migrate-db.mjs
+        working-directory: ../saas-identity-platform-shared
+        env:
+          PG_HOST: localhost
+          PG_PORT: "5432"
+          PG_USER: postgres
+          PG_PASSWORD: postgres
+          PG_DATABASE: saas_p2_test
+      - name: Seed DB
+        run: node scripts/seed-db.mjs
+        working-directory: ../saas-identity-platform-shared
+      # global-setup 会复用已健康服务：CI 里没有现成的，这里先拉起并探活，
+      # 失败时倒日志便于排障
+      - name: Start nextjs :5101
+        working-directory: ../saas-identity-platform-nextjs
+        run: |
+          nohup npm run dev > /tmp/nextjs-dev.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:5101/api/health | grep -q '"status":"ok"'; then
+              echo "nextjs :5101 healthy"; exit 0
+            fi
+            sleep 2
+          done
+          echo "nextjs :5101 探活超时"; tail -50 /tmp/nextjs-dev.log; exit 1
       - name: Build
         run: npm run build
       - name: L1 format

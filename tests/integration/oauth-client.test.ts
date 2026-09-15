@@ -3,10 +3,12 @@
  *
  * 分两类：
  * - 纯 localStorage 单元（默认跑）：state 生成/校验、 token 持久化边界
- * - HTTP 集成（默认 skip）：oauthAuthorize/Exchange/Refresh 真打 msw node server (:5100)
+ * - HTTP 集成（默认 skip）：oauthAuthorize/Exchange/Refresh 真打 saas-nextjs :5101
+ *   （msw 剔除 Phase 2 起目标从 msw node server :5100 改 :5101）
  *
- * HTTP 集成需要 LIVE 模式：起 msw node server 后跑
+ * HTTP 集成需要 LIVE 模式：起真 nextjs :5101 后跑
  *   LIVE_OAUTH_TEST=1 npx vitest run tests/integration/oauth-client.test.ts
+ * （LIVE 门保留——完整 SSO 矩阵的收编属 Phase 3 SSO E2E 边界。）
  *
  * 跳过机制：vitest `it.skipIf(!process.env.LIVE_OAUTH_TEST)`，CI 默认无 env 所以跳过。
  */
@@ -117,15 +119,15 @@ describe("token persistence edge cases", () => {
 // ─── HTTP 集成（默认 skip，需 LIVE_OAUTH_TEST=1）─────────────────────
 
 describe.skipIf(!LIVE)(
-  "M04.F03.I01 oauthAuthorize — POST /api/v1/oauth/authorize (live msw)",
+  "M04.F03.I01 oauthAuthorize — POST /api/v1/oauth/authorize (live nextjs :5101)",
   () => {
     beforeEach(() => window.localStorage.clear());
 
     it("returns {code, state} for a valid request M04.F03.I01", async () => {
       const state = generateState();
       const result = await oauthAuthorize({
-        clientId: "test-client",
-        redirectUri: "http://localhost:5102/oauth/callback",
+        clientId: "lab-management",
+        redirectUri: "http://localhost:5202/login",
         state,
       });
       expect(result.code).toMatch(/^saas-code-/);
@@ -135,7 +137,7 @@ describe.skipIf(!LIVE)(
     it("returns 400 INVALID_REDIRECT_URI when redirect not in whitelist M04.F03.I01", async () => {
       await expect(
         oauthAuthorize({
-          clientId: "test-client",
+          clientId: "lab-management",
           redirectUri: "http://evil.example.com/callback",
           state: generateState(),
         }),
@@ -145,38 +147,38 @@ describe.skipIf(!LIVE)(
 );
 
 describe.skipIf(!LIVE)(
-  "M04.F03.I02 oauthExchangeCode — POST /api/v1/oauth/token (authorization_code grant, live msw)",
+  "M04.F03.I02 oauthExchangeCode — POST /api/v1/oauth/token (authorization_code grant, live nextjs :5101)",
   () => {
     beforeEach(() => window.localStorage.clear());
 
     it("exchanges code for access_token + refresh_token M04.F03.I02", async () => {
       const state = generateState();
       const { code } = await oauthAuthorize({
-        clientId: "test-client",
-        redirectUri: "http://localhost:5102/oauth/callback",
+        clientId: "lab-management",
+        redirectUri: "http://localhost:5202/login",
         state,
       });
       const tokens = await oauthExchangeCode({
         code,
-        clientId: "test-client",
-        redirectUri: "http://localhost:5102/oauth/callback",
+        clientId: "lab-management",
+        redirectUri: "http://localhost:5202/login",
       });
       expect(tokens.accessToken).toMatch(/^[\w-]+\.[\w-]+\.[\w-]+$/);
       expect(tokens.refreshToken).toMatch(/^saas-rt-/);
-      expect(tokens.clientId).toBe("test-client");
+      expect(tokens.clientId).toBe("lab-management");
     });
 
     it("writes access/refresh to localStorage M04.F03.I02", async () => {
       const state = generateState();
       const { code } = await oauthAuthorize({
-        clientId: "test-client",
-        redirectUri: "http://localhost:5102/oauth/callback",
+        clientId: "lab-management",
+        redirectUri: "http://localhost:5202/login",
         state,
       });
       await oauthExchangeCode({
         code,
-        clientId: "test-client",
-        redirectUri: "http://localhost:5102/oauth/callback",
+        clientId: "lab-management",
+        redirectUri: "http://localhost:5202/login",
       });
       const raw = window.localStorage.getItem(SESSION_KEY);
       expect(raw).not.toBeNull();
@@ -187,25 +189,25 @@ describe.skipIf(!LIVE)(
 );
 
 describe.skipIf(!LIVE)(
-  "M04.F03.I03 oauthRefresh — POST /api/v1/oauth/token (refresh_token grant, live msw)",
+  "M04.F03.I03 oauthRefresh — POST /api/v1/oauth/token (refresh_token grant, live nextjs :5101)",
   () => {
     beforeEach(() => window.localStorage.clear());
 
     it("rotates refresh_token M04.F03.I03", async () => {
       const state = generateState();
       const { code } = await oauthAuthorize({
-        clientId: "test-client",
-        redirectUri: "http://localhost:5102/oauth/callback",
+        clientId: "lab-management",
+        redirectUri: "http://localhost:5202/login",
         state,
       });
       const initial = await oauthExchangeCode({
         code,
-        clientId: "test-client",
-        redirectUri: "http://localhost:5102/oauth/callback",
+        clientId: "lab-management",
+        redirectUri: "http://localhost:5202/login",
       });
       const rotated = await oauthRefresh({
         refreshToken: initial.refreshToken,
-        clientId: "test-client",
+        clientId: "lab-management",
       });
       expect(rotated.accessToken).not.toBe(initial.accessToken);
       expect(rotated.refreshToken).not.toBe(initial.refreshToken);
@@ -215,7 +217,7 @@ describe.skipIf(!LIVE)(
       await expect(
         oauthRefresh({
           refreshToken: "bogus-not-in-store",
-          clientId: "test-client",
+          clientId: "lab-management",
         }),
       ).rejects.toMatchObject({ response: { status: 400 } });
     });

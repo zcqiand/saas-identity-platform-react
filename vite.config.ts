@@ -9,8 +9,7 @@ import { resolve } from "node:path";
 // 本仓默认 5102；非空字符串才采纳 env 值，防静默兜底（CLAUDE.md §2 兜底禁令）。
 const FALLBACK_DEV_PORT = 5102 as const;
 const rawPort = process.env.VITE_DEV_PORT;
-const devPort =
-  rawPort && rawPort.trim() !== "" ? Number(rawPort) : FALLBACK_DEV_PORT;
+const devPort = rawPort && rawPort.trim() !== "" ? Number(rawPort) : FALLBACK_DEV_PORT;
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
@@ -26,9 +25,8 @@ export default defineConfig({
     forwardConsole: false,
   },
   optimizeDeps: {
-    // msw v2 has unresolvable @mswjs/interceptors exports conditions for
-    // ClientRequest in browser; exclude from pre-bundling so it loads at
-    // runtime via esm rather than being bundled by esbuild.
-    exclude: ["@saas/identity-platform-msw", "msw", "@mswjs/interceptors"],
+    // msw 剔除 Phase 2：@saas/identity-platform-msw / msw 依赖已全仓移除，
+    // 预打包排除清单随之清空（保留空配置位，防止回归时静默走 esbuild 预打包）。
+    exclude: [],
   },
 });

@@ -1,12 +1,16 @@
 // M04.F01 — 应用列表（平台级；apps 同时承载菜单 + OAuth client）
+// Phase 2 真化：直连真 nextjs :5101，断言锚 saas-shared seeds/oauth_client.json
+// （lab-management / erp / crm / saas-console 四应用）。
 import { describe, it, expect, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppListPage } from "../../src/pages/AppListPage";
+import { installRealChain, SEED } from "../helpers/real-chain";
 
 beforeEach(() => {
   localStorage.clear();
+  installRealChain();
 });
 
 function renderApp() {
@@ -23,10 +27,10 @@ function renderApp() {
 }
 
 describe("M04.F01 应用列表（平台级）", () => {
-  it("渲染 3 个应用行，新建按钮挂 data-fn=M04.F01.I02", async () => {
+  it("渲染 4 个应用行，新建按钮挂 data-fn=M04.F01.I02", async () => {
     renderApp();
     const rows = await screen.findAllByTestId("app-row");
-    expect(rows.length).toBeGreaterThanOrEqual(3);
+    expect(rows.length).toBe(SEED.apps.length);
     const btn = screen
       .getAllByRole("button")
       .find((b) => b.getAttribute("data-fn") === "M04.F01.I02");
@@ -42,25 +46,27 @@ describe("M04.F01 应用列表（平台级）", () => {
     expect(btns.length).toBeGreaterThanOrEqual(1);
   });
 
-  it("应用行挂 data-fn=M04.F01.I05 删除按钮", async () => {
+  it("应用行挂 data-fn=M04.F01.I05 删除按钮（每个应用 1 个）", async () => {
     renderApp();
     await screen.findAllByTestId("app-row");
     const btns = screen
       .getAllByRole("button")
       .filter((b) => b.getAttribute("data-fn") === "M04.F01.I05");
-    expect(btns.length).toBeGreaterThanOrEqual(3);
+    expect(btns.length).toBe(SEED.apps.length);
   });
 
   it("应用行展示 clientId（2026-09-12 用户裁定：列表精简为 Code/ClientID、名称、状态、操作）", async () => {
     renderApp();
     await screen.findAllByTestId("app-row");
-    expect(screen.getAllByText(/clientId:/).length).toBeGreaterThanOrEqual(3);
+    for (const app of SEED.apps) {
+      expect(screen.getAllByText(new RegExp(`clientId: ${app.clientId}`)).length).toBe(1);
+    }
   });
 
-  it("展示 3 个应用：lab-management / erp / crm", async () => {
+  it("展示种子四应用：lab-management / erp / crm / saas-console", async () => {
     renderApp();
-    expect(await screen.findByText("建筑工程实验室管理系统")).toBeTruthy();
-    expect(screen.getByText("企业资源计划系统")).toBeTruthy();
-    expect(screen.getByText("客户关系管理系统")).toBeTruthy();
+    for (const app of SEED.apps) {
+      expect(await screen.findByText(app.clientName)).toBeTruthy();
+    }
   });
 });

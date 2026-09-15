@@ -5,9 +5,11 @@
 // fnId = 权限点，保持不变；自造分组（首页/身份管理/应用与菜单）禁止回归。
 import { describe, it, expect } from "vitest";
 import { buildNavItems } from "../../src/components/app/nav-items";
+import { SEED } from "../helpers/real-chain";
 
 describe("侧边栏层级：一级=功能模块，二级=功能", () => {
-  const items = buildNavItems("00000000-0000-0000-0000-000000000001");
+  // 种子锚：acme（seeds/tenant.json 首行），替换旧 msw fixture 字面 id
+  const items = buildNavItems(SEED.tenants[0].id);
   const groups = [...new Set(items.map((i) => i.group))];
 
   it("一级分组恰好是两个功能模块：租户管理（M00）、应用管理（M04）", () => {
@@ -32,7 +34,11 @@ describe("侧边栏层级：一级=功能模块，二级=功能", () => {
   it("权限点（fnId）与功能的对应关系不变", () => {
     const byFn = new Map(items.map((i) => [i.fnId, i]));
     const m = (id: string) => byFn.get(id);
-    expect(m("M00.F01.I01")).toMatchObject({ label: "租户维护", group: "租户管理", to: "/tenants" });
+    expect(m("M00.F01.I01")).toMatchObject({
+      label: "租户维护",
+      group: "租户管理",
+      to: "/tenants",
+    });
     expect(m("M00.F02.I01")).toMatchObject({ label: "租户成员", group: "租户管理" });
     expect(m("M00.F03.I01")).toMatchObject({ label: "租户角色", group: "租户管理" });
     expect(m("M00.F05.I01")).toMatchObject({ label: "租户应用", group: "租户管理" });
@@ -41,8 +47,8 @@ describe("侧边栏层级：一级=功能模块，二级=功能", () => {
     // 本仓路由表：/apps（App.tsx）
     expect(m("M04.F01.I01")?.to).toBe("/apps");
     expect(m("M04.F04.I01")?.to).toBe("/apps/lab-management/menus");
-    // 租户作用域路由携带 tenantForNav
-    expect(m("M00.F02.I01")?.to).toContain("00000000-0000-0000-0000-000000000001");
+    // 租户作用域路由携带 tenantForNav（种子 acme id）
+    expect(m("M00.F02.I01")?.to).toContain(SEED.tenants[0].id);
   });
 
   it("每项都挂权限点 data-fn（不许无 fnId 的导航项）", () => {

@@ -7,8 +7,8 @@
 // 注意：override 类型与 orval 生成的结构对不齐是**预期**——shared 的 OpenAPI
 // 9/7 之后才落地 tsp，旧页代码假设的字段名/类型是上一代契约。要彻底消除
 // override 必须同 commit 改 shared openapi.yaml + 4 后端 + contract-test；
-// 当前 L3 关只要求类型层通过，runtime 行为由 tests/setup.ts mock 与 msw
-// 提供，本仓不重新声明运行时语义。
+// 当前 L3 关只要求类型层通过，运行时行为以真后端（saas-nextjs :5101）为准
+// （msw 剔除 Phase 2 起 mock 墙已拆），本仓不重新声明运行时语义。
 
 // ===== 真实生成的 schema，按需命名 re-export =====
 
