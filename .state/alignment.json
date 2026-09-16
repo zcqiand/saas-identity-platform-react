@@ -112,7 +112,7 @@
       "flows": [],
       "designs": [],
       "tests": [
-        "output\\saas-identity-platform-contract-test\\tests\\admin-tenants.test.ts:1024 (path)"
+        "output\\saas-identity-platform-contract-test\\tests\\admin-tenants.test.ts:1008 (path)"
       ],
       "entry": []
     },
@@ -124,8 +124,8 @@
       "flows": [],
       "designs": [],
       "tests": [
-        "output\\saas-identity-platform-contract-test\\tests\\admin-tenants.test.ts:1024 (path)",
-        "渲染 3 行租户（来自 mocked fetch），新建按钮挂 data-fn=M00.F01.I02"
+        "output\\saas-identity-platform-contract-test\\tests\\admin-tenants.test.ts:1008 (path)",
+        "渲染 3 行租户（来自种子数据），新建按钮挂 data-fn=M00.F01.I02"
       ],
       "entry": [
         "src\\pages\\TenantListPage.tsx"
@@ -173,10 +173,10 @@
       "flows": [],
       "designs": [],
       "tests": [
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-members-read.test.ts:2501 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-members-read.test.ts:2489 (path)",
         "output\\saas-identity-platform-contract-test\\tests\\tenant-members-read.test.ts:963 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-members-write-2.test.ts:1241 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-members-write.test.ts:987 (path)"
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-members-write-2.test.ts:1226 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-members-write.test.ts:972 (path)"
       ],
       "entry": []
     },
@@ -188,10 +188,10 @@
       "flows": [],
       "designs": [],
       "tests": [
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-members-read.test.ts:2501 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-members-read.test.ts:2489 (path)",
         "output\\saas-identity-platform-contract-test\\tests\\tenant-members-read.test.ts:963 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-members-write-2.test.ts:1241 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-members-write.test.ts:987 (path)"
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-members-write-2.test.ts:1226 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-members-write.test.ts:972 (path)"
       ],
       "entry": []
     },
@@ -203,7 +203,7 @@
       "flows": [],
       "designs": [],
       "tests": [
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-members-read.test.ts:3675 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-members-read.test.ts:3651 (path)",
         "渲染 TenantSwitcher，触发按钮挂 data-fn=M00.F02.I03"
       ],
       "entry": [
@@ -218,7 +218,7 @@
       "flows": [],
       "designs": [],
       "tests": [
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-members-read.test.ts:3675 (path)"
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-members-read.test.ts:3651 (path)"
       ],
       "entry": [
         "src\\pages\\UserListPage.tsx"
@@ -232,7 +232,7 @@
       "flows": [],
       "designs": [],
       "tests": [
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-members-read.test.ts:3675 (path)"
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-members-read.test.ts:3651 (path)"
       ],
       "entry": [
         "src\\pages\\UserListPage.tsx"
@@ -276,8 +276,8 @@
       "flows": [],
       "designs": [],
       "tests": [
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-read.test.ts:1307 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-write.test.ts:1089 (path)"
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-read.test.ts:1294 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-write.test.ts:1074 (path)"
       ],
       "entry": []
     },
@@ -289,8 +289,8 @@
       "flows": [],
       "designs": [],
       "tests": [
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-read.test.ts:1307 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-write.test.ts:1089 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-read.test.ts:1294 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-write.test.ts:1074 (path)",
         "渲染角色列表，新建角色按钮挂 data-fn=M00.F03.I02"
       ],
       "entry": [
@@ -305,7 +305,7 @@
       "flows": [],
       "designs": [],
       "tests": [
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-read.test.ts:2514 (path)"
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-read.test.ts:2501 (path)"
       ],
       "entry": []
     },
@@ -317,7 +317,7 @@
       "flows": [],
       "designs": [],
       "tests": [
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-read.test.ts:2514 (path)"
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-read.test.ts:2501 (path)"
       ],
       "entry": [
         "src\\pages\\RoleListPage.tsx"
@@ -331,7 +331,7 @@
       "flows": [],
       "designs": [],
       "tests": [
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-read.test.ts:2514 (path)"
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-read.test.ts:2501 (path)"
       ],
       "entry": [
         "src\\pages\\RoleListPage.tsx"
@@ -355,9 +355,9 @@
       "flows": [],
       "designs": [],
       "tests": [
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-role-menus-write.test.ts:1223 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-read.test.ts:3831 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-write.test.ts:1193 (path)"
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-role-menus-write.test.ts:1208 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-read.test.ts:3818 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-write.test.ts:1178 (path)"
       ],
       "entry": [
         "src\\pages\\RoleListPage.tsx"
@@ -371,9 +371,9 @@
       "flows": [],
       "designs": [],
       "tests": [
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-role-menus-write.test.ts:1223 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-read.test.ts:3831 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-write.test.ts:1193 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-role-menus-write.test.ts:1208 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-read.test.ts:3818 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-write.test.ts:1178 (path)",
         "渲染多 app 分组菜单行，保存按钮挂 data-fn=M00.F04.I03"
       ],
       "entry": [
@@ -388,9 +388,9 @@
       "flows": [],
       "designs": [],
       "tests": [
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-role-menus-write.test.ts:1223 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-read.test.ts:3831 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-write.test.ts:1193 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-role-menus-write.test.ts:1208 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-read.test.ts:3818 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-write.test.ts:1178 (path)",
         "清空按钮挂 data-fn=M00.F04.I04"
       ],
       "entry": [
@@ -484,7 +484,7 @@
       "designs": [],
       "tests": [
         "output\\saas-identity-platform-contract-test\\tests\\me-tenants.test.ts:19 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\me-tenants.test.ts:525 (path)"
+        "output\\saas-identity-platform-contract-test\\tests\\me-tenants.test.ts:521 (path)"
       ],
       "entry": []
     },
@@ -496,8 +496,8 @@
       "flows": [],
       "designs": [],
       "tests": [
-        "output\\saas-identity-platform-contract-test\\tests\\me-switch.test.ts:2224 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\me-switch.test.ts:729 (path)"
+        "output\\saas-identity-platform-contract-test\\tests\\me-switch.test.ts:2220 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\me-switch.test.ts:725 (path)"
       ],
       "entry": []
     },
@@ -525,7 +525,7 @@
       "flows": [],
       "designs": [],
       "tests": [
-        "output\\saas-identity-platform-contract-test\\tests\\auth.test.ts:3830 (path)"
+        "output\\saas-identity-platform-contract-test\\tests\\auth.test.ts:3796 (path)"
       ],
       "entry": [
         "src\\components\\app\\app-shell.tsx"
@@ -550,9 +550,9 @@
       "designs": [],
       "tests": [
         "output\\saas-identity-platform-contract-test\\tests\\admin-clients-write.test.ts:891 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-applications.test.ts:3311 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-applications.test.ts:5216 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-applications.test.ts:7961 (path)"
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-applications.test.ts:3305 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-applications.test.ts:5210 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-applications.test.ts:7955 (path)"
       ],
       "entry": []
     },
@@ -565,10 +565,10 @@
       "designs": [],
       "tests": [
         "output\\saas-identity-platform-contract-test\\tests\\admin-clients-write.test.ts:891 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-applications.test.ts:3311 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-applications.test.ts:5216 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\tenant-applications.test.ts:7961 (path)",
-        "渲染 3 个应用行，新建按钮挂 data-fn=M04.F01.I02"
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-applications.test.ts:3305 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-applications.test.ts:5210 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\tenant-applications.test.ts:7955 (path)",
+        "渲染 4 个应用行，新建按钮挂 data-fn=M04.F01.I02"
       ],
       "entry": [
         "src\\pages\\AppListPage.tsx"
@@ -604,7 +604,7 @@
       "flows": [],
       "designs": [],
       "tests": [
-        "应用行挂 data-fn=M04.F01.I05 删除按钮"
+        "应用行挂 data-fn=M04.F01.I05 删除按钮（每个应用 1 个）"
       ],
       "entry": [
         "src\\pages\\AppListPage.tsx"
@@ -642,8 +642,13 @@
       "flows": [],
       "designs": [],
       "tests": [
-        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:1791 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:2692 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:1759 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:2660 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:3391 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:4504 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:5176 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:7875 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:9364 (path)",
         "returns 400 INVALID_REDIRECT_URI when redirect not in whitelist M04.F03.I01",
         "returns {code, state} for a valid request M04.F03.I01",
         "saveState + consumeState round-trips and clears M04.F03.I01"
@@ -659,10 +664,12 @@
       "designs": [],
       "tests": [
         "exchanges code for access_token + refresh_token M04.F03.I02",
-        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:3442 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:4674 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:5722 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:6672 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:10928 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:11878 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:5880 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:7112 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:8320 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:9806 (path)",
         "persistTokens preserves user metadata M04.F03.I02",
         "persistTokens tolerates malformed prior session M04.F03.I02",
         "writes access/refresh to localStorage M04.F03.I02"
@@ -679,10 +686,12 @@
       "tests": [
         "clearTokens on empty session is a no-op M04.F03.I03",
         "clearTokens removes only token fields M04.F03.I03",
-        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:3442 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:4674 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:5722 (path)",
-        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:6672 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:10928 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:11878 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:5880 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:7112 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:8320 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\oauth.test.ts:9806 (path)",
         "rejects unknown refresh_token with 400 INVALID_GRANT M04.F03.I03",
         "rotates refresh_token M04.F03.I03"
       ],
@@ -709,7 +718,7 @@
       "designs": [],
       "tests": [
         "output\\saas-identity-platform-contract-test\\tests\\client-menus-write.test.ts:1047 (path)",
-        "默认选中 lab-management，渲染 27 项菜单行 + 新建按钮 data-fn=M04.F04.I02"
+        "默认选中 lab-management，渲染种子全部菜单行 + 新建按钮 data-fn=M04.F04.I02"
       ],
       "entry": [
         "src\\pages\\MenuTreePage.tsx"
