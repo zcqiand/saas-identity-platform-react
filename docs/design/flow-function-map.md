@@ -12,13 +12,9 @@
 
 > 镜像豁免：本仓不参与以下 BASE I ID 的实现，按 ADR-0020 §2 DECLARED_GAP 声明豁免。
 
-
 | I ID | 名称 | 豁免理由 |
 |---|---|---|
 | **M01.F04.I01** | 密码登录 API | react/vue 是前端仓，不实现后端 op；saas-shared M01.F04.I01 由 saas-aspnetcore / saas-springboot / saas-msw 提供 |
-| **M01.F04.I02** | 失败锁定 | 同上（后端实现责任，前端仅消费错误码）|
-| **M01.F04.I04** | OIDC Code 换取 | 同上 |
-| **M01.F04.I05** | refresh token | 同上 |
 | **M04.F03.I01** | 授权码签发 | react/vue 是前端仓，不实现 saas IdP；saas-shared M04.F03 由 saas-aspnetcore / saas-springboot / saas-msw 提供 OAuth 协议实现 |
 | **M04.F03.I02** | 令牌交换 | 同上 |
 | **M04.F03.I03** | 令牌刷新 | 同上 |
@@ -41,9 +37,6 @@
 | I ID | 名称 | 豁免理由 |
 |---|---|---|
 | **M01.F04.I01** | 密码登录 API | react/vue 是前端仓，不实现后端 op；saas-shared M01.F04.I01 由 saas-aspnetcore / saas-springboot / saas-msw 提供 |
-| **M01.F04.I02** | 失败锁定 | 同上（后端实现责任，前端仅消费错误码）|
-| **M01.F04.I04** | OIDC Code 换取 | 同上 |
-| **M01.F04.I05** | refresh token | 同上 |
 | **M04.F03.I01** | 授权码签发 | react/vue 是前端仓，不实现 saas IdP；saas-shared M04.F03 由 saas-aspnetcore / saas-springboot / saas-msw 提供 OAuth 协议实现 |
 | **M04.F03.I02** | 令牌交换 | 同上 |
 | **M04.F03.I03** | 令牌刷新 | 同上 |
@@ -74,7 +67,7 @@
 | **M02.F01.I01-I05** | 已迁 | 旧版角色 CRUD → M00.F03（已迁）|
 | **M02.F02.I01** | 已迁 | 旧版权限矩阵 → M00.F04.I01（已迁）|
 | **M03.F01.I01-I02** | 已迁 | 旧版密码登录 → M01.F04.I01-I02（已迁）|
-| **M03.F02.I03-I04** | 已迁 | 旧版 OIDC/refresh → M01.F04.I04-I05（已迁）|
+| **M03.F02.I03-I04** | 已迁 | 旧版 OIDC/refresh → M01.F04.I04-I05（已迁，2026-09-16 I04/I05 再合并到 M04.F03.I02 双 grant）|
 | **M03.F03.I05-I06** | 已迁 | 旧版登出 → M01.F04.I06-I07（已迁）|
 | **M05.F01.I01-I05** | 已废 | 旧版 API Key（目标 DDL 不再包含 `api_keys`）|
 | **M06.F01.I01-I03** | 已废 | 旧版审计事件（目标 DDL 不再包含 `audit_events`）|
