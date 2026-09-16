@@ -21,7 +21,12 @@ export default defineConfig({
     globals: false,
     environment: "jsdom",
     include: ["tests/**/*.test.{ts,tsx}"],
-    testTimeout: 10000,
+    // T11(2026-09-16)：文件默认并行下 role-menu-grant 的 TEST- 建角色写测试与
+    // role-list「恰 2 行」种子锚并发读写共享真库 → 瞬态 3 行假红（gate 实证）。
+    // 共享真后端 + 真库 = 共享可变状态，文件必须串行。
+    fileParallelism: false,
+    // 真链路 jsdom 测试吃真 nextjs dev 冷编译（单路由 10-20s 常态），10s 恒误报。
+    testTimeout: 30000,
     globalSetup: ["./tests/global-setup.ts"],
     setupFiles: ["./tests/setup.ts"],
     reporters: ["default", new FnReporter() as any],
