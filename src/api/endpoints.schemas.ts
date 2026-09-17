@@ -1,163 +1,76 @@
-// 9/7 重构 schemas barrel — orval tags-split 把所有 schema 拆到 model/ 子目录，
-// 但 src/pages 还在用旧 `@/api/endpoints/endpoints.schemas` 路径。本文件做：
+// schemas barrel — 纯 re-export 桶（Phase C4 2026-09-17：手写 override 全删）。
 //
-// 1. 从 model/ 选 re-export 真实生成的 schema（仅命名导出需要的，避免污染）
-// 2. 对 9/7 之前页代码期待的"老名字/老字段"做 override 类型声明
-//
-// 注意：override 类型与 orval 生成的结构对不齐是**预期**——shared 的 OpenAPI
-// 9/7 之后才落地 tsp，旧页代码假设的字段名/类型是上一代契约。要彻底消除
-// override 必须同 commit 改 shared openapi.yaml + 4 后端 + contract-test；
-// 当前 L3 关只要求类型层通过，运行时行为以真后端（saas-nextjs :5101）为准
-// （msw 剔除 Phase 2 起 mock 墙已拆），本仓不重新声明运行时语义。
+// orval tags-split 把所有 schema 拆到 model/ 子目录；本文件只做命名 re-export
+// 减 import 噪音。桶内零手写 interface——页面/状态/测试一律消费生成类型，
+// 字段名以生成物为准（运行时真相 = saas-nextjs :5101，契约 1:1）。
+// 旧 msw 时代 override（Tenant.code / User.displayName / Role.permissionIds /
+// Menu.group 等）已随消费方迁移删除；新需求字段不在契约里 → 列 GAP 停下问人，
+// 不在本桶发明形状。
 
-// ===== 真实生成的 schema，按需命名 re-export =====
-
-export type { CurrentUser } from "./endpoints/model/currentUser";
-export type { ErrorResponse } from "./endpoints/model/errorResponse";
-export type { ErrorResponseDetails } from "./endpoints/model/errorResponseDetails";
-export type { AdminTenantsListTenants200 } from "./endpoints/model/adminTenantsListTenants200";
-export type { AdminTenantsListTenantsParams } from "./endpoints/model/adminTenantsListTenantsParams";
-export type { AdminClientsListClients200 } from "./endpoints/model/adminClientsListClients200";
-export type { AdminClientsListClientsParams } from "./endpoints/model/adminClientsListClientsParams";
+// ===== 会话 / OAuth =====
 export type { LoginRequest } from "./endpoints/model/loginRequest";
 export type { LoginResponse } from "./endpoints/model/loginResponse";
+export type { CurrentUser } from "./endpoints/model/currentUser";
 export type { OAuthAuthorize200 } from "./endpoints/model/oAuthAuthorize200";
 export type { OAuthClientPublicInfo } from "./endpoints/model/oAuthClientPublicInfo";
 export type { OAuthClient } from "./endpoints/model/oAuthClient";
 export type { CreateOAuthClientRequest } from "./endpoints/model/createOAuthClientRequest";
 export type { UpdateOAuthClientRequest } from "./endpoints/model/updateOAuthClientRequest";
+export type { AuthorizeCodeRequest } from "./endpoints/model/authorizeCodeRequest";
+export type { TokenRequest } from "./endpoints/model/tokenRequest";
+export type { TokenResponse } from "./endpoints/model/tokenResponse";
+
+// ===== 错误 =====
+export type { ErrorResponse } from "./endpoints/model/errorResponse";
+export type { ErrorResponseDetails } from "./endpoints/model/errorResponseDetails";
+
+// ===== 租户 =====
+export type { Tenant } from "./endpoints/model/tenant";
 export type { TenantStatus } from "./endpoints/model/tenantStatus";
+export type { CreateTenantRequest } from "./endpoints/model/createTenantRequest";
+export type { UpdateTenantRequest } from "./endpoints/model/updateTenantRequest";
+export type { AdminTenantsListTenants200 } from "./endpoints/model/adminTenantsListTenants200";
+export type { AdminTenantsListTenantsParams } from "./endpoints/model/adminTenantsListTenantsParams";
+
+// ===== 用户 / 成员 =====
+export type { SysUser } from "./endpoints/model/sysUser";
 export type { SysUserStatus } from "./endpoints/model/sysUserStatus";
+export type { CreateSysUserRequest } from "./endpoints/model/createSysUserRequest";
+export type { UpdateSysUserRequest } from "./endpoints/model/updateSysUserRequest";
+export type { TenantMember } from "./endpoints/model/tenantMember";
+export type { TenantMemberStatus } from "./endpoints/model/tenantMemberStatus";
+export type { TenantMemberView } from "./endpoints/model/tenantMemberView";
+export type { TenantMemberUserView } from "./endpoints/model/tenantMemberUserView";
+export type { TenantMembersListTenantUsers200 } from "./endpoints/model/tenantMembersListTenantUsers200";
+export type { TenantMembersListTenantUsersParams } from "./endpoints/model/tenantMembersListTenantUsersParams";
+export type { TenantMembersInviteTenantUserBody } from "./endpoints/model/tenantMembersInviteTenantUserBody";
+export type { TenantMembersChangeTenantUserStatusBody } from "./endpoints/model/tenantMembersChangeTenantUserStatusBody";
+export type { SetTenantMemberRolesRequest } from "./endpoints/model/setTenantMemberRolesRequest";
+
+// ===== 角色 =====
+export type { SysRole } from "./endpoints/model/sysRole";
+export type { CreateSysRoleRequest } from "./endpoints/model/createSysRoleRequest";
+export type { UpdateSysRoleRequest } from "./endpoints/model/updateSysRoleRequest";
+export type { SetSysRoleMenusRequest } from "./endpoints/model/setSysRoleMenusRequest";
+export type { RoleMenuGrant } from "./endpoints/model/roleMenuGrant";
+export type { TenantRolesListSysRoles200 } from "./endpoints/model/tenantRolesListSysRoles200";
+export type { TenantRolesListSysRolesParams } from "./endpoints/model/tenantRolesListSysRolesParams";
+
+// ===== 菜单 =====
+export type { SysMenu } from "./endpoints/model/sysMenu";
 export type { SysMenuType } from "./endpoints/model/sysMenuType";
+export type { CreateSysMenuRequest } from "./endpoints/model/createSysMenuRequest";
+export type { UpdateSysMenuRequest } from "./endpoints/model/updateSysMenuRequest";
+export type { ReorderSysMenuRequest } from "./endpoints/model/reorderSysMenuRequest";
+export type { EffectiveMenuNode } from "./endpoints/model/effectiveMenuNode";
+
+// ===== client（应用）=====
+export type { AdminClientsListClients200 } from "./endpoints/model/adminClientsListClients200";
+export type { AdminClientsListClientsParams } from "./endpoints/model/adminClientsListClientsParams";
+
+// ===== 租户应用订阅 =====
 export type { TenantApplication } from "./endpoints/model/tenantApplication";
 export type { SubscribeTenantApplicationRequest } from "./endpoints/model/subscribeTenantApplicationRequest";
 export type { UpdateTenantApplicationRequest } from "./endpoints/model/updateTenantApplicationRequest";
 export type { TenantApplicationsListTenantApplications200 } from "./endpoints/model/tenantApplicationsListTenantApplications200";
 export type { TenantApplicationsListTenantApplicationsParams } from "./endpoints/model/tenantApplicationsListTenantApplicationsParams";
-
-// ===== 9/7 前 src/pages 引用、本仓 orval 生成结构对不齐的 override =====
-
-// Tenant：生成版字段是 id / tenantKey / name / status / createdAt / updatedAt；
-// pages 用 id / code / name / status + 隐含 archived。需要带 archived。
-export interface Tenant {
-  id: string;
-  /** @deprecated 9/7 后 shared OpenAPI 用 tenantKey；页代码未迁移 */
-  code: string;
-  name: string;
-  status: "active" | "suspended" | "archived";
-  createdAt?: string;
-  updatedAt?: string;
-}
-export interface CreateTenantRequest {
-  code: string;
-  name: string;
-}
-export interface UpdateTenantRequest {
-  code?: string;
-  name?: string;
-  status?: "active" | "suspended" | "archived";
-}
-
-// User：生成版 SysUser 字段是 id / tenantId / clientId / userCode / displayName /
-// email / status；pages 用 id / username / code / displayName / roleIds / status 等。
-export interface User {
-  id: string;
-  username?: string;
-  code: string;
-  displayName: string;
-  email?: string;
-  status: "active" | "suspended" | "archived" | "invited" | "disabled" | "revoked" | "expired";
-  roleIds: string[];
-  createdAt?: string;
-  updatedAt?: string;
-}
-export interface CreateUserRequest {
-  code: string;
-  displayName: string;
-  email?: string;
-  roleIds?: string[];
-}
-export interface UpdateUserRequest {
-  displayName?: string;
-  email?: string;
-  status?: string;
-  roleIds?: string[];
-}
-
-// Role：生成版 SysRole 是 roleCode/roleName；pages 用 code/name/permissionIds。
-export interface Role {
-  id: string;
-  code: string;
-  name: string;
-  description?: string;
-  isPreset?: boolean;
-  permissionIds: string[];
-  status: "active" | "disabled";
-}
-export interface CreateRoleRequest {
-  name: string;
-  description?: string;
-  permissionIds?: string[];
-}
-export interface UpdateRoleRequest {
-  name?: string;
-  description?: string;
-  permissionIds?: string[];
-}
-
-// Menu：生成版 SysMenu 字段是 menuCode/displayName；pages 用
-// id/code/name/path/parentId/order/type/status/sortOrder/appId。
-export interface Menu {
-  id: string;
-  code: string;
-  name: string;
-  path?: string;
-  parentId?: string | null;
-  order?: number;
-  sortOrder: number;
-  type?: "group" | "action" | "page";
-  status?: "active" | "disabled";
-  appId?: string;
-}
-export interface CreateMenuRequest {
-  code: string;
-  name: string;
-  path?: string;
-  parentId?: string | null;
-  sortOrder?: number;
-  type?: "group" | "action" | "page";
-  status?: "active" | "disabled";
-}
-export interface UpdateMenuRequest {
-  code?: string;
-  name?: string;
-  path?: string;
-  parentId?: string | null;
-  order?: number;
-  sortOrder?: number;
-  type?: "group" | "action" | "page";
-  status?: "active" | "disabled";
-}
-
-// App 旧形状 override（App/CreateAppRequest/UpdateAppRequest）已随 2026-09-12
-// OAuthClient 契约形状收敛删除——fixture/后端统一契约 OAuthClient，页面直读
-// clientId/clientName/status:number（对齐 saas-nextjs cb0ab13）。
-
-// SetRoleMenusRequest：shared OpenAPI 暂无；按页代码形态定义。
-export interface SetRoleMenusRequest {
-  menuIds: string[];
-  /** 与 setRoleMenus 一并存的元数据（页代码会回传 updatedAt） */
-  updatedAt?: string;
-}
-
-// AuthorizeCodeRequest：生成版不收 tenantId，页代码传 tenantId。
-// override 后允许 tenantId 透传到 OIDC authorize（多租户 OAuth 跳板）。
-export interface AuthorizeCodeRequest {
-  clientId: string;
-  redirectUri: string;
-  responseType: "code";
-  scope?: string;
-  state: string;
-  /** 9/7 后页代码新增：登录后用户所属租户，OIDC authorize 透传给 RP */
-  tenantId?: string;
-}

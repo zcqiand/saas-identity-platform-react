@@ -16,7 +16,7 @@ import type {
   CreateOAuthClientRequest,
   OAuthClient,
   UpdateOAuthClientRequest,
-} from "@/api/endpoints.schemas";
+} from "@/api/endpoints/model";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {

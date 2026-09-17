@@ -1,5 +1,6 @@
 // M01.F01 — tenant-scoped 用户列表（CRUD）
-// 走 tenantMembersListTenantUsers / createUser / updateUser / deleteUser（orval 1:1 端点）
+// 走 tenantMembersListTenantUsers / createTenantUser / updateTenantUser /
+// changeTenantUserStatus / deleteTenantUser（orval 1:1 端点，类型只用生成物）
 
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
@@ -7,13 +8,19 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAdminTenantsGetTenant } from "@/api/endpoints/admin-tenants/admin-tenants";
 import {
   tenantMembersAssignTenantMemberRoles,
+  tenantMembersChangeTenantUserStatus,
   tenantMembersCreateTenantUser,
   tenantMembersDeleteTenantUser,
   tenantMembersListTenantUsers,
   tenantMembersUpdateTenantUser,
 } from "@/api/endpoints/tenant-members/tenant-members";
 import { tenantRolesListSysRoles } from "@/api/endpoints/tenant-roles/tenant-roles";
-import type { CreateUserRequest, UpdateUserRequest, User, Role } from "@/api/endpoints.schemas";
+import type {
+  CreateSysUserRequest,
+  SysRole,
+  TenantMemberStatus,
+  UpdateSysUserRequest,
+} from "@/api/endpoints/model";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -32,20 +39,21 @@ import { CrudDialog, type FieldDef } from "@/components/app/crud-dialog";
 import { toApiError } from "@/api/http-client";
 import { toast } from "sonner";
 
-// ADR-0029 双形态兼容：嵌套 TenantMemberView（aspnetcore）/扁平 User（msw/nextjs）统一归一化
+// ADR-0029 双形态兼容：嵌套 TenantMemberView（aspnetcore）/扁平 TenantMemberUserView
+// （msw/nextjs）统一归一化。状态取生成 TenantMemberStatus（active|invited|suspended|disabled）。
 interface MemberUserRow {
   id: string;
   username: string;
   email: string;
-  status: "active" | "suspended" | "archived" | "invited" | "disabled" | "revoked" | "expired";
+  status: TenantMemberStatus;
   roleIds?: string[];
 }
 function normalizeMemberRow(raw: unknown): MemberUserRow {
   const r = raw as Record<string, unknown>;
   if (r.member && r.user) {
-    const member = r.member as { id: string; status?: MemberUserRow["status"] };
-    const user = r.user as { id: string; username: string; email: string; status?: MemberUserRow["status"] };
-    const status = (member.status ?? user.status ?? "active") as MemberUserRow["status"];
+    const member = r.member as { id: string; status?: TenantMemberStatus };
+    const user = r.user as { id: string; username: string; email: string; status?: TenantMemberStatus };
+    const status = (member.status ?? user.status ?? "active") as TenantMemberStatus;
     return {
       id: user.id ?? member.id,
       username: user.username,
@@ -57,15 +65,23 @@ function normalizeMemberRow(raw: unknown): MemberUserRow {
   return r as unknown as MemberUserRow;
 }
 
-const FIELDS: FieldDef[] = [
+// 创建走契约 CreateSysUserRequest {username, password, email?, mobile?}——status
+// 不在 create body（成员初始态由后端定），状态变更走 changeTenantUserStatus。
+const CREATE_FIELDS: FieldDef[] = [
   { name: "username", label: "用户名", required: true, placeholder: "alice" },
+  { name: "password", label: "初始密码", required: true, placeholder: "至少 8 位" },
+  { name: "email", label: "邮箱", required: true, placeholder: "alice@acme.io" },
+];
+
+// 编辑：email/mobile 走 UpdateSysUserRequest；status 走 TenantMemberStatus
+// （changeTenantUserStatus 专用 body，4 态与列表展示一致）。
+const EDIT_FIELDS: FieldDef[] = [
   { name: "email", label: "邮箱", required: true, placeholder: "alice@acme.io" },
   {
     name: "status",
     label: "状态",
     type: "select",
     required: true,
-    defaultValue: "invited",
     options: [
       { value: "active", label: "启用" },
       { value: "invited", label: "已邀请" },
@@ -75,8 +91,6 @@ const FIELDS: FieldDef[] = [
   },
 ];
 
-const EDIT_FIELDS = FIELDS.filter((f) => f.name !== "username");
-
 export function UserListPage() {
   const { tenantId } = useParams<{ tenantId: string }>();
   const qc = useQueryClient();
@@ -84,9 +98,7 @@ export function UserListPage() {
   // 不发请求，加载中/失败显示 fallback。
   const tenantQ = useAdminTenantsGetTenant(tenantId!, { query: { enabled: !!tenantId } });
   const tenant = tenantQ.data?.data ?? null;
-  const tenantLabel = tenant
-    ? `租户 ${tenant.name}（${(tenant as unknown as { tenantKey?: string }).tenantKey ?? ""}）`
-    : "租户未知";
+  const tenantLabel = tenant ? `租户 ${tenant.name}（${tenant.tenantKey}）` : "租户未知";
 
   const usersQ = useQuery<MemberUserRow[]>({
     queryKey: ["tenantMembersListTenantUsers", tenantId],
@@ -97,14 +109,14 @@ export function UserListPage() {
     enabled: !!tenantId,
   });
 
-  const rolesQ = useQuery<Role[]>({
+  const rolesQ = useQuery<SysRole[]>({
     queryKey: ["tenantRolesListSysRoles", tenantId],
-    queryFn: async () => (await tenantRolesListSysRoles(tenantId!, { clientId: "" } as never)).data.items as unknown as Role[],
+    queryFn: async () => (await tenantRolesListSysRoles(tenantId!, { clientId: "" })).data.items,
     enabled: !!tenantId,
   });
 
   const createMut = useMutation({
-    mutationFn: (data: CreateUserRequest) => tenantMembersCreateTenantUser(tenantId!, data as never),
+    mutationFn: (data: CreateSysUserRequest) => tenantMembersCreateTenantUser(tenantId!, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tenantMembersListTenantUsers", tenantId] });
       toast.success("用户已创建");
@@ -113,13 +125,23 @@ export function UserListPage() {
   });
 
   const updateMut = useMutation({
-    mutationFn: ({ userId, data }: { userId: string; data: UpdateUserRequest }) =>
-      tenantMembersUpdateTenantUser(tenantId!, userId, data as never),
+    mutationFn: ({ userId, data }: { userId: string; data: UpdateSysUserRequest }) =>
+      tenantMembersUpdateTenantUser(tenantId!, userId, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tenantMembersListTenantUsers", tenantId] });
       toast.success("用户已更新");
     },
     onError: (err) => toast.error(`更新失败：${toApiError(err).message}`),
+  });
+
+  // 状态走专用端点（TenantMembersChangeTenantUserStatusBody.status = TenantMemberStatus）
+  const statusMut = useMutation({
+    mutationFn: ({ userId, status }: { userId: string; status: TenantMemberStatus }) =>
+      tenantMembersChangeTenantUserStatus(tenantId!, userId, { status }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["tenantMembersListTenantUsers", tenantId] });
+    },
+    onError: (err) => toast.error(`状态变更失败：${toApiError(err).message}`),
   });
 
   const deleteMut = useMutation({
@@ -148,9 +170,6 @@ export function UserListPage() {
 
   const users = usersQ.data ?? [];
   const roles = rolesQ.data ?? [];
-  // SysRole 契约字段 roleCode/roleName（msw 运行时一致）；legacy Role 类型缺 —— 就地兜底
-  const roleCode = (r: Role) => (r as unknown as { roleCode?: string }).roleCode ?? "";
-  const roleName = (r: Role) => (r as unknown as { roleName?: string }).roleName ?? "";
 
   return (
     <div className="space-y-6">
@@ -197,7 +216,7 @@ export function UserListPage() {
                       variant="ghost"
                       size="sm"
                       data-fn="M01.F02.I01"
-                      onClick={() => setRoleTarget(u as unknown as MemberUserRow)}
+                      onClick={() => setRoleTarget(u)}
                     >
                       分配角色
                     </Button>
@@ -205,7 +224,7 @@ export function UserListPage() {
                       variant="ghost"
                       size="sm"
                       data-fn="M00.F02.I04"
-                      onClick={() => setEditTarget(u as unknown as MemberUserRow)}
+                      onClick={() => setEditTarget(u)}
                     >
                       编辑
                     </Button>
@@ -214,7 +233,7 @@ export function UserListPage() {
                       size="sm"
                       data-fn="M00.F02.I05"
                       className="text-red-600 hover:text-red-700"
-                      onClick={() => setDeleteTarget(u as unknown as MemberUserRow)}
+                      onClick={() => setDeleteTarget(u)}
                     >
                       删除
                     </Button>
@@ -231,12 +250,16 @@ export function UserListPage() {
         open={createOpen}
         onOpenChange={setCreateOpen}
         title="邀请用户"
-        description="向租户添加一个新用户。"
-        fields={FIELDS}
+        description="向租户添加一个新用户（契约 CreateSysUserRequest：用户名 + 初始密码 + 邮箱）。"
+        fields={CREATE_FIELDS}
         submitText="创建"
         loading={createMut.isPending}
         onSubmit={async (values) => {
-          await createMut.mutateAsync(values as unknown as CreateUserRequest);
+          await createMut.mutateAsync({
+            username: String(values.username ?? "").trim(),
+            password: String(values.password ?? ""),
+            email: (values.email as string) || undefined,
+          });
           setCreateOpen(false);
         }}
       />
@@ -254,11 +277,12 @@ export function UserListPage() {
           if (!editTarget) return;
           await updateMut.mutateAsync({
             userId: editTarget.id,
-            data: {
-              email: values.email as string,
-              status: values.status as User["status"],
-            },
+            data: { email: values.email as string },
           });
+          const nextStatus = values.status as TenantMemberStatus;
+          if (nextStatus && nextStatus !== editTarget.status) {
+            await statusMut.mutateAsync({ userId: editTarget.id, status: nextStatus });
+          }
           setEditTarget(null);
         }}
       />
@@ -272,7 +296,7 @@ export function UserListPage() {
             name: "roleIds",
             label: "角色（多选）",
             type: "select",
-            options: roles.map((r) => ({ value: r.id, label: `${roleCode(r)} · ${roleName(r)}` })),
+            options: roles.map((r) => ({ value: r.id, label: `${r.roleCode} · ${r.roleName}` })),
           },
         ]}
         submitText="保存角色"
@@ -295,8 +319,8 @@ export function UserListPage() {
                       onChange(Array.from(next));
                     }}
                   />
-                  <span className="font-mono text-xs">{roleCode(r)}</span>
-                  <span>{roleName(r)}</span>
+                  <span className="font-mono text-xs">{r.roleCode}</span>
+                  <span>{r.roleName}</span>
                 </label>
               );
             })}
