@@ -5,11 +5,13 @@
  * OpenAPI spec version: 0.0.0
  */
 import type { SysUser } from './sysUser';
-import type { TenantMember } from './tenantMember';
+import type { TenantMembership } from './tenantMembership';
 
 export interface LoginResponse {
   user: SysUser;
-  availableTenants: TenantMember[];
+  availableTenants: TenantMembership[];
+  userId: string;
+  currentTenantId?: string;
   accessToken?: string;
   refreshToken?: string;
   tokenType?: string;

@@ -6,5 +6,5 @@
  */
 
 export type MeListMyTenantsParams = {
-clientId: string;
+clientId?: string;
 };

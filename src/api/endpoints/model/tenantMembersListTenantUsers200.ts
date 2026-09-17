@@ -4,10 +4,10 @@
  * (title)
  * OpenAPI spec version: 0.0.0
  */
-import type { TenantMemberView } from './tenantMemberView';
+import type { TenantMemberUserView } from './tenantMemberUserView';
 
 export type TenantMembersListTenantUsers200 = {
-  items: TenantMemberView[];
+  items: TenantMemberUserView[];
   page: number;
   pageSize: number;
   total: number;

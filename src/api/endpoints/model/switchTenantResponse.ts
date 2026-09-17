@@ -10,5 +10,4 @@ export interface SwitchTenantResponse {
   refreshToken: string;
   expiresAt: string;
   tenantId: string;
-  clientId: string;
 }

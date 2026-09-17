@@ -11,5 +11,7 @@ export type TenantMemberStatus = typeof TenantMemberStatus[keyof typeof TenantMe
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const TenantMemberStatus = {
   active: 'active',
+  invited: 'invited',
+  suspended: 'suspended',
   disabled: 'disabled',
 } as const;

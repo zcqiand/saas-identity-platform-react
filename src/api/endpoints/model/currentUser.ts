@@ -4,12 +4,11 @@
  * (title)
  * OpenAPI spec version: 0.0.0
  */
-import type { SysUser } from './sysUser';
-import type { TenantMember } from './tenantMember';
+import type { TenantMembership } from './tenantMembership';
 
 export interface CurrentUser {
-  user: SysUser;
-  memberships: TenantMember[];
+  id: string;
+  email?: string;
+  memberships: TenantMembership[];
   currentTenantId?: string;
-  clientId?: string;
 }
