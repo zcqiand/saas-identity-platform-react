@@ -13,7 +13,7 @@ import {
   tenantMembersUpdateTenantUser,
 } from "@/api/endpoints/tenant-members/tenant-members";
 import { tenantRolesListSysRoles } from "@/api/endpoints/tenant-roles/tenant-roles";
-import type { CreateUserRequest, UpdateUserRequest, User, Role } from "@/api/endpoints/endpoints.schemas";
+import type { CreateUserRequest, UpdateUserRequest, User, Role } from "@/api/endpoints.schemas";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {

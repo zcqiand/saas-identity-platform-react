@@ -12,28 +12,28 @@
 
 // ===== 真实生成的 schema，按需命名 re-export =====
 
-export type { CurrentUser } from "./model/currentUser";
-export type { ErrorResponse } from "./model/errorResponse";
-export type { ErrorResponseDetails } from "./model/errorResponseDetails";
-export type { AdminTenantsListTenants200 } from "./model/adminTenantsListTenants200";
-export type { AdminTenantsListTenantsParams } from "./model/adminTenantsListTenantsParams";
-export type { AdminClientsListClients200 } from "./model/adminClientsListClients200";
-export type { AdminClientsListClientsParams } from "./model/adminClientsListClientsParams";
-export type { LoginRequest } from "./model/loginRequest";
-export type { LoginResponse } from "./model/loginResponse";
-export type { OAuthAuthorize200 } from "./model/oAuthAuthorize200";
-export type { OAuthClientPublicInfo } from "./model/oAuthClientPublicInfo";
-export type { OAuthClient } from "./model/oAuthClient";
-export type { CreateOAuthClientRequest } from "./model/createOAuthClientRequest";
-export type { UpdateOAuthClientRequest } from "./model/updateOAuthClientRequest";
-export type { TenantStatus } from "./model/tenantStatus";
-export type { SysUserStatus } from "./model/sysUserStatus";
-export type { SysMenuType } from "./model/sysMenuType";
-export type { TenantApplication } from "./model/tenantApplication";
-export type { SubscribeTenantApplicationRequest } from "./model/subscribeTenantApplicationRequest";
-export type { UpdateTenantApplicationRequest } from "./model/updateTenantApplicationRequest";
-export type { TenantApplicationsListTenantApplications200 } from "./model/tenantApplicationsListTenantApplications200";
-export type { TenantApplicationsListTenantApplicationsParams } from "./model/tenantApplicationsListTenantApplicationsParams";
+export type { CurrentUser } from "./endpoints/model/currentUser";
+export type { ErrorResponse } from "./endpoints/model/errorResponse";
+export type { ErrorResponseDetails } from "./endpoints/model/errorResponseDetails";
+export type { AdminTenantsListTenants200 } from "./endpoints/model/adminTenantsListTenants200";
+export type { AdminTenantsListTenantsParams } from "./endpoints/model/adminTenantsListTenantsParams";
+export type { AdminClientsListClients200 } from "./endpoints/model/adminClientsListClients200";
+export type { AdminClientsListClientsParams } from "./endpoints/model/adminClientsListClientsParams";
+export type { LoginRequest } from "./endpoints/model/loginRequest";
+export type { LoginResponse } from "./endpoints/model/loginResponse";
+export type { OAuthAuthorize200 } from "./endpoints/model/oAuthAuthorize200";
+export type { OAuthClientPublicInfo } from "./endpoints/model/oAuthClientPublicInfo";
+export type { OAuthClient } from "./endpoints/model/oAuthClient";
+export type { CreateOAuthClientRequest } from "./endpoints/model/createOAuthClientRequest";
+export type { UpdateOAuthClientRequest } from "./endpoints/model/updateOAuthClientRequest";
+export type { TenantStatus } from "./endpoints/model/tenantStatus";
+export type { SysUserStatus } from "./endpoints/model/sysUserStatus";
+export type { SysMenuType } from "./endpoints/model/sysMenuType";
+export type { TenantApplication } from "./endpoints/model/tenantApplication";
+export type { SubscribeTenantApplicationRequest } from "./endpoints/model/subscribeTenantApplicationRequest";
+export type { UpdateTenantApplicationRequest } from "./endpoints/model/updateTenantApplicationRequest";
+export type { TenantApplicationsListTenantApplications200 } from "./endpoints/model/tenantApplicationsListTenantApplications200";
+export type { TenantApplicationsListTenantApplicationsParams } from "./endpoints/model/tenantApplicationsListTenantApplicationsParams";
 
 // ===== 9/7 前 src/pages 引用、本仓 orval 生成结构对不齐的 override =====
 
