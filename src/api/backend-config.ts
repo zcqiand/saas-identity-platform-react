@@ -21,12 +21,11 @@ import { env } from "./env";
 // === 2026-09-13 用户裁定：切换器 prod 指生产路径 ===
 // 此前候选全是 localhost:510x —— prod 浏览器里点谁都指向用户自己机器。
 // build 期 import.meta.env.PROD 区分两端：dev 端口表见上；prod 域名 = 各仓
-// deploy nginx vhost（saas-msw/nextjs/aspnetcore/springboot.xiangru.uk）。
-// 2026-09-13 用户裁定追加：msw 也有 prod 端 saas-msw.xiangru.uk，进 prod 可选表。
+// deploy nginx vhost（saas-nextjs/aspnetcore/springboot.xiangru.uk）。
+// 2026-09-17 msw 仓已删（剔除设计 Phase 4 提前）：msw 切换项与 prodBaseUrl 移除。
 const IS_PROD_BUILD = import.meta.env.PROD;
 
 export const BACKENDS = [
-  { key: "msw", baseUrl: "http://localhost:5100", prodBaseUrl: "https://saas-msw.xiangru.uk" },
   {
     key: "nextjs",
     baseUrl: "http://localhost:5101",
@@ -81,15 +80,15 @@ export function setSelectedBackend(key: string): void {
 }
 
 export function getApiBaseUrl(): string {
-  // 运行时切换优先；未选择（或选中项在当前构建不可见，如 prod 残留 msw）时走 env。
+  // 运行时切换优先；未选择（或选中项在当前构建不可见，如 prod 残留旧 key）时走 env。
   const selected = getSelectedBackend();
   if (selected) {
     const hit = SELECTABLE_BACKENDS.find((b) => b.key === selected);
     if (hit) return resolveBaseUrl(hit);
   }
-  return env.VITE_API_BASE_URL || "http://localhost:5100";
+  return env.VITE_API_BASE_URL || "http://localhost:5101";
 }
 
 export function getApiMode(): string {
-  return env.VITE_API_MODE || "msw-http";
+  return env.VITE_API_MODE || "nextjs";
 }
