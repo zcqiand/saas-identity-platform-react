@@ -46,10 +46,13 @@ try {
   marker.api_synced_at = new Date().toISOString();
   marker.api_synced_cmd = "gen-shared.ts";
 
-  const shas = [marker.api_synced_sha, marker.db_synced_sha].filter(
-    Boolean,
-  ) as string[];
-  marker.shared_sha = shas.length ? shas.sort().pop()! : sharedSha;
+  // shared_sha 取最近一次同步：ISO-8601 UTC 时间戳字典序==时间序（5.21 修复，勿 sort sha）。
+  const entries: Array<[string, string]> = (["api_synced", "db_synced"] as const)
+    .map((k) => [String(marker[`${k}_at`] ?? ""), String(marker[`${k}_sha`] ?? "")] as [string, string])
+    .filter(([, sha]) => sha !== "");
+  marker.shared_sha = entries.length
+    ? entries.sort((a, b) => a[0].localeCompare(b[0])).pop()![1]
+    : sharedSha;
   marker.consumer_repo = resolve(root).split(/[\\/]/).pop()!;
 
   writeFileSync(markerPath, JSON.stringify(marker, null, 2) + "\n", "utf-8");
