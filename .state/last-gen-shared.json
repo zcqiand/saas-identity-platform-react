@@ -1,7 +1,7 @@
 {
-  "api_synced_sha": "43a745447744374e7c1dd95307653c58f85e2004",
-  "api_synced_at": "2026-09-18T22:37:42.394Z",
+  "api_synced_sha": "4e96ec074b2a3d0d4417c0dae845c2a1a654891d",
+  "api_synced_at": "2026-09-18T23:34:13.225Z",
   "api_synced_cmd": "gen-shared.ts",
-  "shared_sha": "43a745447744374e7c1dd95307653c58f85e2004",
+  "shared_sha": "4e96ec074b2a3d0d4417c0dae845c2a1a654891d",
   "consumer_repo": "saas-identity-platform-react"
 }
