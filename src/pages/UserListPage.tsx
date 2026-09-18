@@ -1,6 +1,8 @@
 // M01.F01 — tenant-scoped 用户列表（CRUD）
 // 走 tenantMembersListTenantUsers / createTenantUser / updateTenantUser /
 // changeTenantUserStatus / deleteTenantUser（orval 1:1 端点，类型只用生成物）
+// @entry M00.F02.I01 — 成员列表（本页表格，tenantMembersListTenantUsers）
+// @entry M00.F02.I02 — 创建成员（「邀请用户」弹窗，createTenantUser）
 
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
