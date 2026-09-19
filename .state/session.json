@@ -1,16 +1,17 @@
 {
   "schema": 2,
   "project": "saas-identity-platform-react",
-  "current_task": "三端收口盘点（2026-09-10）：34/51 已上线，横向 I 级与 vue/nextjs 对齐一致，gate 全绿",
-  "last_session_at": "2026-09-10",
-  "last_session_summary": "本仓无代码改动，纯盘点收口。三端缺口完全一致（对齐是齐的，欠账是共享的）：M00.F02 成员管理 I01-I06/I08 开发中（列表/创建/邀请/状态切换连 UI entry 都没有）、M00.F04.I02 角色已授权菜单查询、M00.F05 应用订阅 4 项（cdf7e33 建了页面但状态未转已上线）、M01.F01.I01 whoami / M01.F03.I01 我的租户成员关系（API 侧 contract-test 已覆盖，纯前端欠账）、M01.F04.I03 密码登录 UI / I07 全局 SSO 登出（规划）。另有已上线无设计映射/无测试引用 warnings 82 条。",
+  "current_task": "2026-09-19 family-leftovers wave 收口（Task 6）：--all 三轮判读完成，本仓定向 full gate R2/R3 两轮 exit 0",
+  "last_session_at": "2026-09-19",
+  "last_session_summary": "无代码改动，纯验证收口：R2/R3 定向（DATABASE_URL=saas_test）L4 280s/253s + L5 全绿——Task 2.1 react 环境假红正式收口；--tier unit demo 绿（ADR-0037 tier 标识输出实测）",
   "done": [
     "盘点：34/51 已上线 + 14 开发中 + 3 规划，与 vue 完全对齐",
-    "gate.py -p saas-identity-platform-react → 全绿（2026-09-10 21:10 gate --all 确认）"
+    "gate.py -p saas-identity-platform-react → 全绿（2026-09-10 21:10 gate --all 确认）",
+    "Task 6 收口：定向 full gate 两轮 exit 0（证据 .superpowers/sdd/2026-09-18-family-leftovers-remediation/close-r2/r3-saas-react.log）",
+    "--tier unit demo：exit 0，头行 [tier=unit] + 尾行「验收/波次收尾须 full 绿」标识输出"
   ],
   "next": [
-    "M00.F02 成员管理是最大缺口：先建 src/pages/members/ 列表页 + UI entry（路由/菜单项），走 orval adminMembers 系具名函数",
-    "M01.F01.I01 whoami / M01.F03.I01：contract-test 已有 API 覆盖，直接做 UI 即可，从 app/(dashboard)/profile/ 起步"
+    "无代码欠账；剩余项见 docs/superpowers/plans/2026-09-18-family-leftovers-remediation.md（人裁批/池小项，与本仓无直接涉）"
   ],
   "open_questions": [
     "M00.F05 应用订阅 4 项页面 cdf7e33 已建但状态还是「开发中」——功能状态转「已上线」是走 /tree-change 还是补测试后自然转？"
@@ -18,7 +19,8 @@
   "dont": [
     "不要改 version-lock.json / 给按钮加图标（CLAUDE.md §2）",
     "不要手写 axios fetch（走 orval 具名函数）",
-    "成员管理 UI 别造新 fixture 形状——用 msw 仓 2026-09-08 apps→clients/users→members 重命名后的契约"
+    "成员管理 UI 别造新 fixture 形状——用 msw 仓 2026-09-08 apps→clients/users→members 重命名后的契约",
+    "--all 单值 DATABASE_URL 会把本仓 DB 门连到 lab_test（Task 6 R2/R3 实证）；本仓 canonical=saas_test"
   ],
   "active_branch": "master"
 }
