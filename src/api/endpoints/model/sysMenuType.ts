@@ -5,12 +5,11 @@
  * OpenAPI spec version: 0.0.0
  */
 
-export type SysMenuType = typeof SysMenuType[keyof typeof SysMenuType];
-
+export type SysMenuType = (typeof SysMenuType)[keyof typeof SysMenuType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const SysMenuType = {
-  directory: 'directory',
-  menu: 'menu',
-  button: 'button',
+  directory: "directory",
+  menu: "menu",
+  button: "button",
 } as const;

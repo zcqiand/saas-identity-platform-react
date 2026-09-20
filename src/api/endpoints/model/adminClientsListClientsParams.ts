@@ -6,6 +6,6 @@
  */
 
 export type AdminClientsListClientsParams = {
-page?: number;
-pageSize?: number;
+  page?: number;
+  pageSize?: number;
 };

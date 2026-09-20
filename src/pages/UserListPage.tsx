@@ -54,7 +54,12 @@ function normalizeMemberRow(raw: unknown): MemberUserRow {
   const r = raw as Record<string, unknown>;
   if (r.member && r.user) {
     const member = r.member as { id: string; status?: TenantMemberStatus };
-    const user = r.user as { id: string; username: string; email: string; status?: TenantMemberStatus };
+    const user = r.user as {
+      id: string;
+      username: string;
+      email: string;
+      status?: TenantMemberStatus;
+    };
     const status = (member.status ?? user.status ?? "active") as TenantMemberStatus;
     return {
       id: user.id ?? member.id,
@@ -192,58 +197,58 @@ export function UserListPage() {
           {usersQ.isPending ? (
             <PageLoading />
           ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>用户名</TableHead>
-                <TableHead>邮箱</TableHead>
-                <TableHead>状态</TableHead>
-                <TableHead>角色</TableHead>
-                <TableHead className="text-right">操作</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map((u) => (
-                <TableRow key={u.id} data-testid="user-row">
-                  <TableCell className="font-medium">{u.username}</TableCell>
-                  <TableCell className="text-slate-500">{u.email}</TableCell>
-                  <TableCell>
-                    <StatusBadge status={u.status} />
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-xs text-slate-500">{(u.roleIds ?? []).length} 项</span>
-                  </TableCell>
-                  <TableCell className="text-right space-x-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      data-fn="M01.F02.I01"
-                      onClick={() => setRoleTarget(u)}
-                    >
-                      分配角色
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      data-fn="M00.F02.I04"
-                      onClick={() => setEditTarget(u)}
-                    >
-                      编辑
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      data-fn="M00.F02.I05"
-                      className="text-red-600 hover:text-red-700"
-                      onClick={() => setDeleteTarget(u)}
-                    >
-                      删除
-                    </Button>
-                  </TableCell>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>用户名</TableHead>
+                  <TableHead>邮箱</TableHead>
+                  <TableHead>状态</TableHead>
+                  <TableHead>角色</TableHead>
+                  <TableHead className="text-right">操作</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {users.map((u) => (
+                  <TableRow key={u.id} data-testid="user-row">
+                    <TableCell className="font-medium">{u.username}</TableCell>
+                    <TableCell className="text-slate-500">{u.email}</TableCell>
+                    <TableCell>
+                      <StatusBadge status={u.status} />
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-xs text-slate-500">{(u.roleIds ?? []).length} 项</span>
+                    </TableCell>
+                    <TableCell className="text-right space-x-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        data-fn="M01.F02.I01"
+                        onClick={() => setRoleTarget(u)}
+                      >
+                        分配角色
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        data-fn="M00.F02.I04"
+                        onClick={() => setEditTarget(u)}
+                      >
+                        编辑
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        data-fn="M00.F02.I05"
+                        className="text-red-600 hover:text-red-700"
+                        onClick={() => setDeleteTarget(u)}
+                      >
+                        删除
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </CardContent>
       </Card>

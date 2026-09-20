@@ -4,7 +4,7 @@
  * (title)
  * OpenAPI spec version: 0.0.0
  */
-import type { TenantMemberUserView } from './tenantMemberUserView';
+import type { TenantMemberUserView } from "./tenantMemberUserView";
 
 export type TenantMembersListTenantUsers200 = {
   items: TenantMemberUserView[];

@@ -13,14 +13,17 @@ import {
   tenantRolesUpdateSysRole,
 } from "@/api/endpoints/tenant-roles/tenant-roles";
 import { useAdminTenantsGetTenant } from "@/api/endpoints/admin-tenants/admin-tenants";
-import type {
-  CreateSysRoleRequest,
-  SysRole,
-  UpdateSysRoleRequest,
-} from "@/api/endpoints/model";
+import type { CreateSysRoleRequest, SysRole, UpdateSysRoleRequest } from "@/api/endpoints/model";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { PageHeader } from "@/components/app/page-header";
 import { PageLoading } from "@/components/app/page-loading";
 import { ConfirmDialog } from "@/components/app/confirm-dialog";
@@ -101,40 +104,45 @@ export function RoleListPage() {
           {list.isPending ? (
             <PageLoading />
           ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Code</TableHead>
-                <TableHead>名称</TableHead>
-                <TableHead className="text-right">操作</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {roles.map((r) => (
-                <TableRow key={r.id} data-testid="role-row">
-                  <TableCell className="font-mono text-xs">{r.roleCode}</TableCell>
-                  <TableCell className="font-medium">{r.roleName}</TableCell>
-                  <TableCell className="text-right space-x-1">
-                    <Button variant="ghost" size="sm" data-fn="M00.F04.I02" asChild>
-                      <Link to={`/tenants/${tenantId}/roles/${r.id}/menus`}>菜单授权</Link>
-                    </Button>
-                    <Button variant="ghost" size="sm" data-fn="M00.F03.I04" onClick={() => setEditTarget(r)}>
-                      编辑
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      data-fn="M00.F03.I05"
-                      className="text-red-600 hover:text-red-700"
-                      onClick={() => setDeleteTarget(r)}
-                    >
-                      删除
-                    </Button>
-                  </TableCell>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Code</TableHead>
+                  <TableHead>名称</TableHead>
+                  <TableHead className="text-right">操作</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {roles.map((r) => (
+                  <TableRow key={r.id} data-testid="role-row">
+                    <TableCell className="font-mono text-xs">{r.roleCode}</TableCell>
+                    <TableCell className="font-medium">{r.roleName}</TableCell>
+                    <TableCell className="text-right space-x-1">
+                      <Button variant="ghost" size="sm" data-fn="M00.F04.I02" asChild>
+                        <Link to={`/tenants/${tenantId}/roles/${r.id}/menus`}>菜单授权</Link>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        data-fn="M00.F03.I04"
+                        onClick={() => setEditTarget(r)}
+                      >
+                        编辑
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        data-fn="M00.F03.I05"
+                        className="text-red-600 hover:text-red-700"
+                        onClick={() => setDeleteTarget(r)}
+                      >
+                        删除
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </CardContent>
       </Card>
@@ -147,7 +155,10 @@ export function RoleListPage() {
         submitText="创建"
         loading={createMut.isPending}
         onSubmit={async (values) => {
-          await createMut.mutateAsync({ ...(values as unknown as CreateSysRoleRequest), clientId: "saas-console" });
+          await createMut.mutateAsync({
+            ...(values as unknown as CreateSysRoleRequest),
+            clientId: "saas-console",
+          });
           setCreateOpen(false);
         }}
       />
@@ -161,7 +172,10 @@ export function RoleListPage() {
         loading={updateMut.isPending}
         onSubmit={async (values) => {
           if (!editTarget) return;
-          await updateMut.mutateAsync({ roleId: editTarget.id, data: { roleName: values.roleName as string } });
+          await updateMut.mutateAsync({
+            roleId: editTarget.id,
+            data: { roleName: values.roleName as string },
+          });
           setEditTarget(null);
         }}
       />

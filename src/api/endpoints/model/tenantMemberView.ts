@@ -4,8 +4,8 @@
  * (title)
  * OpenAPI spec version: 0.0.0
  */
-import type { TenantMember } from './tenantMember';
-import type { SysUser } from './sysUser';
+import type { TenantMember } from "./tenantMember";
+import type { SysUser } from "./sysUser";
 
 export interface TenantMemberView {
   member: TenantMember;

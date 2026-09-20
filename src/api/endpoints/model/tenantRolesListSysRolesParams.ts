@@ -6,7 +6,7 @@
  */
 
 export type TenantRolesListSysRolesParams = {
-clientId?: string;
-page?: number;
-pageSize?: number;
+  clientId?: string;
+  page?: number;
+  pageSize?: number;
 };

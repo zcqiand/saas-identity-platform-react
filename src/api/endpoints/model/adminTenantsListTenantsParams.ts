@@ -6,6 +6,6 @@
  */
 
 export type AdminTenantsListTenantsParams = {
-page?: number;
-pageSize?: number;
+  page?: number;
+  pageSize?: number;
 };

@@ -4,7 +4,7 @@
  * (title)
  * OpenAPI spec version: 0.0.0
  */
-import type { TenantStatus } from './tenantStatus';
+import type { TenantStatus } from "./tenantStatus";
 
 export interface UpdateTenantRequest {
   /**

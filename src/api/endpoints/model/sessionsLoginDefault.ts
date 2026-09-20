@@ -4,7 +4,7 @@
  * (title)
  * OpenAPI spec version: 0.0.0
  */
-import type { LockedAccountResponse } from './lockedAccountResponse';
-import type { ErrorResponse } from './errorResponse';
+import type { LockedAccountResponse } from "./lockedAccountResponse";
+import type { ErrorResponse } from "./errorResponse";
 
 export type SessionsLoginDefault = LockedAccountResponse | ErrorResponse;

@@ -6,5 +6,5 @@
  */
 
 export type TenantRoleMenusListSysRoleMenusParams = {
-clientId?: string;
+  clientId?: string;
 };

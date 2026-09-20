@@ -6,5 +6,5 @@
  */
 
 export type MeSwitchTenantParams = {
-clientId?: string;
+  clientId?: string;
 };

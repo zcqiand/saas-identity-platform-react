@@ -4,7 +4,7 @@
  * (title)
  * OpenAPI spec version: 0.0.0
  */
-import type { OAuthClient } from './oAuthClient';
+import type { OAuthClient } from "./oAuthClient";
 
 export type AdminClientsListClients200 = {
   items: OAuthClient[];

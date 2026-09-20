@@ -4,7 +4,7 @@
  * (title)
  * OpenAPI spec version: 0.0.0
  */
-import type { SysMenuType } from './sysMenuType';
+import type { SysMenuType } from "./sysMenuType";
 
 export interface SysMenu {
   id: string;

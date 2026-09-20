@@ -6,5 +6,5 @@
  */
 
 export type MeGetMyMenusParams = {
-clientId?: string;
+  clientId?: string;
 };

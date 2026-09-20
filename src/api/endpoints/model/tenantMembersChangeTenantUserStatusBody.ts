@@ -4,7 +4,7 @@
  * (title)
  * OpenAPI spec version: 0.0.0
  */
-import type { TenantMemberStatus } from './tenantMemberStatus';
+import type { TenantMemberStatus } from "./tenantMemberStatus";
 
 export type TenantMembersChangeTenantUserStatusBody = {
   status: TenantMemberStatus;

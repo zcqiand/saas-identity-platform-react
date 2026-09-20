@@ -33,12 +33,7 @@ export function RoleMenuGrantPage() {
   const apps = appsQ.data?.data?.items ?? [];
   const groupsQ = useQuery({
     // app 寻址统一 code 形（clientId）：真后端按 client_id 列查，行 UUID 会 404
-    queryKey: [
-      "roleMenuGrantAllGroups",
-      tenantId,
-      roleId,
-      apps.map((a) => a.clientId).join(","),
-    ],
+    queryKey: ["roleMenuGrantAllGroups", tenantId, roleId, apps.map((a) => a.clientId).join(",")],
     queryFn: async () => {
       const items = apps;
       return Promise.all(
@@ -54,7 +49,8 @@ export function RoleMenuGrantPage() {
 
   const grantQ = useQuery({
     queryKey: ["tenantRoleMenusListSysRoleMenus", tenantId, roleId],
-    queryFn: async () => (await tenantRoleMenusListSysRoleMenus(tenantId!, roleId!, { clientId: "" })).data,
+    queryFn: async () =>
+      (await tenantRoleMenusListSysRoleMenus(tenantId!, roleId!, { clientId: "" })).data,
     enabled: !!tenantId && !!roleId,
   });
 
@@ -85,8 +81,7 @@ export function RoleMenuGrantPage() {
     setGranted(new Set());
   }
 
-  const groups: Array<{ appCode: string; appName: string; menus: SysMenu[] }> =
-    groupsQ.data ?? [];
+  const groups: Array<{ appCode: string; appName: string; menus: SysMenu[] }> = groupsQ.data ?? [];
 
   return (
     <div className="space-y-6">
@@ -118,49 +113,49 @@ export function RoleMenuGrantPage() {
         <PageLoading />
       ) : (
         <>
-      {groups.map((g) => (
-        <Card key={g.appCode}>
-          <CardHeader>
-            <CardTitle>
-              {g.appName}{" "}
-              <span className="ml-2 text-xs font-mono text-slate-500">({g.appCode})</span>
-              <span className="ml-2 text-xs font-mono text-slate-500">{g.menus.length} 项</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {g.menus.map((m) => {
-              const checked = granted.has(m.id);
-              return (
-                <label
-                  key={m.id}
-                  className="flex items-center gap-3 px-3 py-2 rounded hover:bg-slate-50 cursor-pointer"
-                  data-testid="menu-grant-row"
-                >
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={() => toggle(m.id)}
-                    className="h-4 w-4"
-                  />
-                  <span className="font-medium text-sm">{m.title}</span>
-                  <span className="font-mono text-xs text-slate-500">{m.path}</span>
-                </label>
-              );
-            })}
-          </CardContent>
-        </Card>
-      ))}
+          {groups.map((g) => (
+            <Card key={g.appCode}>
+              <CardHeader>
+                <CardTitle>
+                  {g.appName}{" "}
+                  <span className="ml-2 text-xs font-mono text-slate-500">({g.appCode})</span>
+                  <span className="ml-2 text-xs font-mono text-slate-500">{g.menus.length} 项</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {g.menus.map((m) => {
+                  const checked = granted.has(m.id);
+                  return (
+                    <label
+                      key={m.id}
+                      className="flex items-center gap-3 px-3 py-2 rounded hover:bg-slate-50 cursor-pointer"
+                      data-testid="menu-grant-row"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggle(m.id)}
+                        className="h-4 w-4"
+                      />
+                      <span className="font-medium text-sm">{m.title}</span>
+                      <span className="font-mono text-xs text-slate-500">{m.path}</span>
+                    </label>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          ))}
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm text-slate-600">当前授权摘要</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm">
-            共勾选 <span className="font-bold">{granted.size}</span> 项菜单
-          </p>
-        </CardContent>
-      </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm text-slate-600">当前授权摘要</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm">
+                共勾选 <span className="font-bold">{granted.size}</span> 项菜单
+              </p>
+            </CardContent>
+          </Card>
         </>
       )}
     </div>

@@ -108,7 +108,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
     saveSession(next);
   }, []);
 
-  const login = useCallback< TenantContextValue["login"]>(
+  const login = useCallback<TenantContextValue["login"]>(
     (payload) => {
       const next: PersistedSession = {
         currentTenantId: payload.currentTenantId,

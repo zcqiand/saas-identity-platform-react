@@ -4,7 +4,7 @@
  * (title)
  * OpenAPI spec version: 0.0.0
  */
-import type { SysRole } from './sysRole';
+import type { SysRole } from "./sysRole";
 
 export type TenantRolesListSysRoles200 = {
   items: SysRole[];

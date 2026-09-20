@@ -5,11 +5,11 @@
  * OpenAPI spec version: 0.0.0
  */
 
-export type TokenRequestGrantType = typeof TokenRequestGrantType[keyof typeof TokenRequestGrantType];
-
+export type TokenRequestGrantType =
+  (typeof TokenRequestGrantType)[keyof typeof TokenRequestGrantType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const TokenRequestGrantType = {
-  authorization_code: 'authorization_code',
-  refresh_token: 'refresh_token',
+  authorization_code: "authorization_code",
+  refresh_token: "refresh_token",
 } as const;

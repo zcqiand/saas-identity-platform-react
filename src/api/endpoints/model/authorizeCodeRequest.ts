@@ -4,7 +4,7 @@
  * (title)
  * OpenAPI spec version: 0.0.0
  */
-import type { AuthorizeCodeRequestResponseType } from './authorizeCodeRequestResponseType';
+import type { AuthorizeCodeRequestResponseType } from "./authorizeCodeRequestResponseType";
 
 export interface AuthorizeCodeRequest {
   clientId: string;

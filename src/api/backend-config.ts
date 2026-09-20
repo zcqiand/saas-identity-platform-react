@@ -44,9 +44,7 @@ export const BACKENDS = [
 ] as const;
 
 /** 切换器可见项：prod 构建剔除无 prodBaseUrl 的项（防旧 localStorage 残留让 find 落空）。 */
-export const SELECTABLE_BACKENDS = BACKENDS.filter(
-  (b) => !IS_PROD_BUILD || b.prodBaseUrl !== null,
-);
+export const SELECTABLE_BACKENDS = BACKENDS.filter((b) => !IS_PROD_BUILD || b.prodBaseUrl !== null);
 
 /** 按构建形态解析实际 base URL（prod 构建已确保 prodBaseUrl 非空才可见）。 */
 function resolveBaseUrl(b: (typeof BACKENDS)[number]): string {

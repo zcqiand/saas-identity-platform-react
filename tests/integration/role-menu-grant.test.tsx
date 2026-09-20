@@ -60,7 +60,8 @@ async function createTestRole(): Promise<string> {
     },
     { headers: authHeaders() },
   );
-  if (!res.data?.id) throw new Error(`造 TEST- 角色失败：POST ${ROLES_PATH} 无 id（${res.status}）`);
+  if (!res.data?.id)
+    throw new Error(`造 TEST- 角色失败：POST ${ROLES_PATH} 无 id（${res.status}）`);
   return res.data.id;
 }
 

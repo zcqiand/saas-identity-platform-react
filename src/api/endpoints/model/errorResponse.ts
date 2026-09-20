@@ -4,7 +4,7 @@
  * (title)
  * OpenAPI spec version: 0.0.0
  */
-import type { ErrorResponseDetails } from './errorResponseDetails';
+import type { ErrorResponseDetails } from "./errorResponseDetails";
 
 export interface ErrorResponse {
   code: string;

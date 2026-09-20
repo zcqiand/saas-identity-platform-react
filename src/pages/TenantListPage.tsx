@@ -10,14 +10,17 @@ import {
   adminTenantsListTenants,
   adminTenantsUpdateTenant,
 } from "@/api/endpoints/admin-tenants/admin-tenants";
-import type {
-  CreateTenantRequest,
-  Tenant,
-  UpdateTenantRequest,
-} from "@/api/endpoints/model";
+import type { CreateTenantRequest, Tenant, UpdateTenantRequest } from "@/api/endpoints/model";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { PageHeader } from "@/components/app/page-header";
 import { PageLoading } from "@/components/app/page-loading";
 import { StatusBadge } from "@/components/app/status-badge";
@@ -147,7 +150,10 @@ export function TenantListPage() {
                     >
                       <TableCell>
                         {isSelected && (
-                          <Check className="h-4 w-4 text-blue-600" data-testid="tenant-selected-mark" />
+                          <Check
+                            className="h-4 w-4 text-blue-600"
+                            data-testid="tenant-selected-mark"
+                          />
                         )}
                       </TableCell>
                       <TableCell className="font-mono text-xs">{t.tenantKey}</TableCell>

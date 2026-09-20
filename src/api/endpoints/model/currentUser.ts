@@ -4,7 +4,7 @@
  * (title)
  * OpenAPI spec version: 0.0.0
  */
-import type { TenantMembership } from './tenantMembership';
+import type { TenantMembership } from "./tenantMembership";
 
 export interface CurrentUser {
   id: string;

@@ -4,7 +4,7 @@
  * (title)
  * OpenAPI spec version: 0.0.0
  */
-import type { TenantApplication } from './tenantApplication';
+import type { TenantApplication } from "./tenantApplication";
 
 export type TenantApplicationsListTenantApplications200 = {
   items: TenantApplication[];

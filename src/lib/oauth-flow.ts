@@ -12,10 +12,7 @@
  * M01.F04.*（密码登录 / 失败锁定 / refresh）不在本仓——react 通过 OAuth 跳板登录（ADR-0013）。
  */
 
-import {
-  oAuthAuthorize,
-  oAuthToken,
-} from "@/api/endpoints/oauth/oauth";
+import { oAuthAuthorize, oAuthToken } from "@/api/endpoints/oauth/oauth";
 
 const STATE_KEY = "saas.react.oauth.state";
 const SESSION_KEY = "saas.react.session";

@@ -5,13 +5,12 @@
  * OpenAPI spec version: 0.0.0
  */
 
-export type TenantMemberStatus = typeof TenantMemberStatus[keyof typeof TenantMemberStatus];
-
+export type TenantMemberStatus = (typeof TenantMemberStatus)[keyof typeof TenantMemberStatus];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const TenantMemberStatus = {
-  active: 'active',
-  invited: 'invited',
-  suspended: 'suspended',
-  disabled: 'disabled',
+  active: "active",
+  invited: "invited",
+  suspended: "suspended",
+  disabled: "disabled",
 } as const;

@@ -203,8 +203,8 @@ export function LoginPage() {
           : apiErr.status === 401
             ? "用户名或密码错误"
             : apiErr.status === 0
-              // 显示实际请求目标（选择器可切，env 标签会误导）：未选择 = env 默认
-              ? `后端不可达（${getSelectedBackend() || `${apiMode}·env 默认`}）：${apiErr.message}`
+              ? // 显示实际请求目标（选择器可切，env 标签会误导）：未选择 = env 默认
+                `后端不可达（${getSelectedBackend() || `${apiMode}·env 默认`}）：${apiErr.message}`
               : apiErr.message;
       toast.error(msg);
     } finally {

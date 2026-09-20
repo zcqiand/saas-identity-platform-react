@@ -5,12 +5,11 @@
  * OpenAPI spec version: 0.0.0
  */
 
-export type SysUserStatus = typeof SysUserStatus[keyof typeof SysUserStatus];
-
+export type SysUserStatus = (typeof SysUserStatus)[keyof typeof SysUserStatus];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const SysUserStatus = {
-  active: 'active',
-  invited: 'invited',
-  disabled: 'disabled',
+  active: "active",
+  invited: "invited",
+  disabled: "disabled",
 } as const;

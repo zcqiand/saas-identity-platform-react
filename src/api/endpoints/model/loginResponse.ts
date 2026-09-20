@@ -4,8 +4,8 @@
  * (title)
  * OpenAPI spec version: 0.0.0
  */
-import type { SysUser } from './sysUser';
-import type { TenantMembership } from './tenantMembership';
+import type { SysUser } from "./sysUser";
+import type { TenantMembership } from "./tenantMembership";
 
 export interface LoginResponse {
   user: SysUser;

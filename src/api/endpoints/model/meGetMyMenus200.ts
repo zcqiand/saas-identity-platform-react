@@ -4,6 +4,6 @@
  * (title)
  * OpenAPI spec version: 0.0.0
  */
-import type { EffectiveMenuNode } from './effectiveMenuNode';
+import type { EffectiveMenuNode } from "./effectiveMenuNode";
 
-export type MeGetMyMenus200 = {[key: string]: EffectiveMenuNode[]};
+export type MeGetMyMenus200 = { [key: string]: EffectiveMenuNode[] };

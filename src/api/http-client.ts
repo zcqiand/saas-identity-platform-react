@@ -68,21 +68,21 @@ export function installHttpClient(getToken: () => string | null): void {
     }
     return config;
   });
-    // 401（token 过期/无效）→ 清本地会话并踢回登录页重新登录（用户裁定 2026-09-12）。
-    axios.interceptors.response.use(
-      (res) => res,
-      (err) => {
-        if (axios.isAxiosError(err) && err.response?.status === 401) {
-          const url = err.config?.url ?? "";
-          const isAuthFlow = /\/api\/v1\/(auth|oauth)\//.test(url);
-          const onLogin = window.location.pathname.startsWith("/login");
-          if (!isAuthFlow && !onLogin) {
-            handleUnauthorized();
-          }
+  // 401（token 过期/无效）→ 清本地会话并踢回登录页重新登录（用户裁定 2026-09-12）。
+  axios.interceptors.response.use(
+    (res) => res,
+    (err) => {
+      if (axios.isAxiosError(err) && err.response?.status === 401) {
+        const url = err.config?.url ?? "";
+        const isAuthFlow = /\/api\/v1\/(auth|oauth)\//.test(url);
+        const onLogin = window.location.pathname.startsWith("/login");
+        if (!isAuthFlow && !onLogin) {
+          handleUnauthorized();
         }
-        return Promise.reject(err);
-      },
-    );
+      }
+      return Promise.reject(err);
+    },
+  );
 }
 
 // 兼容老调用方：低阶 fetch 包装（仅用于不走 axios 的兜底场景）

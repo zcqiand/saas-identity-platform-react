@@ -4,10 +4,10 @@
  * (title)
  * OpenAPI spec version: 0.0.0
  */
-import type { TenantMemberStatus } from './tenantMemberStatus';
+import type { TenantMemberStatus } from "./tenantMemberStatus";
 
 export type TenantMembersListTenantUsersParams = {
-page?: number;
-pageSize?: number;
-status?: TenantMemberStatus;
+  page?: number;
+  pageSize?: number;
+  status?: TenantMemberStatus;
 };

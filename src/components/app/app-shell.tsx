@@ -6,11 +6,7 @@
 
 import { useLocation, Outlet, Link, useNavigate } from "react-router-dom";
 import { Suspense, useMemo } from "react";
-import {
-  LogOut,
-  ChevronRight,
-  Home,
-} from "lucide-react";
+import { LogOut, ChevronRight, Home } from "lucide-react";
 import type { ReactNode } from "react";
 import { SidebarNav } from "./sidebar-nav";
 import { buildNavItems } from "./nav-items";
@@ -87,16 +83,12 @@ export function AppShell() {
   const navigate = useNavigate();
   const { currentTenantId, logout } = useTenant();
   const { selectedTenant } = useSelection();
-  const tenantForNav = selectedTenant.id ?? currentTenantId ?? "00000000-0000-0000-0000-000000000001";
+  const tenantForNav =
+    selectedTenant.id ?? currentTenantId ?? "00000000-0000-0000-0000-000000000001";
   const crumbs = useBreadcrumbs(location.pathname, tenantForNav);
 
   // Sidebar links: substitute `:tenantId` placeholder with selectedTenantId.
-  const navItems = useMemo(
-    () => [
-      ...buildNavItems(tenantForNav),
-    ],
-    [tenantForNav],
-  );
+  const navItems = useMemo(() => [...buildNavItems(tenantForNav)], [tenantForNav]);
 
   async function onLogout() {
     await logout();
@@ -136,7 +128,9 @@ export function AppShell() {
                     <span className="flex items-center gap-1.5 text-slate-900 font-medium">
                       {c.icon}
                       {c.label}
-                      {c.hint && <span className="text-slate-400 font-mono text-xs">({c.hint})</span>}
+                      {c.hint && (
+                        <span className="text-slate-400 font-mono text-xs">({c.hint})</span>
+                      )}
                     </span>
                   ) : (
                     <Link
@@ -145,7 +139,9 @@ export function AppShell() {
                     >
                       {c.icon}
                       {c.label}
-                      {c.hint && <span className="text-slate-400 font-mono text-xs">({c.hint})</span>}
+                      {c.hint && (
+                        <span className="text-slate-400 font-mono text-xs">({c.hint})</span>
+                      )}
                     </Link>
                   )}
                 </div>

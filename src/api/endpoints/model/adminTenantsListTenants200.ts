@@ -4,7 +4,7 @@
  * (title)
  * OpenAPI spec version: 0.0.0
  */
-import type { Tenant } from './tenant';
+import type { Tenant } from "./tenant";
 
 export type AdminTenantsListTenants200 = {
   items: Tenant[];

@@ -4,7 +4,7 @@
  * (title)
  * OpenAPI spec version: 0.0.0
  */
-import type { TokenRequestGrantType } from './tokenRequestGrantType';
+import type { TokenRequestGrantType } from "./tokenRequestGrantType";
 
 export interface TokenRequest {
   grantType: TokenRequestGrantType;
