@@ -4,10 +4,8 @@
  * (title)
  * OpenAPI spec version: 0.0.0
  */
-import type { SysUserStatus } from "./sysUserStatus";
 
 export interface UpdateSysUserRequest {
   email?: string;
   mobile?: string;
-  status?: SysUserStatus;
 }
