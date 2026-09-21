@@ -8,7 +8,6 @@
 export type AuthorizeCodeRequestResponseType =
   (typeof AuthorizeCodeRequestResponseType)[keyof typeof AuthorizeCodeRequestResponseType];
 
- 
 export const AuthorizeCodeRequestResponseType = {
   code: "code",
 } as const;

@@ -8,7 +8,6 @@
 export type TokenRequestGrantType =
   (typeof TokenRequestGrantType)[keyof typeof TokenRequestGrantType];
 
- 
 export const TokenRequestGrantType = {
   authorization_code: "authorization_code",
   refresh_token: "refresh_token",

@@ -7,7 +7,6 @@
 
 export type SysUserStatus = (typeof SysUserStatus)[keyof typeof SysUserStatus];
 
- 
 export const SysUserStatus = {
   active: "active",
   invited: "invited",

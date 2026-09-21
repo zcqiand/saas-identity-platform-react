@@ -7,7 +7,6 @@
 
 export type TenantMemberStatus = (typeof TenantMemberStatus)[keyof typeof TenantMemberStatus];
 
- 
 export const TenantMemberStatus = {
   active: "active",
   invited: "invited",

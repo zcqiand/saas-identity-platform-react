@@ -7,7 +7,6 @@
 
 export type SysMenuType = (typeof SysMenuType)[keyof typeof SysMenuType];
 
- 
 export const SysMenuType = {
   directory: "directory",
   menu: "menu",
