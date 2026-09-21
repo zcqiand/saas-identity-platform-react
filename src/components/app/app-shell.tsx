@@ -18,6 +18,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { PageLoading } from "./page-loading";
 import { useQuery } from "@tanstack/react-query";
 import { adminTenantsListTenants } from "@/api/endpoints/admin-tenants/admin-tenants";
+import { useMeWhoami } from "@/api/endpoints/me/me";
 import { useTenant } from "@/state/tenant-context";
 import { useSelection } from "@/state/selection-context";
 
@@ -90,6 +91,11 @@ export function AppShell() {
     selectedTenant.id ?? currentTenantId ?? "00000000-0000-0000-0000-000000000001";
   const crumbs = useBreadcrumbs(location.pathname, tenantForNav);
 
+  // 顶栏 whoami 徽标（M01 用户管理接线）：失败静默降级（retry:false + 条件渲染，
+  // 不阻塞导航）；email 缺省降级 id，title 恒为 id。
+  const whoamiQ = useMeWhoami({ query: { retry: false } });
+  const whoami = whoamiQ.data?.data;
+
   // Sidebar links: substitute `:tenantId` placeholder with selectedTenantId.
   const navItems = useMemo(() => [...buildNavItems(tenantForNav)], [tenantForNav]);
 
@@ -152,6 +158,11 @@ export function AppShell() {
             })}
           </nav>
           <div className="flex items-center gap-3">
+            {whoami && (
+              <span data-testid="whoami-badge" className="text-sm text-slate-600" title={whoami.id}>
+                {whoami.email ?? whoami.id}
+              </span>
+            )}
             {currentTenantId && <TenantSwitcher />}
             {logoutButton}
           </div>

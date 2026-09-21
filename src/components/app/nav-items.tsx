@@ -4,7 +4,7 @@
 //   M04 应用管理（F01 应用维护 / F04 菜单管理）
 // 纯数据模块：不碰 router / store，测试直接断言层级结构（tests/integration/nav-modules）。
 // fnId = 权限点（一个子项 = 一个权限点），页面挂 data-fn 用，改动须同 commit 评审。
-// M01 用户管理（whoami/SSO 视图）无控制台路由，不进 nav；
+// M01 用户管理：whoami 已接线顶栏徽标（app-shell），无独立控制台路由，不进 nav；
 // M00.F04 角色权限挂角色下钻路由（/roles/:rid/menus），非 nav 直达页。
 import type { ReactNode } from "react";
 import { Building2, Users, Shield, Boxes, FolderTree } from "lucide-react";

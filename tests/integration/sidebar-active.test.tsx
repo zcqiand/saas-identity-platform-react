@@ -11,6 +11,12 @@ import { AppShell } from "../../src/components/app/app-shell";
 import { MenuTreePage } from "../../src/pages/MenuTreePage";
 import { installRealChain, SEED, menusByAppCode } from "../helpers/real-chain";
 
+// 真链路用（顶栏 whoami 徽标用例）：模块加载期捕获未打桩的 axios.get——
+// 本文件 beforeEach 会逐用例 vi.spyOn 且不恢复，vitest 对已 spy 的方法再 spy
+// 是叠层不是复用，事后单次 mockRestore 只剥一层（实测 2.1.9），restore 不净
+// 会让真链路用例仍在吃抛错桩。这里直接把真函数交给 mockImplementation 委托。
+const realAxiosGet = axios.get.bind(axios);
+
 // 页面/壳需要的只读端点全部本地打桩，数据来自 shared seeds：
 //   GET /api/v1/admin/tenants        → Page<Tenant>（面包屑 + 租户切换器字典）
 //   GET /api/v1/me/tenants           → TenantMember[]（租户切换器成员关系）
@@ -123,5 +129,21 @@ describe("面包屑 label map 防回潮", () => {
     expect(nav.textContent).toContain("平台管理");
     expect(nav.textContent).toContain("应用");
     expect(nav.textContent).toContain("菜单");
+  });
+});
+
+// 顶栏 whoami 徽标（真链路）：本文件其余用例走 axios spy 桩，徽标数据必须来自
+// 真 /api/v1/me（TEST_TOKEN 身份 = 种子 alice，带 email）——用例内撤桩恢复真
+// axios（setup.ts 拦截器 baseURL=:5101 + Bearer TEST_TOKEN 接桥在桩之下）。
+describe("顶栏 whoami 徽标", () => {
+  it("顶栏渲染 whoami 徽标（email，降级 id）", async () => {
+    // 撤桩 = 把 beforeEach 装的 spy 实现整体换成真 axios.get（走 setup.ts 拦截器
+    // baseURL=:5101 + Bearer TEST_TOKEN），不用 mockRestore——叠层 spy 剥不净（见上）。
+    vi.mocked(axios.get).mockImplementation(realAxiosGet as unknown as typeof axios.get);
+    renderApp("/admin/clients/lab-management/menus");
+
+    const badge = await screen.findByTestId("whoami-badge");
+    expect(badge.textContent).toContain("@"); // TEST_TOKEN 身份为种子用户（有 email）
+    expect(badge.getAttribute("title")).toBeTruthy(); // title=id
   });
 });
