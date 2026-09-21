@@ -195,7 +195,7 @@ saas-identity-platform-react/
 | 文件 | 角色 |
 |---|---|
 | `app-shell.tsx` | 顶栏（面包屑 + TenantSwitcher）+ 左侧 `SidebarNav` + `<Outlet>`；`useBreadcrumbs()` 拉租户列表建 `id→name` 映射 |
-| `sidebar-nav.tsx` | 分组导航（首页 / 身份管理 / 平台运营 / 应用与菜单）；`NavItem.fnId` 透传 `data-fn` 给 L5 alignment；`end={true}` 精确匹配避免 `/tenants` 把 `/tenants/{id}/users` 标 active |
+| `sidebar-nav.tsx` | 分组导航（首页 / 身份管理 / 平台运营 / 应用与菜单）；`NavItem.fnId` 透传 `data-fn` 给 L5 alignment；`end={true}` 精确匹配避免 `/tenants` 把 `/tenants/{id}/members` 标 active |
 | `backend-badge.tsx` | **v0.3.0 新增** — sidebar 底部无交互 backend 标签（替代已废弃的 `BackendSwitcher`）；显示 `getApiMode()` + `getApiBaseUrl()` 供诊断 |
 | `crud-dialog.tsx` | 通用 CRUD 弹窗；`fields: FieldDef[]` 驱动；支持 text / textarea / select / checkbox；`renderField` 插槽支持自定义控件 |
 | `confirm-dialog.tsx` | 删除/危险操作的二次确认 |

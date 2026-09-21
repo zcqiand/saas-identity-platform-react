@@ -29,9 +29,11 @@ interface Crumb {
 }
 
 const SUB_PATH_LABEL: Record<string, string> = {
-  users: "用户",
+  members: "用户",
   roles: "角色",
-  applications: "应用",
+  clients: "应用",
+  menus: "菜单",
+  admin: "平台管理",
 };
 
 // 面包屑租户名：getTenant（msw 包内嵌 fixtures）的 HTTP 替代（ADR-0012 运行时

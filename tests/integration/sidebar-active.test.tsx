@@ -55,6 +55,11 @@ function renderApp(path: string) {
             <Routes>
               <Route element={<AppShell />}>
                 <Route path="/admin/clients/:clientId/menus" element={<MenuTreePage />} />
+                {/* 面包屑断言用的最小桩页：只验证壳层 label map，不进页面逻辑 */}
+                <Route
+                  path="/tenants/:tenantId/members"
+                  element={<div data-testid="members-page-stub" />}
+                />
               </Route>
             </Routes>
           </MemoryRouter>
@@ -87,5 +92,25 @@ describe("sidebar 选中态唯一性回归", () => {
     const active = Array.from(items).filter((el) => el.className.includes("bg-slate-700"));
     expect(active.length).toBe(1);
     expect((active[0] as HTMLElement).getAttribute("data-fn")).toBe("M04.F04.I01");
+  });
+});
+
+// 面包屑 label map 防回潮（2026-09-21 终审 I-1/M-a）：路由段已从 users/applications
+// 改齐为 members/clients，SUB_PATH_LABEL 按段字面建键——键名漂移就会把裸段字面
+// （members/clients）直接渲染进面包屑。这里的断言锁住「段 → 中文 label」映射。
+describe("面包屑 label map 防回潮", () => {
+  it("/tenants/{tenantId}/members 面包屑含「用户」，不含裸 members 段", () => {
+    renderApp(`/tenants/${SEED.tenants[0].id}/members`);
+    const nav = screen.getByRole("navigation", { name: "breadcrumb" });
+    expect(nav.textContent).toContain("用户");
+    expect(nav.textContent).not.toContain("members");
+  });
+
+  it("/admin/clients/{clientId}/menus 面包屑翻齐 admin/clients/menus 三段", () => {
+    renderApp("/admin/clients/lab-management/menus");
+    const nav = screen.getByRole("navigation", { name: "breadcrumb" });
+    expect(nav.textContent).toContain("平台管理");
+    expect(nav.textContent).toContain("应用");
+    expect(nav.textContent).toContain("菜单");
   });
 });
