@@ -257,7 +257,7 @@ export function AppListPage() {
                         删除
                       </Button>
                       <Button variant="ghost" size="sm" asChild>
-                        <Link to={`/apps/${a.clientId}/menus`}>菜单</Link>
+                        <Link to={`/admin/clients/${a.clientId}/menus`}>菜单</Link>
                       </Button>
                     </TableCell>
                   </TableRow>

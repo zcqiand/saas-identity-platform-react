@@ -10,7 +10,7 @@ import { TenantProvider, SelectionProvider } from "../state-helpers";
 import { MenuTreePage } from "../../src/pages/MenuTreePage";
 import { installRealChain, SEED, menusByAppCode } from "../helpers/real-chain";
 
-function renderWithProviders(initialPath = "/apps/lab-management/menus") {
+function renderWithProviders(initialPath = "/admin/clients/lab-management/menus") {
   const qc = new QueryClient();
   return render(
     <QueryClientProvider client={qc}>
@@ -18,7 +18,7 @@ function renderWithProviders(initialPath = "/apps/lab-management/menus") {
         <SelectionProvider>
           <MemoryRouter initialEntries={[initialPath]}>
             <Routes>
-              <Route path="/apps/:appCode/menus" element={<MenuTreePage />} />
+              <Route path="/admin/clients/:clientId/menus" element={<MenuTreePage />} />
             </Routes>
           </MemoryRouter>
         </SelectionProvider>

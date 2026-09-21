@@ -44,9 +44,9 @@ describe("侧边栏层级：一级=功能模块，二级=功能", () => {
     expect(m("M00.F05.I01")).toMatchObject({ label: "租户应用", group: "租户管理" });
     expect(m("M04.F01.I01")).toMatchObject({ label: "应用维护", group: "应用管理" });
     expect(m("M04.F04.I01")).toMatchObject({ label: "菜单管理", group: "应用管理" });
-    // 本仓路由表：/apps（App.tsx）
-    expect(m("M04.F01.I01")?.to).toBe("/apps");
-    expect(m("M04.F04.I01")?.to).toBe("/apps/lab-management/menus");
+    // 本仓路由表：/admin/clients（App.tsx）
+    expect(m("M04.F01.I01")?.to).toBe("/admin/clients");
+    expect(m("M04.F04.I01")?.to).toBe("/admin/clients/lab-management/menus");
     // 租户作用域路由携带 tenantForNav（种子 acme id）
     expect(m("M00.F02.I01")?.to).toContain(SEED.tenants[0].id);
   });

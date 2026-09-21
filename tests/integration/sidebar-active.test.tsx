@@ -54,7 +54,7 @@ function renderApp(path: string) {
           <MemoryRouter initialEntries={[path]}>
             <Routes>
               <Route element={<AppShell />}>
-                <Route path="/apps/:appCode/menus" element={<MenuTreePage />} />
+                <Route path="/admin/clients/:clientId/menus" element={<MenuTreePage />} />
               </Route>
             </Routes>
           </MemoryRouter>
@@ -71,8 +71,8 @@ beforeEach(() => {
 });
 
 describe("sidebar 选中态唯一性回归", () => {
-  it("在 /apps/{code}/menus 高亮「菜单管理」，「应用管理」不高亮", () => {
-    renderApp("/apps/lab-management/menus");
+  it("在 /admin/clients/{clientId}/menus 高亮「菜单管理」，「应用管理」不高亮", () => {
+    renderApp("/admin/clients/lab-management/menus");
 
     const menuLink = screen.getByTestId("sidebar-nav-item-M04.F04.I01");
     const appLink = screen.getByTestId("sidebar-nav-item-M04.F01.I01");
@@ -82,7 +82,7 @@ describe("sidebar 选中态唯一性回归", () => {
   });
 
   it("整页只有一条 sidebar item 高亮 active 态", () => {
-    renderApp("/apps/lab-management/menus");
+    renderApp("/admin/clients/lab-management/menus");
     const items = document.querySelectorAll('[data-testid^="sidebar-nav-item-"]');
     const active = Array.from(items).filter((el) => el.className.includes("bg-slate-700"));
     expect(active.length).toBe(1);

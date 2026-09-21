@@ -44,7 +44,7 @@ export function TenantSwitcher() {
     try {
       const res = await meSwitchTenant(tenantId, { clientId: "" });
       setTenant(tenantId, null, res.data.accessToken);
-      navigate(`/tenants/${tenantId}/users`);
+      navigate(`/tenants/${tenantId}/members`);
     } catch (err) {
       const apiErr = toApiError(err);
       toast.error(

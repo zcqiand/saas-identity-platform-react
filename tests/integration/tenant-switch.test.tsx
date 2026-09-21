@@ -43,7 +43,7 @@ function renderSwitcher() {
         <MemoryRouter initialEntries={["/tenants"]}>
           <Routes>
             <Route path="/tenants" element={<TenantSwitcher />} />
-            <Route path="/tenants/:tenantId/users" element={<div data-testid="ws-page" />} />
+            <Route path="/tenants/:tenantId/members" element={<div data-testid="ws-page" />} />
           </Routes>
         </MemoryRouter>
       </TenantProvider>

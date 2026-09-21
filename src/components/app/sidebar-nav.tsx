@@ -70,7 +70,7 @@ export function SidebarNav({
                     to={item.to}
                     // 全部 end={true} 精确匹配：避免 `/tenants` 把
                     // `/tenants/{id}/users` 也标为 active；同理
-                    // `/apps` 与 `/apps/{code}/menus`。
+                    // `/admin/clients` 与 `/admin/clients/{clientId}/menus`。
                     end={true}
                     data-fn={item.fnId}
                     data-testid={`sidebar-nav-item-${item.fnId ?? item.to}`}

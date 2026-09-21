@@ -34,13 +34,13 @@ describe("路由守卫 RequireAuth", () => {
     });
   });
 
-  it("未登录访问 /tenants/acme/users → 同样重定向 /login", async () => {
+  it("未登录访问 /tenants/acme/members → 同样重定向 /login", async () => {
     const qc = new QueryClient();
     render(
       <QueryClientProvider client={qc}>
         <TenantProvider>
           <SelectionProvider>
-            <MemoryRouter initialEntries={["/tenants/acme/users"]}>
+            <MemoryRouter initialEntries={["/tenants/acme/members"]}>
               <App />
             </MemoryRouter>
           </SelectionProvider>

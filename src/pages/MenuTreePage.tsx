@@ -141,7 +141,7 @@ export function MenuTreePage() {
   const appCode = (a: OAuthClient) => a.clientId;
   const appName = (a: OAuthClient) => a.clientName;
   const allApps = appsQ.data?.data?.items ?? [];
-  // selection-context 按 code 持久化（路由 :appCode + DEFAULT_APP_ID="lab-management"），
+  // selection-context 按 code 持久化（路由 :clientId + DEFAULT_APP_ID="lab-management"），
   // fixture 中 id 是 UUID、code 是 "lab-management"/"erp"/"crm"。同时匹配 id/code 两路：
   // 真实场景 localStorage 存 code，UUID 路径留给极少数外部直接 set id 的迁移历史。
   const currentApp = useMemo(

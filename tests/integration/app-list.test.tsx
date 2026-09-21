@@ -17,9 +17,9 @@ function renderApp() {
   const qc = new QueryClient();
   return render(
     <QueryClientProvider client={qc}>
-      <MemoryRouter initialEntries={["/apps"]}>
+      <MemoryRouter initialEntries={["/admin/clients"]}>
         <Routes>
-          <Route path="/apps" element={<AppListPage />} />
+          <Route path="/admin/clients" element={<AppListPage />} />
         </Routes>
       </MemoryRouter>
     </QueryClientProvider>,

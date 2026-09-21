@@ -52,14 +52,14 @@ export function buildNavItems(tenantForNav: string): NavItem[] {
     },
     // M04 应用管理（模块）
     {
-      to: "/apps",
+      to: "/admin/clients",
       label: "应用维护",
       group: "应用管理",
       icon: <Boxes className="h-4 w-4" />,
       fnId: "M04.F01.I01",
     },
     {
-      to: "/apps/lab-management/menus",
+      to: "/admin/clients/lab-management/menus",
       label: "菜单管理",
       group: "应用管理",
       icon: <FolderTree className="h-4 w-4" />,

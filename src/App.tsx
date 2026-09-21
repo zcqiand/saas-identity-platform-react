@@ -33,12 +33,12 @@ export default function App() {
         }
       >
         <Route path="/tenants" element={<TenantListPage />} />
-        <Route path="/tenants/:tenantId/users" element={<UserListPage />} />
+        <Route path="/tenants/:tenantId/members" element={<UserListPage />} />
         <Route path="/tenants/:tenantId/roles" element={<RoleListPage />} />
         <Route path="/tenants/:tenantId/roles/:roleId/menus" element={<RoleMenuGrantPage />} />
         <Route path="/tenants/:tenantId/applications" element={<TenantApplicationsListPage />} />
-        <Route path="/apps" element={<AppListPage />} />
-        <Route path="/apps/:appCode/menus" element={<MenuTreePage />} />
+        <Route path="/admin/clients" element={<AppListPage />} />
+        <Route path="/admin/clients/:clientId/menus" element={<MenuTreePage />} />
         <Route path="*" element={<Navigate to="/tenants" replace />} />
       </Route>
     </Routes>

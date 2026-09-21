@@ -14,9 +14,9 @@ function renderUserList() {
   return render(
     <QueryClientProvider client={qc}>
       <TenantProvider>
-        <MemoryRouter initialEntries={[`/tenants/${SEED.tenants[0].id}/users`]}>
+        <MemoryRouter initialEntries={[`/tenants/${SEED.tenants[0].id}/members`]}>
           <Routes>
-            <Route path="/tenants/:tenantId/users" element={<UserListPage />} />
+            <Route path="/tenants/:tenantId/members" element={<UserListPage />} />
           </Routes>
         </MemoryRouter>
       </TenantProvider>
