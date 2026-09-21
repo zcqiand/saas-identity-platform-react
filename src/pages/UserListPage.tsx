@@ -223,9 +223,11 @@ export function UserListPage() {
   const roles = rolesQ.data ?? [];
   const detail = detailQ.data;
   const detailRoleText = detail
-    ? (detail.roleIds
-        .map((id) => roles.find((r) => r.id === id)?.roleCode)
-        .filter(Boolean) as string[]).join("、") || "—"
+    ? (
+        detail.roleIds
+          .map((id) => roles.find((r) => r.id === id)?.roleCode)
+          .filter(Boolean) as string[]
+      ).join("、") || "—"
     : "加载中…";
 
   return (
@@ -462,7 +464,9 @@ export function UserListPage() {
         onOpenChange={(o) => !o && setEditTarget(null)}
         title="编辑用户"
         fields={EDIT_FIELDS}
-        initialValues={editTarget ? { email: editTarget.email, mobile: editTarget.mobile ?? "" } : undefined}
+        initialValues={
+          editTarget ? { email: editTarget.email, mobile: editTarget.mobile ?? "" } : undefined
+        }
         loading={updateMut.isPending}
         onSubmit={async (values) => {
           if (!editTarget) return;

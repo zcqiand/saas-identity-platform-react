@@ -127,9 +127,9 @@ describe("成员管理页（tenant-scoped 用户列表）", () => {
     )!;
     fireEvent.click(within(bobRow).getByRole("button", { name: "停用" }));
     fireEvent.click(screen.getByRole("button", { name: "确认" }));
-    const refreshed = (
-      await screen.findAllByTestId("user-row")
-    ).find((r) => r.textContent?.includes("bob"))!;
+    const refreshed = (await screen.findAllByTestId("user-row")).find((r) =>
+      r.textContent?.includes("bob"),
+    )!;
     await within(refreshed).findByText(/暂停/);
   });
 });
