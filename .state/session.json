@@ -1,9 +1,9 @@
 {
   "schema": 2,
   "project": "saas-identity-platform-react",
-  "current_task": "2026-09-19 family-leftovers wave 收口（Task 6）：--all 三轮判读完成，本仓定向 full gate R2/R3 两轮 exit 0",
-  "last_session_at": "2026-09-19",
-  "last_session_summary": "无代码改动，纯验证收口：R2/R3 定向（DATABASE_URL=saas_test）L4 280s/253s + L5 全绿——Task 2.1 react 环境假红正式收口；--tier unit demo 绿（ADR-0037 tier 标识输出实测）",
+  "current_task": "5.73② 终审 B1 修复：prettier 归位（c446529）；批尾 unit gate r3 EXIT=0",
+  "last_session_at": "2026-09-21",
+  "last_session_summary": "r2 红系控制器误杀 gate 自拉 5101（自伤），5.87 纪律时序重排后净窗过",
   "done": [
     "盘点：34/51 已上线 + 14 开发中 + 3 规划，与 vue 完全对齐",
     "gate.py -p saas-identity-platform-react → 全绿（2026-09-10 21:10 gate --all 确认）",
