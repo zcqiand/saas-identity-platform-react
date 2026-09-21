@@ -23,6 +23,10 @@ if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
 
 console.log("[gen-shared] step 2/2 — react: orval → src/api/endpoints/...");
 execSync("npx orval", { cwd: root, stdio: "inherit" });
+// 5.86: orval 原始产物非 prettier 形态（L1 门按 prettier 收）——内建格式化令 regen 严格 byte-idempotent（5.23 spotless 先例）
+console.log("[gen-shared] step 2b — prettier --write src/api/endpoints");
+execSync('npx --no -- prettier --write "src/api/endpoints/**/*.ts"', { cwd: root, stdio: "inherit" });
+
 
 console.log("[gen-shared] OK");
 
