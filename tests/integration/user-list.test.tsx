@@ -90,7 +90,7 @@ describe("成员管理页（tenant-scoped 用户列表）", () => {
     expect(row).toBeTruthy();
   });
 
-  it("邀请成员：email 前缀用户名的已邀请行出现", async () => {
+  it("邀请成员：邀请后新行出现", async () => {
     mount();
     await screen.findAllByTestId("user-row");
     const email = `ivy-${Date.now()}@acme.io`;
