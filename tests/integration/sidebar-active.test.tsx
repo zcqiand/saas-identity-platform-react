@@ -60,6 +60,10 @@ function renderApp(path: string) {
                   path="/tenants/:tenantId/members"
                   element={<div data-testid="members-page-stub" />}
                 />
+                <Route
+                  path="/tenants/:tenantId/applications"
+                  element={<div data-testid="applications-page-stub" />}
+                />
               </Route>
             </Routes>
           </MemoryRouter>
@@ -104,6 +108,13 @@ describe("面包屑 label map 防回潮", () => {
     const nav = screen.getByRole("navigation", { name: "breadcrumb" });
     expect(nav.textContent).toContain("用户");
     expect(nav.textContent).not.toContain("members");
+  });
+
+  it("/tenants/{tenantId}/applications 面包屑含「应用」，不含裸 applications 段", () => {
+    renderApp(`/tenants/${SEED.tenants[0].id}/applications`);
+    const nav = screen.getByRole("navigation", { name: "breadcrumb" });
+    expect(nav.textContent).toContain("应用");
+    expect(nav.textContent).not.toContain("applications");
   });
 
   it("/admin/clients/{clientId}/menus 面包屑翻齐 admin/clients/menus 三段", () => {

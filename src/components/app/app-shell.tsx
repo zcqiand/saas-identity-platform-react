@@ -32,6 +32,7 @@ const SUB_PATH_LABEL: Record<string, string> = {
   members: "用户",
   roles: "角色",
   clients: "应用",
+  applications: "应用",
   menus: "菜单",
   admin: "平台管理",
 };
