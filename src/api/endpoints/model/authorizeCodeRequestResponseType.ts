@@ -8,7 +8,7 @@
 export type AuthorizeCodeRequestResponseType =
   (typeof AuthorizeCodeRequestResponseType)[keyof typeof AuthorizeCodeRequestResponseType];
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
+ 
 export const AuthorizeCodeRequestResponseType = {
   code: "code",
 } as const;
