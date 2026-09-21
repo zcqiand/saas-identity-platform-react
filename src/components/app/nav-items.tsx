@@ -37,7 +37,7 @@ export function buildNavItems(tenantForNav: string): NavItem[] {
       fnId: "M00.F05.I01",
     },
     {
-      to: `/tenants/${tenantForNav}/users`,
+      to: `/tenants/${tenantForNav}/members`,
       label: "租户成员",
       group: "租户管理",
       icon: <Users className="h-4 w-4" />,

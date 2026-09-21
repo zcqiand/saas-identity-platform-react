@@ -2,7 +2,7 @@
 //
 // Sidebar links with `:tenantId` placeholder are dynamically substituted with
 // `selectedTenantId` (from SelectionContext). This way clicking "租户成员" while
-// tenant = globex goes to `/tenants/globex/users`, not literal `/tenants/:tenantId/users`.
+// tenant = globex goes to `/tenants/globex/members`, not literal `/tenants/:tenantId/members`.
 
 import { useLocation, Outlet, Link, useNavigate } from "react-router-dom";
 import { Suspense, useMemo } from "react";
