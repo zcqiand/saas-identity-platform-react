@@ -8,6 +8,7 @@
 export type TokenRequestGrantType =
   (typeof TokenRequestGrantType)[keyof typeof TokenRequestGrantType];
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export const TokenRequestGrantType = {
   authorization_code: "authorization_code",
   refresh_token: "refresh_token",

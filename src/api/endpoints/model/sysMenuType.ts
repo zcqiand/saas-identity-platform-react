@@ -7,6 +7,7 @@
 
 export type SysMenuType = (typeof SysMenuType)[keyof typeof SysMenuType];
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export const SysMenuType = {
   directory: "directory",
   menu: "menu",

@@ -7,6 +7,7 @@
 
 export type TenantMemberStatus = (typeof TenantMemberStatus)[keyof typeof TenantMemberStatus];
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export const TenantMemberStatus = {
   active: "active",
   invited: "invited",
