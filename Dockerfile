@@ -16,19 +16,16 @@ WORKDIR /app
 # 硬约束:npm 依赖一律走 npmmirror (suite root CLAUDE.md §2)
 RUN npm config set registry https://registry.npmmirror.com
 
-# alpine 默认无 git / ca-certificates,装上以 clone sibling (file: 依赖 + gen:shared)
+# alpine 默认无 git / ca-certificates,装上以 clone sibling (gen:shared)
 RUN apk add --no-cache git ca-certificates
 
-# 拉 sibling 仓（file: 依赖 + gen:shared 需要 sibling 存在）
-RUN git clone --depth 1 https://github.com/zcqiand/saas-identity-platform-msw.git ../saas-identity-platform-msw \
- && git clone --depth 1 https://github.com/zcqiand/saas-identity-platform-shared.git ../saas-identity-platform-shared
+# 拉 sibling 仓（gen:shared 需要 shared 仓存在；msw 仓 2026-09-17 删除，clone 步骤随之移除）
+RUN git clone --depth 1 https://github.com/zcqiand/saas-identity-platform-shared.git ../saas-identity-platform-shared
 
 COPY package.json package-lock.json ./
-# 用 npm install 不是 npm ci:package.json 引用 file:../saas-identity-platform-msw
-# (file path 版本),旧 lockfile 锁了 0.1.0 → npm ci 严格不匹配。
-# npm install 按 package.json + sibling 实际版本安装,自动重写 lockfile。
-# --legacy-peer-deps 兼容某些宽松 peer 依赖。
-RUN npm install --legacy-peer-deps --no-audit --no-fund
+# npm ci（2026-09-22 msw 剔除收尾）：file:../saas-identity-platform-msw 依赖已剔除、
+# lockfile 重生成后无 file: 残留，与 CI 同链路严格安装。
+RUN npm ci --no-audit --no-fund
 
 COPY . .
 # VITE_* build-time 烘焙(2026-08-28 起 .env.production gitignored,Docker build

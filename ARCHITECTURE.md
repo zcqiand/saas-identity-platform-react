@@ -117,7 +117,7 @@ sequenceDiagram
   - **saas-identity-platform-nextjs**：单测真链路后端 + 默认 API 目标 + OAuth IdP（`:5101`）；`tests/global-setup.ts` 读取其 `.env.local` 键（仅 process.env 缺失时）。
   - **后端切换器**：aspnetcore `:5104` / springboot `:5105`；prod 域名 `saas-aspnetcore/saas-springboot.xiangru.uk`（`backend-config.ts` BACKENDS 表）。
   - token 互认：JWT 由家族统一签发（`saas.tenant` 里的 accessToken 对各后端通用）。
-- **演化注记（仓内文件存在新旧两代描述，以代码现状为准）**：CLAUDE.md 仍写「msw fixtures 直连、零 npm 依赖、默认 springboot :5105」，但 `package.json` 描述、`.env.example`、`backend-config.ts` 均已推进到「2026-09-17 msw 仓删除、默认 nextjs :5101、单测真链路」；`Dockerfile` 中 clone msw 仓的步骤属历史残留。当前生效路径以 `src/api/backend-config.ts` 为准。
+- **演化注记（2026-09-22 漂移修复 + msw 收尾后）**：CLAUDE.md 原写「msw fixtures 直连、默认 springboot :5105」，已同步至「2026-09-17 msw 仓删除、默认 nextjs :5101、单测真链路」；`Dockerfile` clone msw 残留步骤已于 2026-09-22 清理并切 `npm ci`（`.npmrc` install-links workaround 一并删除）。当前生效路径以 `src/api/backend-config.ts` 为准。
 - **外部依赖**：PostgreSQL（仅经后端间接依赖；测试链用 `saas_dev` 三库分层约定）；无直接第三方服务。
 
 ## 6. 配置与部署
