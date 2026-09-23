@@ -92,9 +92,17 @@ export function LoginPage() {
   // saas /api/v1/oauth/authorize 拿 code 跳回 RP。RFC 6749 §4.1.1: 资源所有者
   // 已 saas 登录 → authorize 端点用 session.UserId 签 code 绑 user/tenant
   // (saas-aspnetcore v0.3.20 已修:不再信 body.TenantId)。
+  //
+  // 2026-09-24 race fix: oauthReturn 在 Render 1 上是 null(useEffect 1 setState
+  // 还没应用),若 URL 同时带 ?code=&redirect_uri=,此 effect 跑一次同步 setTimeout
+  // → /authorize 异步返回 saas-code-<ts>-<rand>,再 window.location.href = ...
+  // 而 useEffect 2 在 Render 2 同步 window.location.href = auth-code-1,后写覆盖
+  // 先写取决于网络 RTT,测试断言 last-write code=auth-code-1 偶发挂。改用 URL
+  // 字面直接判 (避免依赖 useEffect 1 的 state 更新顺序)。
   useEffect(() => {
     if (oauthReturn) return; // 已有 code,走上面的回跳逻辑
     const sp = new URLSearchParams(window.location.search);
+    if (sp.get("code") && sp.get("redirect_uri")) return; // code 回跳 — useEffect 2 接管
     const redirectUri = sp.get("redirect_uri");
     const state = sp.get("state") ?? "";
     const clientId = sp.get("client_id") ?? "";
