@@ -209,14 +209,17 @@ describe("M01.F04.I03 账号密码登录", () => {
       () => {
         expect(screen.getByTestId("tenants-page")).toBeTruthy();
       },
-      { timeout: 30_000 },
+      // CI 冷机上 next dev 惰性编译 /api/v1/auth/login 实测可达 10s+，本测试在第 9
+      // 顺位，前置 mock-测已使 next dev 重新编译（见上面 test 7/8 mockRejectedValueOnce
+      // 重启路由——mock 卸载时 axios 拦截器复位会触发 server HMR），给 60s 兜底。
+      { timeout: 60_000 },
     );
     const stored = JSON.parse(localStorage.getItem("saas.tenant") ?? "{}");
     // 真 HS256 JWT（三段式），不是 mock 字面量
     expect(String(stored.accessToken)).toMatch(/^[\w-]+\.[\w-]+\.[\w-]+$/);
     // alice 的首个 active membership（tenant.created_at ASC）= 种子 acme
     expect(stored.currentTenantId).toBe(SEED.tenants[0].id);
-  }, 45_000);
+  }, 90_000);
 });
 
 // === M01.F04.I03 OAuth 2.0 授权码回跳（RFC 6749 §4.1.2）===
@@ -225,6 +228,10 @@ describe("M01.F04.I03 账号密码登录", () => {
 // 记录赋值次数：code 回跳在真实现里会发生两次（mount 回跳 + 登录成功后 onSubmit
 // 的 setTimeout(0) 二次回跳），两次都等齐才收测试，否则游离定时器会把赋值落到
 // 下一个测试的 Proxy 里（Phase 2 实测假红指纹）。
+//
+// 2026-09-24 fix：mount 回跳 + 二次回跳都需等齐。CI 冷机上次序敏感（登录响应未到时
+// useEffect 2 抢先 mount 回跳），放宽到 60s 与「登录成功 alice」对齐——同 next dev
+// 惰性编译兜底。
 function interceptLocationHref(): {
   assigned: () => string;
   count: () => number;
@@ -276,8 +283,9 @@ describe("M01.F04.I03 OAuth code 回跳", () => {
       await waitFor(() => expect(loc.count()).toBeGreaterThanOrEqual(1));
       await fillAndSubmit();
       // 登录成功（真凭证 alice）后 onSubmit 的 setTimeout(0) 二次回跳，URL 相同
+      // 同步放宽到 60s——同 next dev 冷编译兜底（双回跳需要等 mount + login 全链路）。
       await waitFor(() => expect(loc.count()).toBeGreaterThanOrEqual(2), {
-        timeout: 30_000,
+        timeout: 60_000,
       });
       const target = new URL(loc.assigned());
       expect(target.origin + target.pathname).toBe("https://lab-react.xiangru.uk/login");
@@ -289,7 +297,7 @@ describe("M01.F04.I03 OAuth code 回跳", () => {
       loc.restore();
       window.history.replaceState({}, "", "/login");
     }
-  }, 45_000);
+  }, 90_000);
 
   it("无 OAuth 参数真登录成功 -> 行为不变（跳 /tenants，不读 location.href）", async () => {
     const loc = interceptLocationHref();
@@ -300,13 +308,14 @@ describe("M01.F04.I03 OAuth code 回跳", () => {
         () => {
           expect(screen.getByTestId("tenants-page")).toBeTruthy();
         },
-        { timeout: 30_000 },
+        // 同步上面「登录成功 alice」放宽——同 next dev 冷编译兜底。
+        { timeout: 60_000 },
       );
       expect(loc.assigned()).toBe("");
     } finally {
       loc.restore();
     }
-  }, 45_000);
+  }, 90_000);
 });
 
 // 2026-09-12：登录页「当前后端模式」静态标签 → BackendBadge 切换器
