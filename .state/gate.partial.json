@@ -1,20 +1,22 @@
 {
   "schema": 1,
   "project": "saas-identity-platform-react",
+  "tier": "full",
+  "excluded_tier": [],
   "passed": true,
   "partial": true,
   "ran": [
-    "L0"
+    "L4"
   ],
-  "checked_at": "2026-09-11T10:19:00+0800",
+  "checked_at": "2026-09-23T08:01:16+0800",
   "gates": [
     {
-      "level": "L0",
-      "name": "结构完整性",
+      "level": "L4",
+      "name": "测试",
       "passed": true,
       "returncode": 0,
-      "duration_s": 0.094,
-      "output": ""
+      "duration_s": 148.062,
+      "output": "[INFO][gate-inject] DATABASE_URL <- L4_DB_INJECT_REPOS 表驱动通道（saas_test @ 100.79.128.25:5432，镜像 db-env.sh）\n[INFO][gate-inject] VITE_API_BASE_URL <- saas-identity-platform-react/.env.test（通用通道，调用方未设）\n[INFO][gate-inject] VITE_API_MODE <- saas-identity-platform-react/.env.test（通用通道，调用方未设）\n[INFO][gate-inject] VITE_DEV_PORT <- saas-identity-platform-react/.env.test（通用通道，调用方未设）\n[INFO][gate-inject] VITE_LOGIN_CLIENT_ID <- saas-identity-platform-react/.env.test（通用通道，调用方未设）\n\u001b[1m\u001b[7m\u001b[36m RUN \u001b[39m\u001b[27m\u001b[22m \u001b[36mv2.1.9 \u001b[39m\u001b[90mD:/qiand-life/1-projects/xr-code-suite/output/saas-identity-platform-react\u001b[39m\n\n[global-setup] 1/5 灌种子（shared/scripts/seed-db.mjs → 目标库）…\n[seed-db] 连接 postgresql://postgres:***@100.79.128.25:5432/saas_test ...\n[seed-db] 已连接。\n[seed-db] 读入 seeds：tenants=3 users=5 roles=4 memberships=6 apps=4 menus=41 role_menu_grants=3\n[seed-db] 已清空业务表（RESTART IDENTITY CASCADE）。\n[seed-db] tenant: 3\n[seed-db] oauth_client: 4\n[seed-db] sys_user: 5\n[seed-db] sys_role: 4\n[seed-db] tenant_member: 6, tenant_member_role: 6\n[seed-db] tenant_application: 3\n[seed-db] sys_menu: 41\n[seed-db] sys_role_menu: 70 (fixture 43 + 补齐 27)\n\n[seed-db] 验证（各表行数）：\n  tenant                     3\n  oauth_client               4\n  sys_user                   5\n  sys_role                   4\n  tenant_member              6\n  tenant_member_role         6\n  tenant_application         3\n  sys_menu                   41\n  sys_role_menu              70\n\n[seed-db] ✅ 灌库完成。\n[global-setup] 2/5 :5101 不健康，拉起 own nextjs dev 进程…\n[global-setup] 3/5 真 JWT 铸造完成（sub=alice, tenant_id=acme）\n[global-setup] 4/5 真服务验签探针通过（/me 200 + 无 Bearer 401）\n[global-setup] 5/5 库身份探针通过（服务与目标库同源）\n \u001b[32m✓\u001b[39m tests/integration/login.test.tsx \u001b[2m(\u001b[22m\u001b[2m14 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 6065\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m M01.F04.I03 账号密码登录\u001b[2m > \u001b[22m登录成功（真凭证 alice）-> tenant session 写 localStorage + 跳 /tenants \u001b[33m2329\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m M01.F04.I03 OAuth code 回跳\u001b[2m > \u001b[22m带 ?code=&redirect_uri=&state= 真登录成功 -> 302 redirect_uri?code&state（不跳 /tenants） \u001b[33m2075\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m M01.F04.I03 OAuth code 回跳\u001b[2m > \u001b[22m无 OAuth 参数真登录成功 -> 行为不变（跳 /tenants，不读 location.href） \u001b[33m1169\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m✓\u001b[39m tests/integration/role-menu-grant.test.tsx \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 23133\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m M09.F02 角色菜单授权\u001b[2m > \u001b[22m渲染多 app 分组菜单行，保存按钮挂 data-fn=M00.F04.I03 \u001b[33m9583\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m M09.F02 角色菜单授权\u001b[2m > \u001b[22m清空按钮挂 data-fn=M00.F04.I04 \u001b[33m2926\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m M09.F02 角色菜单授权\u001b[2m > \u001b[22m保存按钮初始显示预灌授权数「保存 (N)」（锚种子授权集规模） \u001b[33m3675\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m M09.F02 角色菜单授权\u001b[2m > \u001b[22m清空按钮把保存按钮数字归零 \u001b[33m3381\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m M09.F02 角色菜单授权\u001b[2m > \u001b[22m勾选未授权菜单后保存：真 PUT 落库（读回验证，TEST- 行承载） \u001b[33m3567\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m✓\u001b[39m tests/integration/oauth-client.test.ts \u001b[2m(\u001b[22m\u001b[2m14 tests\u001b[22m\u001b[2m | \u001b[22m\u001b[33m6 skipped\u001b[39m\u001b[2m)\u001b[22m\u001b[90m 6\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m✓\u001b[39m tests/integration/sidebar-active.test.tsx \u001b[2m(\u001b[22m\u001b[2m6 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 2018\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m 顶栏 whoami 徽标\u001b[2m > \u001b[22m顶栏渲染 whoami 徽标（email，降级 id） \u001b[33m1751\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m✓\u001b[39m tests/integration/user-list.test.tsx \u001b[2m(\u001b[22m\u001b[2m8 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 26862\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m 成员管理页（tenant-scoped 用户列表）\u001b[2m > \u001b[22m渲染种子成员行：alice / bob 在列 \u001b[33m3521\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m 成员管理页（tenant-scoped 用户列表）\u001b[2m > \u001b[22m状态过滤 invited：只剩种子里的已邀请成员行 \u001b[33m1546\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m 成员管理页（tenant-scoped 用户列表）\u001b[2m > \u001b[22m每页 2 条分页：翻到第 2 页页码指示更新 \u001b[33m1656\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m 成员管理页（tenant-scoped 用户列表）\u001b[2m > \u001b[22m行内详情弹层：展示邮箱与角色码完整信息 \u001b[33m2560\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m 成员管理页（tenant-scoped 用户列表）\u001b[2m > \u001b[22m创建成员并勾选 admin 角色：行内角色计数为 1 项 \u001b[33m6355\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m 成员管理页（tenant-scoped 用户列表）\u001b[2m > \u001b[22m邀请成员：邀请后新行出现 \u001b[33m4497\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m"
     }
   ]
 }
