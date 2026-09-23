@@ -43,6 +43,11 @@ jobs:
       JWT_SIGNING_KEY: ci-saas-jwt-secret-phase2-0123456789abcdef
       JWT_ISSUER: saas-identity-platform
       JWT_AUDIENCE: saas-identity-platform-clients
+      # JWT_TTL_SECONDS: ADR-0019(commit 6c79c46 2026-09-04) 起必填,nextjs
+      # src/lib/jwt.ts readTtlSeconds 缺即 throw → signToken 抛 → /api/v1/auth/login
+      # 返 500 → saas-react 真链路 L4 测试 9/10/11 (login→/tenants 跳 + OAuth code 回跳
+      # + 无 OAuth 参数) 全挂。tests 4/5 (仅断 spy 调用) 不需要响应故幸免。
+      JWT_TTL_SECONDS: "3600"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
