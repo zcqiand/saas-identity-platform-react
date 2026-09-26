@@ -2,7 +2,9 @@
 
 SaaS 身份平台的 React 前端 —— Vite + shadcn/ui，env 驱动单 URL（ADR-0014）。
 
-本仓为《（书稿信息待补）》案例（待补）的可运行配套工程，是书稿代码块的 **source of truth**。
+本仓为《React从入门到项目实践》（清华大学出版社）案例二「SaaS 多租户身份平台」（第 39-42 章）的可运行配套工程，是书稿代码块的 **source of truth**。
+
+书稿基线：tag `v0.3.44-20260925`（冻结，正文代码清单以此为准）。
 
 ## 快速开始
 
@@ -12,6 +14,8 @@ npm test           # 全量测试（无 Key / 无 Docker / 无网可跑）
 npm run dev        # 本地开发（Vite）
 npm run build      # 生产构建
 ```
+
+以上为前端本仓；完整跑通业务链路还需按各章说明启动配套后端与数据库（见第 39 章）。
 
 ## 功能特性
 
@@ -27,8 +31,7 @@ npm run build      # 生产构建
 | React Router DOM | ^7.0.0 |
 | @tanstack/react-query | ^5.62.0 |
 | orval（axios client） | ^7.5.0 |
-| MSW | ^2.7.0 |
-| zod / ajv | ^3.23.8 / ^8.20.0 |
+| ajv | ^8.20.0 |
 | TypeScript | 5.7 |
 | Vite | ^6.0.0 |
 | Vitest | ^2.1.0 |
@@ -40,7 +43,10 @@ npm run build      # 生产构建
 
 | 章 | 主题 | 对应源文件 |
 | :--- | :--- | :--- |
-| （待补） | | |
+| 39 | 案例二：SaaS 架构与多租户 | `src/pages/TenantListPage.tsx`、`src/components/tenant-switcher.tsx` |
+| 40 | 案例二：登录认证与 RBAC 菜单授权 | `src/pages/LoginPage.tsx`、`src/pages/RoleMenuGrantPage.tsx` |
+| 41 | 案例二：用户管理与应用集成 | `src/pages/UserListPage.tsx`、`src/pages/AppListPage.tsx` |
+| 42 | 全栈项目总结与部署 | — |
 
 ## 快速链接
 
