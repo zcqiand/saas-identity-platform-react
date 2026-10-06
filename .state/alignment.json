@@ -140,7 +140,7 @@
         "output\\saas-identity-platform-contract-test\\tests\\admin-tenants.test.ts:1024 (path)"
       ],
       "entry": [
-        "src\\pages\\TenantListPage.tsx"
+        "src/pages/TenantListPage.tsx"
       ]
     },
     "M00.F01.I03": {
@@ -162,7 +162,7 @@
       "designs": [],
       "tests": [],
       "entry": [
-        "src\\pages\\TenantListPage.tsx"
+        "src/pages/TenantListPage.tsx"
       ]
     },
     "M00.F01.I05": {
@@ -174,7 +174,7 @@
       "designs": [],
       "tests": [],
       "entry": [
-        "src\\pages\\TenantListPage.tsx"
+        "src/pages/TenantListPage.tsx"
       ]
     },
     "M00.F02.I01": {
@@ -191,7 +191,7 @@
         "output\\saas-identity-platform-contract-test\\tests\\tenant-members-write.test.ts:987 (path)"
       ],
       "entry": [
-        "src\\pages\\UserListPage.tsx"
+        "src/pages/UserListPage.tsx"
       ]
     },
     "M00.F02.I02": {
@@ -208,7 +208,7 @@
         "output\\saas-identity-platform-contract-test\\tests\\tenant-members-write.test.ts:987 (path)"
       ],
       "entry": [
-        "src\\pages\\UserListPage.tsx"
+        "src/pages/UserListPage.tsx"
       ]
     },
     "M00.F02.I03": {
@@ -222,8 +222,8 @@
         "output\\saas-identity-platform-contract-test\\tests\\tenant-members-read.test.ts:3771 (path)"
       ],
       "entry": [
-        "src\\components\\tenant-switcher.tsx",
-        "src\\pages\\UserListPage.tsx"
+        "src/components/tenant-switcher.tsx",
+        "src/pages/UserListPage.tsx"
       ]
     },
     "M00.F02.I04": {
@@ -237,7 +237,7 @@
         "output\\saas-identity-platform-contract-test\\tests\\tenant-members-read.test.ts:3771 (path)"
       ],
       "entry": [
-        "src\\pages\\UserListPage.tsx"
+        "src/pages/UserListPage.tsx"
       ]
     },
     "M00.F02.I05": {
@@ -251,7 +251,7 @@
         "output\\saas-identity-platform-contract-test\\tests\\tenant-members-read.test.ts:3771 (path)"
       ],
       "entry": [
-        "src\\pages\\UserListPage.tsx"
+        "src/pages/UserListPage.tsx"
       ]
     },
     "M00.F02.I06": {
@@ -263,7 +263,7 @@
       "designs": [],
       "tests": [],
       "entry": [
-        "src\\pages\\UserListPage.tsx"
+        "src/pages/UserListPage.tsx"
       ]
     },
     "M00.F02.I07": {
@@ -285,7 +285,7 @@
       "designs": [],
       "tests": [],
       "entry": [
-        "src\\pages\\UserListPage.tsx"
+        "src/pages/UserListPage.tsx"
       ]
     },
     "M00.F03.I01": {
@@ -313,7 +313,7 @@
         "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-write.test.ts:1089 (path)"
       ],
       "entry": [
-        "src\\pages\\RoleListPage.tsx"
+        "src/pages/RoleListPage.tsx"
       ]
     },
     "M00.F03.I03": {
@@ -339,7 +339,7 @@
         "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-read.test.ts:2610 (path)"
       ],
       "entry": [
-        "src\\pages\\RoleListPage.tsx"
+        "src/pages/RoleListPage.tsx"
       ]
     },
     "M00.F03.I05": {
@@ -353,7 +353,7 @@
         "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-read.test.ts:2610 (path)"
       ],
       "entry": [
-        "src\\pages\\RoleListPage.tsx"
+        "src/pages/RoleListPage.tsx"
       ]
     },
     "M00.F04.I01": {
@@ -379,7 +379,7 @@
         "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-write.test.ts:1193 (path)"
       ],
       "entry": [
-        "src\\pages\\RoleListPage.tsx"
+        "src/pages/RoleListPage.tsx"
       ]
     },
     "M00.F04.I03": {
@@ -395,7 +395,7 @@
         "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-write.test.ts:1193 (path)"
       ],
       "entry": [
-        "src\\pages\\RoleMenuGrantPage.tsx"
+        "src/pages/RoleMenuGrantPage.tsx"
       ]
     },
     "M00.F04.I04": {
@@ -411,7 +411,7 @@
         "output\\saas-identity-platform-contract-test\\tests\\tenant-roles-write.test.ts:1193 (path)"
       ],
       "entry": [
-        "src\\pages\\RoleMenuGrantPage.tsx"
+        "src/pages/RoleMenuGrantPage.tsx"
       ]
     },
     "M00.F05.I01": {
@@ -441,7 +441,7 @@
         "output\\saas-identity-platform-contract-test\\tests\\tenant-applications.test.ts:3163 (annot)"
       ],
       "entry": [
-        "src\\pages\\TenantApplicationsListPage.tsx"
+        "src/pages/TenantApplicationsListPage.tsx"
       ]
     },
     "M00.F05.I03": {
@@ -456,7 +456,7 @@
         "output\\saas-identity-platform-contract-test\\tests\\tenant-applications.test.ts:7746 (annot)"
       ],
       "entry": [
-        "src\\pages\\TenantApplicationsListPage.tsx"
+        "src/pages/TenantApplicationsListPage.tsx"
       ]
     },
     "M00.F05.I04": {
@@ -471,7 +471,7 @@
         "output\\saas-identity-platform-contract-test\\tests\\tenant-applications.test.ts:9931 (annot)"
       ],
       "entry": [
-        "src\\pages\\TenantApplicationsListPage.tsx"
+        "src/pages/TenantApplicationsListPage.tsx"
       ]
     },
     "M01.F01.I01": {
@@ -498,7 +498,7 @@
       "designs": [],
       "tests": [],
       "entry": [
-        "src\\pages\\UserListPage.tsx"
+        "src/pages/UserListPage.tsx"
       ]
     },
     "M01.F03.I01": {
@@ -513,7 +513,7 @@
         "output\\saas-identity-platform-contract-test\\tests\\me-tenants.test.ts:579 (path)"
       ],
       "entry": [
-        "src\\components\\tenant-switcher.tsx"
+        "src/components/tenant-switcher.tsx"
       ]
     },
     "M01.F03.I02": {
@@ -538,8 +538,8 @@
       "designs": [],
       "tests": [],
       "entry": [
-        "src\\pages\\LoginPage.tsx",
-        "src\\pages\\UserListPage.tsx"
+        "src/pages/LoginPage.tsx",
+        "src/pages/UserListPage.tsx"
       ]
     },
     "M01.F04.I06": {
@@ -553,7 +553,7 @@
         "output\\saas-identity-platform-contract-test\\tests\\auth.test.ts:3965 (path)"
       ],
       "entry": [
-        "src\\components\\app\\app-shell.tsx"
+        "src/components/app/app-shell.tsx"
       ]
     },
     "M01.F04.I07": {
@@ -595,7 +595,7 @@
         "output\\saas-identity-platform-contract-test\\tests\\tenant-applications.test.ts:7439 (path)"
       ],
       "entry": [
-        "src\\pages\\AppListPage.tsx"
+        "src/pages/AppListPage.tsx"
       ]
     },
     "M04.F01.I03": {
@@ -617,7 +617,7 @@
       "designs": [],
       "tests": [],
       "entry": [
-        "src\\pages\\AppListPage.tsx"
+        "src/pages/AppListPage.tsx"
       ]
     },
     "M04.F01.I05": {
@@ -629,7 +629,7 @@
       "designs": [],
       "tests": [],
       "entry": [
-        "src\\pages\\AppListPage.tsx"
+        "src/pages/AppListPage.tsx"
       ]
     },
     "M04.F01.I06": {
@@ -654,7 +654,7 @@
       "designs": [],
       "tests": [],
       "entry": [
-        "src\\pages\\AppListPage.tsx"
+        "src/pages/AppListPage.tsx"
       ]
     },
     "M04.F03.I01": {
@@ -725,7 +725,7 @@
         "output\\saas-identity-platform-contract-test\\tests\\client-menus-write.test.ts:1047 (path)"
       ],
       "entry": [
-        "src\\pages\\MenuTreePage.tsx"
+        "src/pages/MenuTreePage.tsx"
       ]
     },
     "M04.F04.I03": {
@@ -747,7 +747,7 @@
       "designs": [],
       "tests": [],
       "entry": [
-        "src\\pages\\MenuTreePage.tsx"
+        "src/pages/MenuTreePage.tsx"
       ]
     },
     "M04.F04.I05": {
@@ -759,7 +759,7 @@
       "designs": [],
       "tests": [],
       "entry": [
-        "src\\pages\\MenuTreePage.tsx"
+        "src/pages/MenuTreePage.tsx"
       ]
     },
     "M04.F04.I06": {
@@ -781,7 +781,7 @@
       "designs": [],
       "tests": [],
       "entry": [
-        "src\\pages\\MenuTreePage.tsx"
+        "src/pages/MenuTreePage.tsx"
       ]
     },
     "M04.F04.I08": {
@@ -796,7 +796,7 @@
         "output\\saas-identity-platform-contract-test\\tests\\me.test.ts:2609 (path)"
       ],
       "entry": [
-        "src\\components\\app\\sidebar-nav.tsx"
+        "src/components/app/sidebar-nav.tsx"
       ]
     }
   }
