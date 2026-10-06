@@ -174,6 +174,11 @@ export function LoginPage() {
         // 登录成功后调 saas /api/v1/oauth/authorize 拿 code 跳回 RP (不跳 /tenants)。
         // 镜像 useEffect 跳板分支,但触发点是 onSubmit 而非 hydrate。
         const sp = new URLSearchParams(window.location.search);
+        // 与 hydrate 跳板分支同款守卫（2026-09-24 race fix 镜像）：URL 已带 code
+        // 时只走上方 oauthReturn 分支回跳，禁止对同一 URL 二次领码——stale
+        // closure 时序下这里会再发 /authorize，迟到响应把回跳赋值漏出本页
+        // 生命周期（5.108⑤ 实测：跨测试 Proxy 捕获 saas-code 假红）。
+        if (sp.get("code")) return;
         const redirectUri = sp.get("redirect_uri");
         const state = sp.get("state") ?? "";
         const clientId = sp.get("client_id") ?? "";
