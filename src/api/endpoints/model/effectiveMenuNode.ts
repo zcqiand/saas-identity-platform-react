@@ -9,7 +9,8 @@ import type { SysMenuType } from "./sysMenuType";
 export interface EffectiveMenuNode {
   id: string;
   clientId: string;
-  parentId: string;
+  /** @nullable */
+  parentId: string | null;
   title: string;
   type: SysMenuType;
   path?: string;
