@@ -8,7 +8,9 @@ import type { TenantApplication } from "./tenantApplication";
 
 export type TenantApplicationsListTenantApplications200 = {
   items: TenantApplication[];
+  /** 页码，0 基（Spring Data Pageable）：首页 page=0。 */
   page: number;
+  /** 每页条数。 */
   pageSize: number;
   total: number;
 };
