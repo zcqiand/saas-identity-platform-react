@@ -2,7 +2,7 @@
 //
 // 提交：调 useSessionsLogin（orval hook；LoginRequest 契约 clientId required）；
 // 成功后写 tenant-context session；失败：toast.error（sonner，本页自挂 <Toaster/>）。
-// 演示账号：见页面底部（密码不再公开展示，需通过公众号 / 小红书获取）。
+// 演示账号：见页面底部（alice / dev123456，2026-11-03 改版直接展示）。
 //
 // clientId 门（B 方案 2026-09-11，对齐 vue 基准）：?client_id= ?? env VITE_LOGIN_CLIENT_ID
 // （值 = saas-console 自身应用）；两者皆缺 → toast 拒绝，不发请求。
@@ -265,36 +265,20 @@ export function LoginPage() {
           </form>
 
           <div className="mt-6 pt-4 border-t space-y-4">
-            {/* 获取密码说明：不再展示 demo 密码，引导关注公众号 / 小红书 */}
             <div className="rounded-md bg-amber-50 border border-amber-200 p-3 text-xs space-y-2">
-              <p className="font-medium text-amber-900">🔐 演示账号密码不公开</p>
-              <p className="text-amber-800 leading-relaxed">
-                如需体验，请通过下方任一方式获取最新演示密码：
-              </p>
+              <p className="font-medium text-amber-900">🔐 演示账号</p>
               <ul className="space-y-1 text-amber-800">
                 <li className="flex items-center gap-2">
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-500 text-white text-[10px] font-bold shrink-0">
-                    微
-                  </span>
-                  <span>
-                    关注微信公众号{" "}
-                    <code className="font-mono bg-white px-1.5 py-0.5 rounded border border-amber-200">
-                      南荣相如
-                    </code>
-                    ，回复「演示」
-                  </span>
+                  <span className="shrink-0">账号</span>
+                  <code className="font-mono bg-white px-1.5 py-0.5 rounded border border-amber-200">
+                    alice
+                  </code>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold shrink-0">
-                    书
-                  </span>
-                  <span>
-                    关注小红书{" "}
-                    <code className="font-mono bg-white px-1.5 py-0.5 rounded border border-amber-200">
-                      @南荣相如
-                    </code>
-                    ，查看置顶笔记
-                  </span>
+                  <span className="shrink-0">密码</span>
+                  <code className="font-mono bg-white px-1.5 py-0.5 rounded border border-amber-200">
+                    dev123456
+                  </code>
                 </li>
               </ul>
             </div>

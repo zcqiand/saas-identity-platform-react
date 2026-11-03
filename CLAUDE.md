@@ -23,7 +23,8 @@ dev server 端口：**5102**（2026-09-02 端口分段 §6；saas 段 X02）。
 - 禁止组件内直接 fetch（走 orval 具名函数）；禁止 `vi.mock('axios')`；禁止 axios 升 1.19
 - 禁止给按钮加图标（纯文字按钮；保留清单见迁移指南）
 - 禁止 `useState(emptySession)+useEffect(loadSession)`（Provider 必须 lazy initializer 同步 hydrate）
-- 禁止 demo 密码出现在 UI / 注释 / 测试断言
+- 登录页公开展示演示账号 alice/dev123456（2026-11-03 人裁改版：
+  原「禁止 demo 密码出现在 UI / 注释 / 测试断言」随公众号/小红书引流文案下线一并废止）
 - 单测走**真链路**（msw 剔除 Phase 2 终态）：jsdom 请求直连真 saas-nextjs :5101，
   `tests/global-setup.ts` 灌种子 + 起真后端 + 铸真 JWT，不许降级 mock；
   msw 仓已于 2026-09-17 删除——禁止回引 `@saas/identity-platform-msw` 包依赖、

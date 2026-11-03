@@ -107,12 +107,11 @@ describe("M01.F04.I03 账号密码登录", () => {
     expect(submitBtn).toHaveAttribute("data-fn", "M01.F04.I03");
   });
 
-  it("展示演示账号获取引导（账号列表已随密码下架删除，2026-09-01）", () => {
+  it("展示演示账号密码（2026-11-03 改版：直接展示，引流文案下线）", () => {
     renderLogin();
-    // LoginPage 删掉了 DEMO_ACCOUNTS 用户名列表（demo 账号不再公开），
-    // 保留「密码不公开 → 公众号引导」块 —— 断言跟随 UI 现状。
     expect(screen.getAllByText(/演示账号/).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/公众号/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("alice")).toBeTruthy();
+    expect(screen.getByText("dev123456")).toBeTruthy();
   });
 
   it("无 client_id（query 与 env 均缺）提交 -> toast 缺少 clientId 且不发请求", async () => {
